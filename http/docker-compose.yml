@@ -1,0 +1,70 @@
+# InvenioRDM MCP サーバを compose で動かす。
+#
+# 既定値の jc2.localhost は開発環境(JC2)の実例。**自分の InvenioRDM に置き換えること。**
+#
+# 既定は **PAT モード**（MCP_AUTH_MODE=invenio）。InvenioRDM の個人アクセストークンを
+# Bearer でそのまま受けるので、Keycloak も認可フローも要らず、これ1サービスで動く。
+# ロール(admin 等)から MCP scope を導くので、ツール単位の権限分離はそのまま効く。
+#
+#   起動:   cp .env.example .env && vi .env
+#           docker compose up -d --build
+#   PAT:    invenio tokens create -n mcp -u <email>   （アプリコンテナ内で）
+#           もしくは <InvenioRDM>/account/settings/applications/tokens/new/
+#   接続:   http://127.0.0.1:9100/mcp に Authorization: Bearer <PAT>
+#
+# Keycloak を使う本来の構成（MCP 2026-07-28 適合）に切り替えるときは
+# .env.mcp で MCP_AUTH_MODE=keycloak と KC_ISSUER / MCP_SERVER_SECRET を設定する。
+services:
+  mcp-server:
+    build:
+      context: .
+      # k8s/mcp-server.yaml が使うのと同じ Dockerfile（二重管理を避ける）
+      dockerfile: Dockerfile
+    image: jc2-mcp-server:local
+    container_name: jc2-mcp-server
+    restart: unless-stopped
+    environment:
+      MCP_BIND_HOST: "0.0.0.0"
+      MCP_BIND_PORT: "9100"
+      # クライアントが実際に叩く URL と**同一文字列**にすること。
+      # RFC 8707 の resource / RFC 9728 の resource / トークンの aud がこれで揃う。
+      MCP_RESOURCE: "${MCP_RESOURCE:-http://127.0.0.1:9100/mcp}"
+      MCP_AUTH_MODE: "${MCP_AUTH_MODE:-invenio}"
+      INVENIO_API: "${INVENIO_API:-https://jc2.localhost/api}"
+      INVENIO_UI: "${INVENIO_UI:-https://jc2.localhost}"
+      # PAT モードのロール→scope 対応（既定: admin なら mcp:curate も付く）
+      MCP_INVENIO_BASE_SCOPES: "${MCP_INVENIO_BASE_SCOPES:-mcp:read mcp:write}"
+      MCP_INVENIO_CURATE_ROLES: "${MCP_INVENIO_CURATE_ROLES:-admin}"
+      MCP_INVENIO_VERIFY_TTL: "${MCP_INVENIO_VERIFY_TTL:-60}"
+      # keycloak モードのときだけ効く
+      KC_ISSUER: "${KC_ISSUER:-}"
+      MCP_SERVER_SECRET: "${MCP_SERVER_SECRET:-}"
+      # 自己署名 CA をシステムの CA 束に**足した**合成ファイルを使う。
+      # CA 単体を指すと外部 HTTPS が壊れるので、下の command で連結している。
+      SSL_CERT_FILE: /tmp/ca-bundle.crt
+      REQUESTS_CA_BUNDLE: /tmp/ca-bundle.crt
+    volumes:
+      # InvenioRDM が自己署名なら、そのルート CA を CA_FILE で指す。
+      # 公的な証明書を使っているなら マウントごと消してよい。
+      - "${CA_FILE:-./ca.crt}:/etc/jc2-ca/ca.crt:ro"
+    command:
+      - bash
+      - -c
+      - |
+        cat /etc/ssl/certs/ca-certificates.crt > /tmp/ca-bundle.crt
+        [ -f /etc/jc2-ca/ca.crt ] && cat /etc/jc2-ca/ca.crt >> /tmp/ca-bundle.crt
+        exec python3 /app/mcp_server.py
+    ports:
+      - "127.0.0.1:9100:9100"
+    # InvenioRDM がホスト側（kind の ingress など）に居る場合、コンテナから
+    # 同じホスト名で引けるようにする。別ホストに居るなら消してよい。
+    extra_hosts:
+      - "jc2.localhost:host-gateway"
+      - "keycloak.jc2.localhost:host-gateway"
+      - "minio.jc2.localhost:host-gateway"
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:9100/.well-known/oauth-protected-resource/mcp'); sys.exit(0)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12

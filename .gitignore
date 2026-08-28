@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+
+# 資格情報。**絶対にコミットしない**
+.token
+.env
+.env.mcp
+*.key
+*.pem
+ca.crt

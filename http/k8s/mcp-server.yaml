@@ -1,0 +1,81 @@
+# MCP リソースサーバ（MCP 2026-07-28 authorization 準拠）。
+#
+# **これは JC2 開発環境の実例**。ホスト名(jc2.localhost 等)・namespace(jc2)・
+# ConfigMap/Secret 名は、そのまま他所では動かない。README の「前提」を参照して読み替える。
+# JC2_MCP_IMAGE はデプロイ時に実イメージ名へ置換する。
+#
+# canonical URI = https://mcp.jc2.localhost/mcp
+#   これが RFC 8707 の resource 値、RFC 9728 の resource、そしてトークンの aud になる。
+#   ホストからもクラスタ内からも同じ URL で到達できるので、文字列比較で厳格に検証できる。
+#
+# 受け取ったトークンは InvenioRDM に**転送しない**。RFC 8693 のトークン交換で
+# aud=invenio-api の別トークンに変換してから叩く（confused deputy 対策）。
+apiVersion: v1
+kind: Service
+metadata: {name: mcp-server, namespace: jc2}
+spec:
+  selector: {app: mcp-server}
+  ports: [{port: 9100, targetPort: 9100}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: mcp-server, namespace: jc2}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: mcp-server}}
+  template:
+    metadata: {labels: {app: mcp-server}}
+    spec:
+      nodeSelector: {nodeType: APP}
+      containers:
+        - name: mcp-server
+          image: JC2_MCP_IMAGE
+          env:
+            - {name: MCP_BIND_HOST, value: "0.0.0.0"}
+            - {name: MCP_BIND_PORT, value: "9100"}
+            - {name: MCP_RESOURCE, value: "https://mcp.jc2.localhost/mcp"}
+            - {name: KC_ISSUER, value: "https://keycloak.jc2.localhost/realms/mcp"}
+            - {name: INVENIO_API, value: "https://jc2.localhost/api"}
+            - {name: INVENIO_UI, value: "https://jc2.localhost"}
+            - {name: MCP_SERVER_SECRET, valueFrom: {secretKeyRef: {name: jc2-backend, key: MCP_SERVER_SECRET}}}
+            # CA 単体ではなく**システム CA 束に足した**合成ファイルを指す（外部 HTTPS を壊さない）
+            - {name: REQUESTS_CA_BUNDLE, value: "/tmp/jc2-ca-bundle.crt"}
+            - {name: SSL_CERT_FILE, value: "/tmp/jc2-ca-bundle.crt"}
+          command: ["bash", "-c"]
+          args: [". /etc/jc2-ca-bootstrap/bootstrap-ca.sh && exec python3 /app/mcp_server.py"]
+          ports: [{containerPort: 9100}]
+          volumeMounts:
+            - {name: ca, mountPath: /etc/jc2-ca}
+            - {name: ca-bootstrap, mountPath: /etc/jc2-ca-bootstrap}
+          readinessProbe:
+            httpGet: {path: /.well-known/oauth-protected-resource/mcp, port: 9100}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
+          resources: {requests: {memory: 256Mi, cpu: 100m}}
+      volumes:
+        - {name: ca, configMap: {name: jc2-ca}}
+        - {name: ca-bootstrap, configMap: {name: jc2-ca-bootstrap}}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-server
+  namespace: jc2
+  annotations:
+    cert-manager.io/cluster-issuer: jc2-ca-issuer
+    # MCP の Streamable HTTP は SSE も使うのでバッファリングを切る
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [mcp.jc2.localhost]
+      secretName: mcp-tls
+  rules:
+    - host: mcp.jc2.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: {service: {name: mcp-server, port: {number: 9100}}}
