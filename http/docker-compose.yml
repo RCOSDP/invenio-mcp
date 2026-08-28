@@ -1,6 +1,5 @@
 # InvenioRDM MCP サーバを compose で動かす。
-#
-# 既定値の jc2.localhost は開発環境(JC2)の実例。**自分の InvenioRDM に置き換えること。**
+
 #
 # 既定は **PAT モード**（MCP_AUTH_MODE=invenio）。InvenioRDM の個人アクセストークンを
 # Bearer でそのまま受けるので、Keycloak も認可フローも要らず、これ1サービスで動く。
@@ -20,8 +19,8 @@ services:
       context: .
       # k8s/mcp-server.yaml が使うのと同じ Dockerfile（二重管理を避ける）
       dockerfile: Dockerfile
-    image: jc2-mcp-server:local
-    container_name: jc2-mcp-server
+    image: invenio-mcp-server:local
+    container_name: invenio-mcp-server
     restart: unless-stopped
     environment:
       MCP_BIND_HOST: "0.0.0.0"
@@ -30,8 +29,8 @@ services:
       # RFC 8707 の resource / RFC 9728 の resource / トークンの aud がこれで揃う。
       MCP_RESOURCE: "${MCP_RESOURCE:-http://127.0.0.1:9100/mcp}"
       MCP_AUTH_MODE: "${MCP_AUTH_MODE:-invenio}"
-      INVENIO_API: "${INVENIO_API:-https://jc2.localhost/api}"
-      INVENIO_UI: "${INVENIO_UI:-https://jc2.localhost}"
+      INVENIO_API: "${INVENIO_API:-https://localhost/api}"
+      INVENIO_UI: "${INVENIO_UI:-https://localhost}"
       # PAT モードのロール→scope 対応（既定: admin なら mcp:curate も付く）
       MCP_INVENIO_BASE_SCOPES: "${MCP_INVENIO_BASE_SCOPES:-mcp:read mcp:write}"
       MCP_INVENIO_CURATE_ROLES: "${MCP_INVENIO_CURATE_ROLES:-admin}"
@@ -46,22 +45,22 @@ services:
     volumes:
       # InvenioRDM が自己署名なら、そのルート CA を CA_FILE で指す。
       # 公的な証明書を使っているなら マウントごと消してよい。
-      - "${CA_FILE:-./ca.crt}:/etc/jc2-ca/ca.crt:ro"
+      - "${CA_FILE:-./ca.crt}:/etc/ca/ca.crt:ro"
     command:
       - bash
       - -c
       - |
         cat /etc/ssl/certs/ca-certificates.crt > /tmp/ca-bundle.crt
-        [ -f /etc/jc2-ca/ca.crt ] && cat /etc/jc2-ca/ca.crt >> /tmp/ca-bundle.crt
+        [ -f /etc/ca/ca.crt ] && cat /etc/ca/ca.crt >> /tmp/ca-bundle.crt
         exec python3 /app/mcp_server.py
     ports:
       - "127.0.0.1:9100:9100"
-    # InvenioRDM がホスト側（kind の ingress など）に居る場合、コンテナから
-    # 同じホスト名で引けるようにする。別ホストに居るなら消してよい。
-    extra_hosts:
-      - "jc2.localhost:host-gateway"
-      - "keycloak.jc2.localhost:host-gateway"
-      - "minio.jc2.localhost:host-gateway"
+    # InvenioRDM がこのマシン上（kind の ingress、別の compose など）に居ると、
+    # コンテナから同じホスト名で引けない。その場合だけ次を有効にして、
+    # 実際に使っているホスト名を書く。別ホストに居るなら不要。
+    #extra_hosts:
+    #  - "invenio.example.org:host-gateway"
+    #  - "keycloak.example.org:host-gateway"
     healthcheck:
       test: ["CMD", "python3", "-c",
              "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:9100/.well-known/oauth-protected-resource/mcp'); sys.exit(0)"]

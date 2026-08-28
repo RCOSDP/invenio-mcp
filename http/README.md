@@ -61,24 +61,42 @@ This uses nothing but stock InvenioRDM roles — no extra vocabulary, no extensi
 ## Running in keycloak mode
 
 ```bash
-export KC_BASE=https://<keycloak>  MCP_RESOURCE=https://<mcp>/mcp
+export KC_BASE=https://<keycloak>
+export KC_ADMIN_PASSWORD=<Keycloak admin password>
+export MCP_SERVER_SECRET=<secret for the mcp-server client>
+export MCP_RESOURCE=https://<mcp>/mcp
 python3 keycloak/setup_mcp_realm.py          # build realm mcp
-kubectl apply -f k8s/mcp-server.yaml         # after substituting JC2_MCP_IMAGE
+kubectl apply -f k8s/mcp-server.yaml         # after substituting the template values
 ```
+
+`KC_ADMIN_PASSWORD` and `MCP_SERVER_SECRET` **have no defaults**: stopping immediately is
+better than silently running on a guessable value. Pass the same `MCP_SERVER_SECRET` to
+the server.
+
+The demo users (`researcher`, `rdmadmin`) are **not** created by default. Add
+`MCP_DEMO_USERS=yes` if you want them. **Their passwords are weak, so only do this in a
+throwaway realm.**
 
 > **`setup_mcp_realm.py` deletes and recreates the realm if one already exists.**
 > Recreating it changes Keycloak's `sub`, which breaks `UserIdentity` in InvenioRDM and
 > severs existing user links. To add something to a live realm, call `ensure_scope()` and
 > friends individually instead of going through `ensure_realm()`.
 
-`k8s/mcp-server.yaml` assumes the following, which belong to a larger deployment. Adapt
-them if you use it on its own.
+`k8s/mcp-server.yaml` is a **template**. Replace these with your own values.
 
-- ConfigMaps `jc2-ca` and `jc2-ca-bootstrap` (a bootstrap that **appends** the self-signed
-  CA to the system CA bundle rather than replacing it)
-- `MCP_SERVER_SECRET` in the Secret `jc2-backend`
-- cert-manager ClusterIssuer `jc2-ca-issuer` and ingress class `nginx`
-- `nodeSelector: nodeType=APP`
+| Template value | Replace with |
+| --- | --- |
+| `MCP_IMAGE` | the image you built |
+| `*.example.org` | your real hostnames (three of them) |
+| `namespace: invenio-mcp` | your namespace |
+| `ca-issuer` / `nginx` / `nodeType=APP` | your ClusterIssuer, ingress class and node selector |
+
+You also need to provide:
+
+- ConfigMaps `ca-bundle` and `ca-bootstrap` — a bootstrap that **appends** the self-signed
+  CA to the system CA bundle. Replacing the bundle outright breaks every other HTTPS call,
+  so it has to be an append.
+- `MCP_SERVER_SECRET` in the Secret `mcp-server-secret`
 
 ## Scopes and tools
 
@@ -156,5 +174,7 @@ token issued for a different audience.
 - `MCP_RESOURCE` must be **character-for-character the URL the client actually calls**.
   That is what makes `resource` (RFC 8707), `resource` (RFC 9728) and the token's `aud`
   line up.
-- Defaults such as `mcp-server-secret`, `researcher` and `Gakunin1!` are placeholders for
-  a proof of concept. **Replace them in any real deployment.**
+- No credential has a default. `MCP_SERVER_SECRET` and `KC_ADMIN_PASSWORD` stop the
+  program if they are unset.
+- Demo users are not created unless `MCP_DEMO_USERS=yes`. Their passwords are weak, so
+  keep that to a throwaway realm.

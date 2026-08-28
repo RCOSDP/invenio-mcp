@@ -21,7 +21,7 @@ Streamable HTTP ＋ OAuth 2.1 リソースサーバとして動く。
 環境変数:
   MCP_BIND_HOST / MCP_BIND_PORT   既定 127.0.0.1 / 9100
   MCP_RESOURCE                    既定 http://127.0.0.1:9100/mcp（canonical URI）
-  KC_ISSUER                       既定 http://gx10-b61b:18080/realms/mcp
+  KC_ISSUER                       既定 http://localhost:8080/realms/mcp
   MCP_SERVER_SECRET               既定 mcp-server-secret
   INVENIO_API                     既定 https://127.0.0.1/api
 """
@@ -49,11 +49,11 @@ MCP_PATH = "/mcp"
 # RFC 8707 の resource 値 ＝ RFC 9728 の resource ＝ トークンの aud
 RESOURCE = os.environ.get("MCP_RESOURCE", f"http://{BIND_HOST}:{BIND_PORT}{MCP_PATH}")
 
-KC_ISSUER = os.environ.get("KC_ISSUER", "http://gx10-b61b:18080/realms/mcp")
+KC_ISSUER = os.environ.get("KC_ISSUER", "http://localhost:8080/realms/mcp")
 KC_TOKEN_ENDPOINT = f"{KC_ISSUER}/protocol/openid-connect/token"
 KC_JWKS = f"{KC_ISSUER}/protocol/openid-connect/certs"
 MCP_CLIENT_ID = os.environ.get("MCP_SERVER_CLIENT_ID", "mcp-server")
-MCP_CLIENT_SECRET = os.environ.get("MCP_SERVER_SECRET", "mcp-server-secret")
+MCP_CLIENT_SECRET = os.environ.get("MCP_SERVER_SECRET")  # 既定値は置かない
 
 INVENIO_API = os.environ.get("INVENIO_API", "https://127.0.0.1/api").rstrip("/")
 INVENIO_UI = os.environ.get("INVENIO_UI", "https://127.0.0.1").rstrip("/")
@@ -593,6 +593,19 @@ class ScopeChallengeMiddleware:
 _exchange_cache: dict[str, tuple[str, float]] = {}
 
 
+def _client_secret() -> str:
+    """keycloak モードのトークン交換で使うクライアントシークレット。
+
+    **既定値は用意しない。** 設定し忘れに気づかないまま推測可能な値で
+    動いてしまうより、その場で止める方がよい。PAT モードでは呼ばれない。
+    """
+    if not MCP_CLIENT_SECRET:
+        raise RuntimeError(
+            "MCP_SERVER_SECRET が未設定です。keycloak モードでは、Keycloak の "
+            "mcp-server クライアントに設定したシークレットと同じ値が要ります。")
+    return MCP_CLIENT_SECRET
+
+
 async def _invenio_token() -> str | None:
     """受け取ったトークンを InvenioRDM 宛トークンに**交換**して返す。
 
@@ -620,7 +633,7 @@ async def _invenio_token() -> str | None:
             data={
                 "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
                 "client_id": MCP_CLIENT_ID,
-                "client_secret": MCP_CLIENT_SECRET,
+                "client_secret": _client_secret(),
                 "subject_token": at.token,
                 "subject_token_type": "urn:ietf:params:oauth:token-type:access_token",
                 "audience": INVENIO_AUDIENCE,

@@ -9,17 +9,17 @@
 #   bash curl-tour.sh                 # 全部
 #   bash curl-tour.sh anon            # 未認証の部分だけ
 #
-# 環境変数（既定は jc2-k8s-sample の k8s 環境）:
-#   CA        ルート CA        既定 ../jc2-k8s-sample/cert/jc2-ca.crt
-#   MCP       canonical URI    既定 https://mcp.jc2.localhost/mcp
-#   KC_BASE   Keycloak         既定 https://keycloak.jc2.localhost
+# 環境変数（既定値は雛形。自分の環境に合わせて渡すこと）:
+#   CA        ルート CA        既定 ./ca.crt（自己署名のとき）
+#   MCP       canonical URI    既定 https://mcp.example.org/mcp
+#   KC_BASE   Keycloak         既定 https://keycloak.example.org
 #   TOUR_USER / TOUR_PASS      既定 researcher / researcher
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CA="${CA:-$HERE/../jc2-k8s-sample/cert/jc2-ca.crt}"
-MCP="${MCP:-https://mcp.jc2.localhost/mcp}"
-KC_BASE="${KC_BASE:-https://keycloak.jc2.localhost}"
+CA="${CA:-$HERE/ca.crt}"
+MCP="${MCP:-https://mcp.example.org/mcp}"
+KC_BASE="${KC_BASE:-https://keycloak.example.org}"
 REALM="${KC_REALM:-mcp}"
 CLIENT_ID="${TOUR_CLIENT:-curl-tour}"
 REDIRECT="http://127.0.0.1:8765/callback"

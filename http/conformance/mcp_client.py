@@ -358,7 +358,7 @@ def main():
         check("mAP 由来の isMemberOf が載る", bool(c.get("isMemberOf")),
               str(c.get("isMemberOf")))
         # 機関 IdP の entityID は認可サーバの URL から決まるので、環境ごとに変わる
-        # （compose 版は http://gx10-b61b:18080、k8s 版は https://keycloak.jc2.localhost）。
+        # （認可サーバの実際のホスト名は環境により異なる）。
         # AS メタデータの issuer から導出して比較する。
         expected_entity = os.environ.get(
             "MCP_TEST_IDP_ENTITY_ID",

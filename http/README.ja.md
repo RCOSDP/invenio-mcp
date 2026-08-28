@@ -59,23 +59,40 @@ PAT には scope の概念が無いので、`GET /api/me` が返す **ロール*
 ## keycloak モードで動かす
 
 ```bash
-export KC_BASE=https://<keycloak>  MCP_RESOURCE=https://<mcp>/mcp
+export KC_BASE=https://<keycloak>
+export KC_ADMIN_PASSWORD=<Keycloak 管理者のパスワード>
+export MCP_SERVER_SECRET=<mcp-server クライアントのシークレット>
+export MCP_RESOURCE=https://<mcp>/mcp
 python3 keycloak/setup_mcp_realm.py          # realm mcp を構成
-kubectl apply -f k8s/mcp-server.yaml         # JC2_MCP_IMAGE を置換してから
+kubectl apply -f k8s/mcp-server.yaml         # 雛形の値を置換してから
 ```
+
+`KC_ADMIN_PASSWORD` と `MCP_SERVER_SECRET` に**既定値は無い**。設定し忘れたまま
+推測できる値で動いてしまうより、その場で止まる方がよいため。
+`MCP_SERVER_SECRET` はサーバ側にも同じ値を渡す。
+
+動作確認用のデモ利用者（`researcher` / `rdmadmin`）は既定では作らない。
+必要なら `MCP_DEMO_USERS=yes` を付ける。**パスワードが弱いので、使い捨ての realm でのみ。**
 
 > **`setup_mcp_realm.py` は realm が既存なら削除して作り直す。**
 > 作り直すと Keycloak の `sub` が変わり、InvenioRDM の `UserIdentity` が切れて
 > 既存ユーザの紐付けが壊れる。稼働中の realm に追加だけしたいときは、
 > `ensure_realm()` を呼ばずに `ensure_scope()` 等を個別に叩くこと。
 
-`k8s/mcp-server.yaml` は、より広いデプロイに属する次のものを前提にしている。
-単体で使うなら読み替えが要る。
+`k8s/mcp-server.yaml` は**雛形**で、次を自分の環境の値に置き換える。
 
-- ConfigMap `jc2-ca` / `jc2-ca-bootstrap`（自己署名 CA をシステム CA 束に**足す**ブートストラップ）
-- Secret `jc2-backend` の `MCP_SERVER_SECRET`
-- cert-manager の ClusterIssuer `jc2-ca-issuer`、Ingress クラス `nginx`
-- `nodeSelector: nodeType=APP`
+| 雛形の値 | 置き換える先 |
+| --- | --- |
+| `MCP_IMAGE` | ビルドしたイメージ |
+| `*.example.org` | 実際のホスト名（3か所） |
+| `namespace: invenio-mcp` | 実際の namespace |
+| `ca-issuer` / `nginx` / `nodeType=APP` | 自分のクラスタの ClusterIssuer・IngressClass・nodeSelector |
+
+あわせて次を用意しておく。
+
+- ConfigMap `ca-bundle` / `ca-bootstrap` — 自己署名 CA をシステム CA 束に**足す**
+  ブートストラップ。CA 単体で差し替えると外部 HTTPS が壊れるので、必ず追記にする
+- Secret `mcp-server-secret` の `MCP_SERVER_SECRET`
 
 ## scope とツールの対応
 
@@ -145,5 +162,7 @@ RFC 9207 の `iss` 検証、scope 不足の 403 → step-up 再認可、別 audi
   そのものなので構造的にそうなる。MCP 2026-07-28 適合が要るなら keycloak モードを使う
 - `MCP_RESOURCE` は**クライアントが実際に叩く URL と一字一句同じ**にすること。
   RFC 8707 の `resource`、RFC 9728 の `resource`、トークンの `aud` がこれで揃う
-- `mcp-server-secret` / `researcher` / `Gakunin1!` といった既定値は PoC 用の
-  プレースホルダ。**実環境では必ず差し替える**
+- 資格情報に既定値は置いていない。`MCP_SERVER_SECRET` と `KC_ADMIN_PASSWORD` は
+  未設定なら起動・実行時に止まる
+- デモ利用者は既定では作られない（`MCP_DEMO_USERS=yes` のときだけ）。
+  そのパスワードは弱いので、使い捨ての realm 以外では使わない

@@ -21,10 +21,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-KC = os.environ.get("KC_BASE", "http://gx10-b61b:18080").rstrip("/")
+KC = os.environ.get("KC_BASE", "http://localhost:8080").rstrip("/")
 REALM = os.environ.get("KC_REALM", "mcp")
 ADMIN_USER = os.environ.get("KC_ADMIN", "admin")
-ADMIN_PASS = os.environ.get("KC_ADMIN_PASSWORD", "admin")
+# 既定値は置かない。設定し忘れたまま admin/admin で通ってしまうのを避ける。
+ADMIN_PASS = os.environ.get("KC_ADMIN_PASSWORD")
 
 # MCP サーバの canonical URI（RFC 8707 の resource 値／トークンの aud）
 MCP_RESOURCE = os.environ.get("MCP_RESOURCE", "http://127.0.0.1:9100/mcp")
@@ -35,12 +36,18 @@ MCP_RESOURCE = os.environ.get("MCP_RESOURCE", "http://127.0.0.1:9100/mcp")
 MCP_AUTH_RESOURCE = os.environ.get(
     "MCP_AUTH_RESOURCE", MCP_RESOURCE.rsplit("/", 1)[0] + "/mcp-auth"
 )
-MCP_SERVER_SECRET = os.environ.get("MCP_SERVER_SECRET", "mcp-server-secret")
+# 既定値は置かない。mcp_server.py 側にも同じ値を渡すこと。
+MCP_SERVER_SECRET = os.environ.get("MCP_SERVER_SECRET")
+
+# 動作確認用のデモ利用者。既定では作らない。
+DEMO_USERS = os.environ.get("MCP_DEMO_USERS", "").lower() in ("1", "true", "yes")
+DEMO_PASSWORD = os.environ.get("MCP_DEMO_PASSWORD", "researcher")
+DEMO_ADMIN_PASSWORD = os.environ.get("MCP_DEMO_ADMIN_PASSWORD", "rdmadmin")
 INVENIO_CLIENT_ID = "invenio-api"
 
 # CIMD（Client ID Metadata Documents）で受け入れるドメイン。
 # client_id の host だけでなく redirect_uri の host も照合されるため localhost 系も要る。
-# k8s 版（jc2-k8s-sample）は CIMD_DOMAINS=cimd.jc2.localhost,127.0.0.1,localhost を渡す。
+# CIMD を使うなら CIMD_DOMAINS に配信ホストを渡す（例 cimd.example.org,127.0.0.1,localhost）。
 CIMD_DOMAINS = [d.strip() for d in os.environ.get(
     "CIMD_DOMAINS", "cimd.example,*.cimd.example,127.0.0.1,localhost").split(",") if d.strip()]
 
@@ -73,7 +80,17 @@ def _req(method, path, body=None, token=None, form=None):
         return e.code, detail, None
 
 
+def _require(name, value, hint):
+    if not value:
+        sys.exit(f"{name} が未設定です。{hint}")
+    return value
+
+
 def admin_token():
+    _require("KC_ADMIN_PASSWORD", ADMIN_PASS, "Keycloak 管理者のパスワードを指定してください。")
+    _require("MCP_SERVER_SECRET", MCP_SERVER_SECRET,
+             "mcp-server クライアントに設定するシークレットを指定してください"
+             "（mcp_server.py にも同じ値を渡します）。")
     st, body, _ = _req(
         "POST",
         "/realms/master/protocol/openid-connect/token",
@@ -483,8 +500,14 @@ def main():
     assign_default_scope(mcp_uuid, write_id)
     assign_default_scope(mcp_uuid, del_id)
 
-    ensure_user("researcher", "researcher@example.org", "researcher", "花子", "研究")
-    ensure_user("rdmadmin", "admin@test.com", "rdmadmin", "太郎", "管理")
+    # デモ利用者。**弱いパスワードなので、動作確認用の realm でのみ作る。**
+    # 既定では作らない。MCP_DEMO_USERS=yes で明示的に有効化する。
+    if DEMO_USERS:
+        print("!! デモ利用者を作成します（弱いパスワード）。本番の realm では使わないこと !!")
+        ensure_user("researcher", "researcher@example.org", DEMO_PASSWORD, "花子", "研究")
+        ensure_user("rdmadmin", "admin@test.com", DEMO_ADMIN_PASSWORD, "太郎", "管理")
+    else:
+        print("デモ利用者は作成しません（作るなら MCP_DEMO_USERS=yes）")
 
     open_anonymous_dcr()
     configure_client_policies()

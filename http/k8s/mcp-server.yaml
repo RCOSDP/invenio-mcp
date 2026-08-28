@@ -1,10 +1,14 @@
 # MCP リソースサーバ（MCP 2026-07-28 authorization 準拠）。
 #
-# **これは JC2 開発環境の実例**。ホスト名(jc2.localhost 等)・namespace(jc2)・
-# ConfigMap/Secret 名は、そのまま他所では動かない。README の「前提」を参照して読み替える。
-# JC2_MCP_IMAGE はデプロイ時に実イメージ名へ置換する。
+# **これは雛形**。次のものは自分の環境の値に置き換えること:
+#   MCP_IMAGE            … ビルドしたイメージ（Dockerfile はこの階層の1つ上）
+#   *.example.org        … 実際のホスト名（3か所すべて）
+#   namespace: invenio-mcp … 実際の namespace
+#   ClusterIssuer / IngressClass / nodeSelector … 自分のクラスタのもの
 #
-# canonical URI = https://mcp.jc2.localhost/mcp
+# 前提としている周辺リソースは README の「keycloak モードで動かす」を参照。
+#
+# canonical URI = https://mcp.example.org/mcp
 #   これが RFC 8707 の resource 値、RFC 9728 の resource、そしてトークンの aud になる。
 #   ホストからもクラスタ内からも同じ URL で到達できるので、文字列比較で厳格に検証できる。
 #
@@ -12,14 +16,14 @@
 # aud=invenio-api の別トークンに変換してから叩く（confused deputy 対策）。
 apiVersion: v1
 kind: Service
-metadata: {name: mcp-server, namespace: jc2}
+metadata: {name: mcp-server, namespace: invenio-mcp}
 spec:
   selector: {app: mcp-server}
   ports: [{port: 9100, targetPort: 9100}]
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: mcp-server, namespace: jc2}
+metadata: {name: mcp-server, namespace: invenio-mcp}
 spec:
   replicas: 1
   selector: {matchLabels: {app: mcp-server}}
@@ -29,24 +33,24 @@ spec:
       nodeSelector: {nodeType: APP}
       containers:
         - name: mcp-server
-          image: JC2_MCP_IMAGE
+          image: MCP_IMAGE
           env:
             - {name: MCP_BIND_HOST, value: "0.0.0.0"}
             - {name: MCP_BIND_PORT, value: "9100"}
-            - {name: MCP_RESOURCE, value: "https://mcp.jc2.localhost/mcp"}
-            - {name: KC_ISSUER, value: "https://keycloak.jc2.localhost/realms/mcp"}
-            - {name: INVENIO_API, value: "https://jc2.localhost/api"}
-            - {name: INVENIO_UI, value: "https://jc2.localhost"}
-            - {name: MCP_SERVER_SECRET, valueFrom: {secretKeyRef: {name: jc2-backend, key: MCP_SERVER_SECRET}}}
+            - {name: MCP_RESOURCE, value: "https://mcp.example.org/mcp"}
+            - {name: KC_ISSUER, value: "https://keycloak.example.org/realms/mcp"}
+            - {name: INVENIO_API, value: "https://invenio.example.org/api"}
+            - {name: INVENIO_UI, value: "https://invenio.example.org"}
+            - {name: MCP_SERVER_SECRET, valueFrom: {secretKeyRef: {name: mcp-server-secret, key: MCP_SERVER_SECRET}}}
             # CA 単体ではなく**システム CA 束に足した**合成ファイルを指す（外部 HTTPS を壊さない）
-            - {name: REQUESTS_CA_BUNDLE, value: "/tmp/jc2-ca-bundle.crt"}
-            - {name: SSL_CERT_FILE, value: "/tmp/jc2-ca-bundle.crt"}
+            - {name: REQUESTS_CA_BUNDLE, value: "/tmp/ca-bundle.crt"}
+            - {name: SSL_CERT_FILE, value: "/tmp/ca-bundle.crt"}
           command: ["bash", "-c"]
-          args: [". /etc/jc2-ca-bootstrap/bootstrap-ca.sh && exec python3 /app/mcp_server.py"]
+          args: [". /etc/ca-bootstrap/bootstrap-ca.sh && exec python3 /app/mcp_server.py"]
           ports: [{containerPort: 9100}]
           volumeMounts:
-            - {name: ca, mountPath: /etc/jc2-ca}
-            - {name: ca-bootstrap, mountPath: /etc/jc2-ca-bootstrap}
+            - {name: ca, mountPath: /etc/ca}
+            - {name: ca-bootstrap, mountPath: /etc/ca-bootstrap}
           readinessProbe:
             httpGet: {path: /.well-known/oauth-protected-resource/mcp, port: 9100}
             initialDelaySeconds: 5
@@ -54,26 +58,26 @@ spec:
             failureThreshold: 30
           resources: {requests: {memory: 256Mi, cpu: 100m}}
       volumes:
-        - {name: ca, configMap: {name: jc2-ca}}
-        - {name: ca-bootstrap, configMap: {name: jc2-ca-bootstrap}}
+        - {name: ca, configMap: {name: ca-bundle}}
+        - {name: ca-bootstrap, configMap: {name: ca-bootstrap}}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: mcp-server
-  namespace: jc2
+  namespace: invenio-mcp
   annotations:
-    cert-manager.io/cluster-issuer: jc2-ca-issuer
+    cert-manager.io/cluster-issuer: ca-issuer
     # MCP の Streamable HTTP は SSE も使うのでバッファリングを切る
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: [mcp.jc2.localhost]
+    - hosts: [mcp.example.org]
       secretName: mcp-tls
   rules:
-    - host: mcp.jc2.localhost
+    - host: mcp.example.org
       http:
         paths:
           - path: /

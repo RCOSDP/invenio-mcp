@@ -4,13 +4,13 @@
 stdio 型 MCP サーバ（公式 mcp SDK / FastMCP）。InvenioRDM REST API を Bearer トークンで叩く。
 依存は stdlib のみ（urllib/ssl/json）＋ mcp。追加インストール不要。
 
-対象は **InvenioRDM v14**（kind クラスタ `jc2`）。v12 系の compose 版 my-site は対象外。
+対象は **InvenioRDM v14**。
 
 環境変数:
-  INVENIO_API         既定 https://jc2.localhost/api（kind クラスタ jc2 の v14）
+  INVENIO_API         既定 https://localhost/api
   INVENIO_TOKEN       無ければ同ディレクトリの .token を読む
-  INVENIO_VERIFY_TLS  既定 true。JC2 は自己署名なので INVENIO_CA_BUNDLE が要る
-  INVENIO_CA_BUNDLE   ルート CA。既定 ../jc2-k8s-sample/cert/jc2-ca.crt（在れば読む）
+  INVENIO_VERIFY_TLS  既定 true。自己署名なら INVENIO_CA_BUNDLE が要る
+  INVENIO_CA_BUNDLE   ルート CA。既定は同ディレクトリの ca.crt（在れば読む）
 
 CLI: `python3 server.py --selftest` で REST 一連を実走して片付ける。
 """
@@ -27,11 +27,11 @@ from mcp.server.fastmcp import FastMCP
 
 # ---- 設定 ----
 _HERE = os.path.dirname(os.path.abspath(__file__))
-API = os.environ.get("INVENIO_API", "https://jc2.localhost/api").rstrip("/")
+API = os.environ.get("INVENIO_API", "https://localhost/api").rstrip("/")
 VERIFY = os.environ.get("INVENIO_VERIFY_TLS", "true").lower() in ("1", "true", "yes")
-# JC2 のルート CA。MCP サーバは Claude Code の子プロセスなので、ログインシェルの
+# 自己署名のルート CA。MCP サーバはクライアントの子プロセスなので、ログインシェルの
 # SSL_CERT_FILE が届かないことがある。既定の置き場を直接見にいく。
-_DEFAULT_CA = os.path.join(_HERE, os.pardir, "jc2-k8s-sample", "cert", "jc2-ca.crt")
+_DEFAULT_CA = os.path.join(_HERE, "ca.crt")
 CA_BUNDLE = os.environ.get("INVENIO_CA_BUNDLE") or (
     os.path.abspath(_DEFAULT_CA) if os.path.exists(_DEFAULT_CA) else None
 )
