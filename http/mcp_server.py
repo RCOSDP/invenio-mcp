@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """InvenioRDM MCP サーバ（MCP 2026-07-28 authorization 準拠のリソースサーバ版）。
 
-既存の invenio-mcp/server.py は stdio ＋ 共有 PAT 1本だったが、これは
+同梱の stdio/server.py は stdio ＋ 共有 PAT 1本だが、これは
 Streamable HTTP ＋ OAuth 2.1 リソースサーバとして動く。
 
   MCP クライアント ──Bearer(aud=<本サーバの canonical URI>)──▶ 本サーバ
