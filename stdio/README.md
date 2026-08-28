@@ -1,102 +1,128 @@
-# InvenioRDM MCP サーバ
+# stdio version — 12 tools, one token
 
-InvenioRDM のレコード（メタデータ）とファイルを **Claude から MCP 経由で CRUD** するための stdio 型 MCP サーバ。
-公式 `mcp` SDK(FastMCP) ＋ stdlib のみ（追加インストール不要）。InvenioRDM REST API を Bearer トークンで叩く。
-対象は InvenioRDM v14。12 ツールすべての疎通を確認済み。
+*[日本語版はこちら / Japanese version](README.ja.md)*
 
-## 構成
-- `server.py` — MCP サーバ本体（12 ツール）
-- `.token` — API トークン（600・**gitignore**、コミットしない）
-- 登録はクライアント側の MCP 設定（`.mcp.json` / `claude_desktop_config.json`）
+A stdio MCP server for doing CRUD on InvenioRDM records and files.
+Built on the official `mcp` SDK (FastMCP) plus the standard library only — nothing else
+to install. It calls the InvenioRDM REST API with a bearer token.
 
-## セットアップ
+Targets InvenioRDM v14. All 12 tools have been exercised against a live instance.
 
-### 1. API トークン発行（一度だけ）
+## Layout
+
+- `server.py` — the server itself (12 tools)
+- `.token` — the API token (mode 600, **gitignored**, never commit it)
+- Registration goes in the client's MCP config (`.mcp.json` / `claude_desktop_config.json`)
+
+## Setup
+
+### 1. Issue an API token (once)
+
 ```bash
-# <管理者のメールアドレス> = admin ロール（公開レコードのソフト削除・復元まで可）
-kubectl -n jc2 exec deploy/web-api -- \
-  invenio tokens create -n mcp-stdio -u <管理者のメールアドレス> 2>/dev/null | tail -1 \
-  | tr -d '\n' > $PWD/.token
-chmod 600 $PWD/.token
+# Run inside the InvenioRDM application container.
+# Use an account with the admin role if you want to withdraw and restore published records.
+invenio tokens create -n mcp-stdio -u <admin email> | tail -1 \
+  | tr -d '\n' > "$PWD/.token"
+chmod 600 "$PWD/.token"
 ```
-※ 作成/公開/下書き削除/ファイルのみで良いなら一般ユーザ（`researcher@example.org` 等）でも可。ただし**公開レコードの削除・復元は admin 必須**。
 
-### 2. ファイル保存の前提
-v14 の file location（S3/MinIO など）に `web-api` / `worker` から到達できていること。
+You can also issue one from the UI at
+`<InvenioRDM>/account/settings/applications/tokens/new/`.
 
-### 3. TLS（自己署名ルート CA）
-InvenioRDM が自己署名証明書のときは、**検証は既定でオンのまま**
-`INVENIO_CA_BUNDLE` でルート CA を渡す。
-MCP サーバは Claude Code の子プロセスで、ログインシェルの `SSL_CERT_FILE` が届かないことがあるため、
-環境変数に頼らずファイルを直接読む作りにしてある。
+A regular user is enough for creating, publishing, discarding drafts and handling files.
+**Withdrawing and restoring published records requires the admin role.**
 
-### 4. Claude Code への登録
-クライアントの MCP 設定に登録する。**設定を変えたらクライアントの再起動が要る**
-（起動済みプロセスは古い環境変数のまま動く。接続一覧の ✔ は「起動できた」しか見ていない）。
-ツールは `mcp__inveniordm__<name>` として利用可能。
+### 2. File storage
 
-## 環境変数
-| 変数 | 既定 | 説明 |
+`web-api` and `worker` must be able to reach the configured file location (S3/MinIO or similar).
+
+### 3. TLS with a self-signed root CA
+
+Leave verification **on** (the default) and pass the root CA through `INVENIO_CA_BUNDLE`.
+The server reads the file directly rather than relying on `SSL_CERT_FILE`, because it runs
+as a child process of the MCP client and the login shell's environment does not always
+reach it.
+
+### 4. Register with the client
+
+Add it to your client's MCP configuration. **Restart the client after changing the
+configuration** — an already running process keeps the old environment, and a green check
+in a connection list only means "it started", not "it works".
+
+Tools appear as `mcp__inveniordm__<name>`.
+
+## Environment variables
+
+| Variable | Default | Meaning |
 | --- | --- | --- |
-| `INVENIO_API` | `https://localhost/api` | REST API ベース |
-| `INVENIO_TOKEN` | （未設定なら `.token` を読む） | Bearer トークン |
-| `INVENIO_VERIFY_TLS` | `true` | TLS 検証。落とすときだけ `false` |
-| `INVENIO_CA_BUNDLE` | （自己署名なら必須） | 検証に使うルート CA |
+| `INVENIO_API` | `https://localhost/api` | REST API base |
+| `INVENIO_TOKEN` | (falls back to reading `.token`) | Bearer token |
+| `INVENIO_VERIFY_TLS` | `true` | TLS verification. Set `false` only to turn it off |
+| `INVENIO_CA_BUNDLE` | (required when self-signed) | Root CA used for verification |
 
-## ツール一覧（12）
+## Tools (12)
 
-**読取**
-- `search_records(query="", size=10)` — 公開レコード検索（要点のみ）
-- `get_record(recid, draft=False)` — 1件取得（draft=True で下書き）
+**Read**
+- `search_records(query="", size=10)` — search published records (summary fields)
+- `get_record(recid, draft=False)` — fetch one (`draft=True` for the draft)
 
-**メタデータ 登録/更新**
-- `create_record(metadata, access=None, files_enabled=False, publish=False)` — 新規作成
-- `update_record(recid, metadata, publish=True)` — 更新（公開済みは edit→更新→publish）
-- `publish_record(recid)` — 下書きを公開
-- `new_version(recid, metadata=None, publish=False)` — 新バージョン
+**Create and update**
+- `create_record(metadata, access=None, files_enabled=False, publish=False)`
+- `update_record(recid, metadata, publish=True)` — for published records this does edit → update → publish
+- `publish_record(recid)` — publish a draft
+- `new_version(recid, metadata=None, publish=False)`
 
-**削除**
-- `delete_draft(recid)` — 下書き破棄
-- `delete_record(recid, confirm=False, reason_id="out-of-scope", note=...)` — 公開レコードのソフト削除（tombstone/410・**admin必須**・`confirm=True` 必須・復元可）
-- `restore_record(recid)` — ソフト削除の復元（admin）
+**Delete**
+- `delete_draft(recid)` — discard a draft
+- `delete_record(recid, confirm=False, reason_id="out-of-scope", note=...)` — soft delete a
+  published record (tombstone, HTTP 410). **Requires admin**, requires `confirm=True`, restorable
+- `restore_record(recid)` — restore a soft-deleted record (admin)
 
-**ファイル**（対象レコードは `files_enabled=True`）
-- `add_file(recid, key, text=None, content_base64=None, source_path=None)` — 追加（init→content→commit）
-- `list_files(recid, draft=True)` — 一覧
-- `delete_file(recid, key)` — 削除
+**Files** (the record must have `files_enabled=True`)
+- `add_file(recid, key, text=None, content_base64=None, source_path=None)` — init → content → commit
+- `list_files(recid, draft=True)`
+- `delete_file(recid, key)`
 
-## 最小メタデータ（create_record の `metadata`）
+## Minimum metadata for `create_record`
+
 ```json
 {
   "resource_type": {"id": "dataset"},
-  "title": "タイトル（3文字以上）",
+  "title": "A title of at least 3 characters",
   "publication_date": "2026-07-09",
   "creators": [
-    {"person_or_org": {"type": "personal", "family_name": "山田", "given_name": "太郎"}}
+    {"person_or_org": {"type": "personal", "family_name": "Yamada", "given_name": "Taro"}}
   ]
 }
 ```
-`resource_type.id` は語彙（`dataset`, `publication-article` 等）。`publisher` 等は任意。
 
-## 使用例（自然言語→ツール）
-- 「dataset を1件作って公開して」→ `create_record(metadata=..., publish=True)`
-- 「recid xxxx にファイル report.txt を追加」→ 事前に `files_enabled=True` で作成 or 新draft、`add_file(xxxx, "report.txt", text=...)`
-- 「recid xxxx を削除」→ `delete_record(xxxx, confirm=True)`（ソフト削除・`restore_record` で復元可）
+`resource_type.id` comes from a vocabulary (`dataset`, `publication-article`, …).
+`publisher` and the rest are optional.
 
-## 動作確認
+## Self-test
+
 ```bash
-/usr/bin/python3 server.py --selftest   # create→update→add_file→publish→search→delete→restore を実走
+python3 server.py --selftest   # create → update → add_file → publish → search → delete → restore
 ```
-selftest はテストレコードを最後にソフト削除する（tombstone が残る点に留意）。
 
-## 大きなファイルを送るとき
-本サーバの `add_file` は InvenioRDM 経由の PUT（transfer `L`）1本で、**MCP の応答上限（base64 16MB）は
-`source_path` を使えば回避できる**が、送り先は常に web-api を通る。GB 級を扱うなら、本リポジトリの
-HTTP 版（`../http/`）の `start_multipart_upload` を使う。署名済み URL で
-クライアントから MinIO へ直接送るため、web-api を通らない。
-なお v14 では URL 取得（transfer `F`）が一般利用者から取り上げられている（`SystemProcess()` のみ）。
+The self-test soft-deletes its test record at the end, which leaves a tombstone behind.
 
-## 安全・留意
-- 書込は**デモインスタンス**（fake データ）に対して行う。破壊的操作（`delete_record`）は `confirm=True` 必須・ソフト削除で `restore_record` により復元可能。ハード purge は REST 非公開のため本サーバでも不可。
-- トークンは秘密情報。`.token`(600)・`.gitignore` 済み。`.mcp.json` に平文で置かない。
-- ロールバック: トークン削除は `invenio tokens delete ...`。
+## Sending large files
+
+`add_file` here is a single PUT through InvenioRDM (transfer type `L`). The MCP response
+limit on base64 (16 MB) can be sidestepped with `source_path`, but the bytes always travel
+through `web-api`. For gigabyte-scale files use `start_multipart_upload` in the
+[HTTP version](../http/README.md), which hands the client a presigned URL so the data goes
+straight to object storage.
+
+Note that in v14 fetching by URL (transfer type `F`) is restricted to `SystemProcess()`
+and is no longer available to ordinary users.
+
+## Safety notes
+
+- Write against a **demo instance** with disposable data.
+- `delete_record` requires `confirm=True` and is a soft delete, recoverable with
+  `restore_record`. A hard purge is not exposed over REST and is therefore not possible here either.
+- The token is a secret. Keep `.token` at mode 600, keep it gitignored, and do not put it
+  in plain text in `.mcp.json`.
+- To roll back, delete the token: `invenio tokens delete ...`

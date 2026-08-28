@@ -1,65 +1,71 @@
 # invenio-mcp
 
-InvenioRDM を **MCP（Model Context Protocol）経由で操作する**ためのサーバ。
-レコードの検索・登録・更新・公開、ファイルの添付、コミュニティへの投稿と査読、
-公開レコードの取り下げと復元までを、LLM クライアントからツールとして呼べる。
+*[日本語版はこちら / Japanese version](README.ja.md)*
 
-対象は **InvenioRDM v14**。2系統の実装が入っている。
+MCP (Model Context Protocol) servers for **operating InvenioRDM from an LLM client**.
+Search, create, update and publish records; attach files; submit to communities and
+run the review workflow; withdraw and restore published records — all exposed as tools.
+
+Targets **InvenioRDM v14**. Two implementations are included.
 
 | | `stdio/` | `http/` |
 | --- | --- | --- |
-| 転送 | stdio（クライアントの子プロセス） | Streamable HTTP |
-| ツール数 | 12 | 33 |
-| 認証 | 個人アクセストークン(PAT)1本 | OAuth 2.1 ／ PAT（切替可） |
-| 権限分離 | なし（トークンの権限がすべて） | ツール単位の scope |
-| 大容量ファイル | REST 経由のみ | 署名 URL で S3/MinIO へ直送 |
-| 依存 | stdlib ＋ `mcp` | ＋ `httpx` / `PyJWT` / `uvicorn` |
-| 想定 | 手元での試用・開発 | 複数利用者・運用 |
+| Transport | stdio (child process of the client) | Streamable HTTP |
+| Tools | 12 | 33 |
+| Authentication | one personal access token (PAT) | OAuth 2.1 **or** PAT (switchable) |
+| Privilege separation | none (whatever the token can do) | per-tool scopes |
+| Large files | through the REST API only | presigned URLs straight to S3/MinIO |
+| Dependencies | stdlib + `mcp` | + `httpx` / `PyJWT` / `uvicorn` |
+| Intended for | trying it out, local development | multiple users, real operation |
 
-**迷ったら `http/`。** `stdio/` は依存が軽く1ファイルで読み切れるので、
-まず動かして中身を把握したいときや、自分ひとりで使うときに向く。
+**Start with `http/` unless you have a reason not to.** `stdio/` is a single file with
+almost no dependencies, which makes it a good way to read the whole thing and to run it
+for yourself alone.
 
-## どちらも共通していること
+## What both share
 
-- InvenioRDM の **REST API を叩くだけ**で、InvenioRDM 側に拡張を入れる必要がない
-- 破壊的操作（公開レコードの取り下げ）は `confirm=True` を要求し、ソフト削除なので復元できる
-- 最終的な権限判定は **InvenioRDM に委ねる**。MCP 側の scope は「そもそも要求できるか」の分離
+- They only call the **InvenioRDM REST API**. Nothing has to be installed into InvenioRDM.
+- The destructive operation (withdrawing a published record) requires `confirm=True`,
+  and it is a soft delete, so it can be restored.
+- The final permission decision is left to **InvenioRDM**. The MCP scopes only separate
+  *what a client may ask for*.
 
-## ツール
+## Tools
 
-<!-- 33 ツール（http/）。stdio/ は ★ の 12 本 -->
+<!-- 33 tools in http/. The 12 marked ★ are the ones stdio/ also has. -->
 
-**読取** — `search_records`★ / `get_record`★ / `list_versions` / `list_revisions` /
-`my_records` / `export_record`（DataCite・JPCOAR 等12形式） / `list_vocabulary` /
+**Read** — `search_records`★ / `get_record`★ / `list_versions` / `list_revisions` /
+`my_records` / `export_record` (12 formats incl. DataCite) / `list_vocabulary` /
 `list_vocabulary_types` / `whoami`
 
-**レコード** — `create_record`★ / `update_record`★ / `publish_record`★ /
+**Records** — `create_record`★ / `update_record`★ / `publish_record`★ /
 `new_version`★ / `delete_draft`★
 
-**取り下げ・復元** — `delete_record`★ / `restore_record`★
+**Withdraw and restore** — `delete_record`★ / `restore_record`★
 
-**ファイル** — `upload_file`(`add_file`★) / `list_files`★ / `delete_file`★ /
+**Files** — `upload_file` (`add_file`★) / `list_files`★ / `delete_file`★ /
 `download_file` / `upload_file_from_url` /
 `start_multipart_upload` / `complete_multipart_upload` / `abort_multipart_upload`
 
-**コミュニティ** — `search_communities` / `get_community` /
+**Communities** — `search_communities` / `get_community` /
 `list_community_records` / `create_community`
 
-**査読・リクエスト** — `submit_to_community` / `list_requests` / `get_request` /
+**Reviews and requests** — `submit_to_community` / `list_requests` / `get_request` /
 `comment_on_request` / `request_action`
 
-語彙ツールがあるので、`resource_type.id` などの値を当てずっぽうで書く必要がない。
-メタデータを書く前に `list_vocabulary("resourcetypes")` で確かめられる。
+Because the vocabulary tools are there, an agent never has to guess at values such as
+`resource_type.id`. It can check with `list_vocabulary("resourcetypes")` before writing
+any metadata.
 
-## 使いはじめ
+## Getting started
 
 ```bash
-# HTTP 版（PAT モード。認可サーバ不要）
+# HTTP version, PAT mode — no authorization server needed
 cd http
-cp .env.example .env      # INVENIO_API を自分の InvenioRDM に向ける
+cp .env.example .env      # point INVENIO_API at your own InvenioRDM
 docker compose up -d --build
 
-# トークンを発行して繋ぐ
+# Issue a token and connect
 #   <InvenioRDM>/account/settings/applications/tokens/new/
 curl -X POST http://127.0.0.1:9100/mcp \
   -H 'Content-Type: application/json' \
@@ -68,8 +74,8 @@ curl -X POST http://127.0.0.1:9100/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-詳細は [`http/README.md`](http/README.md) と [`stdio/README.md`](stdio/README.md)。
+See [`http/README.md`](http/README.md) and [`stdio/README.md`](stdio/README.md) for details.
 
-## ライセンス
+## License
 
-MIT。[LICENSE](LICENSE) を参照。
+MIT. See [LICENSE](LICENSE).
