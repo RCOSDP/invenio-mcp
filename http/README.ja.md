@@ -25,7 +25,8 @@ MCP の [Authorization 仕様 2026-07-28](https://modelcontextprotocol.io/specif
 | `k8s/mcp-server.yaml` | Service ＋ Deployment ＋ Ingress（keycloak モード想定） |
 | `keycloak/setup_mcp_realm.py` | realm `mcp` を Admin REST API で構成 |
 | `keycloak/setup_gakunin_idp.py` | 学認（GakuNin）SAML ブローカを足す（任意） |
-| `conformance/mcp_client.py` | 仕様適合の headless E2E（PASS/FAIL 判定） |
+| `conformance/mcp_client.py` | 認可仕様の headless E2E（PASS/FAIL 判定） |
+| `conformance/verify-mcp-files.py` | ファイル系ツールの E2E（LOCAL / FETCH / MULTIPART の3経路・16点） |
 | `conformance/curl-tour.sh` | curl だけで認可フローを追う教材 |
 
 ## PAT モードで動かす
@@ -155,6 +156,17 @@ MCP_RESOURCE=https://<mcp>/mcp MCP_TEST_USER=... MCP_TEST_PASSWORD=... \
 未認証での 401、`resource_metadata` からの発見、PKCE(S256) ＋ `resource`(RFC 8707)、
 RFC 9207 の `iss` 検証、scope 不足の 403 → step-up 再認可、別 audience のトークン拒否
 までを実測して PASS/FAIL を出す。
+
+ファイルの授受は認可テストでは見えないので別立てにしてある。
+
+```bash
+MCP_RESOURCE=https://<mcp>/mcp INVENIO_UI=https://<invenio> \
+  python3 conformance/verify-mcp-files.py
+```
+
+3経路（`upload_file` の LOCAL、`upload_file_from_url` の FETCH、
+`start_multipart_upload` の MULTIPART）と `download_file` を実データで往復させ、
+複合 ETag と MD5 を手元の計算と突き合わせる。
 
 ## 注意
 

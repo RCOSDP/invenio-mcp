@@ -26,7 +26,8 @@ The authentication method is selected with `MCP_AUTH_MODE`.
 | `k8s/mcp-server.yaml` | Service + Deployment + Ingress (assumes keycloak mode) |
 | `keycloak/setup_mcp_realm.py` | builds realm `mcp` through the Admin REST API |
 | `keycloak/setup_gakunin_idp.py` | adds the GakuNin SAML broker (optional) |
-| `conformance/mcp_client.py` | headless end-to-end conformance check with PASS/FAIL |
+| `conformance/mcp_client.py` | headless end-to-end check of the authorization spec, with PASS/FAIL |
+| `conformance/verify-mcp-files.py` | end-to-end check of the file tools (LOCAL / FETCH / MULTIPART paths, 16 assertions) |
 | `conformance/curl-tour.sh` | walks the authorization flow with nothing but curl |
 
 ## Running in PAT mode
@@ -165,6 +166,17 @@ It measures and reports PASS/FAIL for: the 401 on an unauthenticated call, disco
 `resource_metadata`, PKCE (S256) with `resource` (RFC 8707), `iss` validation per RFC 9207,
 the 403 on insufficient scope followed by step-up re-authorization, and rejection of a
 token issued for a different audience.
+
+Moving file bytes around is invisible to the authorization test, so it has its own check.
+
+```bash
+MCP_RESOURCE=https://<mcp>/mcp INVENIO_UI=https://<invenio> \
+  python3 conformance/verify-mcp-files.py
+```
+
+It round-trips real data through all three transfer paths (LOCAL via `upload_file`, FETCH
+via `upload_file_from_url`, MULTIPART via `start_multipart_upload`) plus `download_file`,
+and checks the composite ETag and MD5 against locally computed values.
 
 ## Caveats
 
