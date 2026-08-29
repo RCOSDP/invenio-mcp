@@ -1,0 +1,22 @@
+# 第三者の著作物 / Third-party notices
+
+本ソフトウェア自体は MIT ライセンスで配布します（LICENSE を参照）。
+This software is distributed under the MIT License (see LICENSE).
+
+本リポジトリは第三者のコードを取り込んでいません。実行時に次のものを利用します。
+This repository vendors no third-party code. At run time it uses the following.
+
+  * mcp (Model Context Protocol Python SDK) — MIT License
+      https://github.com/modelcontextprotocol/python-sdk
+  * httpx — BSD 3-Clause License          (HTTP 版のみ / http server only)
+  * PyJWT — MIT License                   (HTTP 版のみ / http server only)
+  * uvicorn — BSD 3-Clause License        (HTTP 版のみ / http server only)
+
+stdio 版は標準ライブラリと mcp だけで動きます。
+The stdio server runs on the standard library plus mcp alone.
+
+対象とするリポジトリソフトウェア InvenioRDM (https://inveniordm.docs.cern.ch/) は
+MIT ライセンスで配布されている別のプロジェクトであり、本ソフトウェアはその
+REST API を呼ぶだけで、コードを取り込んでいません。
+InvenioRDM, the repository software these servers drive, is a separate project under
+the MIT License. These servers only call its REST API; none of its code is included.

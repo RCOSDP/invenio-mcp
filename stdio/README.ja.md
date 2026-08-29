@@ -8,6 +8,7 @@ InvenioRDM のレコード（メタデータ）とファイルを **Claude か�
 
 ## 構成
 - `server.py` — MCP サーバ本体（12 ツール）
+- `locales/en.json`・`locales/ja.json` — 言語リソース（ツールの説明・エラー）
 - `.token` — API トークン（600・**gitignore**、コミットしない）
 - 登録はクライアント側の MCP 設定（`.mcp.json` / `claude_desktop_config.json`）
 
@@ -45,6 +46,13 @@ MCP サーバは Claude Code の子プロセスで、ログインシェルの `S
 | `INVENIO_TOKEN` | （未設定なら `.token` を読む） | Bearer トークン |
 | `INVENIO_VERIFY_TLS` | `true` | TLS 検証。落とすときだけ `false` |
 | `INVENIO_CA_BUNDLE` | （自己署名なら必須） | 検証に使うルート CA |
+| `MCP_LANG` | （システムのロケール。決まらなければ `en`） | ツールの説明とエラーの言語。`en` / `ja`、または `locales/` に置いた `<tag>.json` |
+| `MCP_LOCALES_DIR` | `server.py` と同じ場所の `locales/` | 言語リソースの置き場 |
+
+`MCP_LANG` はシステム流儀の書き方（`ja_JP.UTF-8`・`ja-JP`）も受ける。選んだ言語に
+無いキーは英語に落ちるので、途中まで訳した状態でも動く。MCP のプロトコルには言語交渉が
+無いので言語はプロセス単位で固定される。**変えたらクライアントを再起動する**
+（他の環境変数と同じ）。
 
 ## ツール一覧（12）
 

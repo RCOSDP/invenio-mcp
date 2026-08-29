@@ -1,0 +1,77 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+    # ツール一覧はサーバの実装と locales/ から起こしている。**そこを直したのに
+    # 公開が追随しない**ことがないよう、生成の入力になるものを列挙しておく。
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "CHANGELOG.md"
+      - "CHANGELOG.ja.md"
+      - "LICENSE"
+      - "SECURITY.md"
+      - "http/mcp_server.py"
+      - "http/locales/**"
+      - "stdio/server.py"
+      - "stdio/locales/**"
+      - "tools/gen_tool_reference.py"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    # push と同じ一覧（Actions は YAML のアンカーを解決しないので書き下す）。
+    # PR ではビルドの検証だけ行い、公開はしない。
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "CHANGELOG.md"
+      - "CHANGELOG.ja.md"
+      - "LICENSE"
+      - "SECURITY.md"
+      - "http/mcp_server.py"
+      - "http/locales/**"
+      - "stdio/server.py"
+      - "stdio/locales/**"
+      - "tools/gen_tool_reference.py"
+      - ".github/workflows/docs.yml"
+  # 手で起動できるようにしておく（自動実行が止まったときに要る）
+  workflow_dispatch:
+
+# gh-pages ブランチへ push する。GitHub Pages は「Deploy from a branch」で
+# そのブランチを見ている（Actions のアーティファクトからではない）。
+permissions:
+  contents: write
+
+# 同じブランチへ2本が同時に push すると、後から来たほうが弾かれる。
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gh-deploy は gh-pages ブランチを取ってきて積み直す。浅いクローンだと
+          # push が拒まれることがあるので、履歴ごと取る。
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r docs/requirements.txt
+
+      # ツール一覧が実装とずれていないこと。ずれたまま公開するくらいなら落とす。
+      - run: python3 tools/gen_tool_reference.py --check
+
+      # --strict: リンク切れや解決できない参照を警告で済ませず、失敗にする
+      - name: build
+        run: mkdocs build --strict
+
+      # **gh-pages ブランチは生成物**。手で触らない。ここが唯一の書き手。
+      - name: deploy to gh-pages
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdocs gh-deploy --force --strict

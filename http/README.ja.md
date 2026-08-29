@@ -19,6 +19,7 @@ MCP の [Authorization 仕様 2026-07-28](https://modelcontextprotocol.io/specif
 | | |
 | --- | --- |
 | `mcp_server.py` | サーバ本体 |
+| `locales/en.json`・`locales/ja.json` | 言語リソース（ツールの説明・エラー・起動時の表示） |
 | `Dockerfile` | `python:3.12-slim` ベース。compose と k8s が共用 |
 | `docker-compose.yml` | 単体起動（既定は PAT モード） |
 | `.env.example` | 設定の雛形 |
@@ -56,6 +57,28 @@ PAT には scope の概念が無いので、`GET /api/me` が返す **ロール*
 | `MCP_INVENIO_VERIFY_TTL` | `60` | `/me` による検証結果を保持する秒数 |
 
 素の InvenioRDM のロールを使うだけなので、語彙の追加も拡張の導入も要らない。
+
+## 言語
+
+利用者と LLM が見るもの——33 本のツールの説明・エラー・起動時の表示——は
+`locales/<tag>.json` から読む。英語と日本語を同梱している。
+
+| 設定 | 既定 | 意味 |
+| --- | --- | --- |
+| `MCP_LANG` | （システムのロケール。決まらなければ `en`） | `en` / `ja`、または置いてある `<tag>.json` |
+| `MCP_LOCALES_DIR` | `mcp_server.py` と同じ場所の `locales/` | リソースの置き場 |
+
+`MCP_LANG` はシステム流儀の書き方（`ja_JP.UTF-8`・`ja-JP`）も受ける。`ja-jp.json` の
+ような地域付きの資源が在ればそちらを優先する。選んだ言語に無いキーは英語に落ちるので、
+途中まで訳した状態でも動く。
+
+MCP のプロトコルには言語交渉が無い（`initialize` にロケールの項目が無い）ため、
+**言語はプロセス単位で固定される**。2言語を同時に出すなら、`MCP_LANG` を変えた
+インスタンスを2つ立てる。
+
+1か所だけ意図して英語のままにしてある。`WWW-Authenticate` ヘッダの
+`error_description` で、RFC 6750 がここに ASCII の一部しか許していないため。
+翻訳した文は同じ 401 / 403 応答の JSON 本文の方に載る。
 
 ## keycloak モードで動かす
 
