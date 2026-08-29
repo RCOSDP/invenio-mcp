@@ -29,6 +29,8 @@ services:
       # RFC 8707 の resource / RFC 9728 の resource / トークンの aud がこれで揃う。
       MCP_RESOURCE: "${MCP_RESOURCE:-http://127.0.0.1:9100/mcp}"
       MCP_AUTH_MODE: "${MCP_AUTH_MODE:-invenio}"
+      # ツールの説明・エラーの言語。同梱は en / ja（http/locales/）
+      MCP_LANG: "${MCP_LANG:-en}"
       INVENIO_API: "${INVENIO_API:-https://localhost/api}"
       INVENIO_UI: "${INVENIO_UI:-https://localhost}"
       # PAT モードのロール→scope 対応（既定: admin なら mcp:curate も付く）

@@ -1,0 +1,302 @@
+{
+  "_meta": {
+    "language": "ja",
+    "name": "日本語",
+    "note": "利用者に見える文字列だけを置く。配列は改行で連結される。{name} は書式引数。"
+  },
+
+  "tools": {
+    "whoami": [
+      "このセッションの認証主体と、InvenioRDM 側で解決された身元を返す（mcp:read）。",
+      "",
+      "学認経由の場合は eppn / 所属（Issuer 由来）/ グループ（mAP 由来）が、",
+      "MCP サーバ宛トークンと InvenioRDM 宛の交換後トークンの**両方**に",
+      "載っていることを確認できる。",
+      "",
+      "`invenio.email_pending_setup` が true のときは、利用者がまだ",
+      "InvenioRDM 側でメールアドレスを設定していない（学認からは mail が",
+      "降りてこないため仮アドレスのまま）。通知メールが届かない状態なので、",
+      "`profile_settings_url` を案内して設定を促すこと。"
+    ],
+    "search_records": [
+      "公開レコードを検索する（**未認証でも可**）。",
+      "",
+      "トークンがあればその人として検索するので、自分の下書きなども対象になる。"
+    ],
+    "get_record": "レコードを1件取得する（**未認証でも可**）。draft=True で下書き（要認証）。",
+    "create_record": [
+      "レコードを作成する（mcp:write）。",
+      "",
+      "publish=True で公開まで行う。",
+      "files=True にするとファイルを添付できる下書きになる（`upload_file` で入れる）。",
+      "**ファイルを入れるなら publish は後回しにする**（公開後は新バージョンでしか足せない）。"
+    ],
+    "update_record": "レコードのメタデータを更新する（mcp:write）。公開済みは edit→更新→publish。",
+    "publish_record": "下書きを公開する（mcp:write）。",
+    "delete_draft": "下書きを破棄する（mcp:write）。",
+    "delete_record": [
+      "公開レコードをソフト削除（tombstone・HTTP 410）する（mcp:curate）。",
+      "",
+      "**破壊的操作なので confirm=True が無いと実行しない。** `restore_record` で復元できる。",
+      "reason_id は removalreasons 語彙の id（`list_vocabulary(\"removalreasons\")` で引ける。",
+      "既定は out-of-scope / copyright / disputed-authorship / duplicate / fraud /",
+      "misconduct / personal-data / retracted / spam / replaced / take-down-request /",
+      "test-record の12件）。note は tombstone に残る公開メモ。",
+      "InvenioRDM 側で admin 権限が無ければ 403 になる。"
+    ],
+    "restore_record": [
+      "ソフト削除された公開レコードを復元する（mcp:curate）。",
+      "",
+      "tombstone が外れて再び公開状態に戻る。InvenioRDM 側で admin 権限が無ければ 403。"
+    ],
+    "list_vocabulary_types": [
+      "このリポジトリが持つ語彙の種類を一覧する（未認証可）。",
+      "",
+      "返った id を `list_vocabulary` に渡すと中身が引ける。"
+    ],
+    "list_vocabulary": [
+      "語彙の項目を引く（未認証可）。",
+      "",
+      "vocab_type は `list_vocabulary_types` が返す id",
+      "（resourcetypes / licenses / languages / subjects / removalreasons /",
+      "creatorsroles / descriptiontypes / relationtypes / titletypes / datetypes など）。",
+      "**メタデータを書く前にここで正しい id を確かめること。**"
+    ],
+    "export_record": [
+      "公開レコードを別のメタデータ形式で出す（未認証可）。",
+      "",
+      "fmt は json / inveniordm / jsonld / datacite-json / datacite-xml /",
+      "dublincore / marcxml / dcat / csl / bibtex / citation / geojson。",
+      "**下書きには使えない**（公開レコードのみ）。"
+    ],
+    "list_versions": "レコードの全バージョンを一覧する（未認証可）。`new_version` で作った版もここに出る。",
+    "list_revisions": [
+      "レコードの版履歴（いつ何が変わったか）を一覧する（mcp:read）。",
+      "",
+      "バージョン（`list_versions`）とは別物で、こちらは**同じレコードの編集履歴**。",
+      "公開レコードでも認証が要る。"
+    ],
+    "my_records": [
+      "自分のレコードと下書きを一覧する（mcp:read）。",
+      "",
+      "公開済みだけでなく**未公開の下書きも含む**ので、「書きかけはどれ」を答えられる。"
+    ],
+    "search_communities": "コミュニティを検索する（未認証可）。",
+    "get_community": "コミュニティを1件取る（未認証可）。community は id(UUID) か slug。",
+    "list_community_records": "コミュニティに属する公開レコードを一覧する（未認証可）。",
+    "create_community": [
+      "コミュニティを作る（mcp:curate）。",
+      "",
+      "組織単位を作る操作なので write ではなく curate に置く。",
+      "slug はURLに出る識別子（英小文字・数字・ハイフン）。",
+      "community_type は communitytypes 語彙（organization / event / topic / project）。",
+      "review_policy=closed なら投稿は査読を経る、open なら直接公開できる。"
+    ],
+    "list_requests": [
+      "自分に見えるリクエストを一覧する（mcp:read）。",
+      "",
+      "status は submitted / expired / accepted / declined / cancelled。",
+      "**査読待ちは status=\"submitted\"**（\"open\" という状態は無い）。",
+      "未指定なら全件。`query` は Lucene 風の絞り込みも受ける（例 type:community-submission）。"
+    ],
+    "get_request": "リクエストを1件取る（mcp:read）。timeline=True でコメント等の経過も返す。",
+    "submit_to_community": [
+      "下書きをコミュニティに査読申請する（mcp:write）。",
+      "",
+      "2手順（査読先を設定 → 提出）をまとめて行う。対象は**未公開の下書き**。",
+      "受理されると公開される。受理・却下は `request_action`（mcp:curate）。"
+    ],
+    "comment_on_request": "リクエストにコメントする（mcp:write）。",
+    "request_action": [
+      "リクエストを受理・却下する（mcp:curate）。",
+      "",
+      "action は accept / decline / cancel / expire。",
+      "**accept は投稿を公開する**ので、キュレーターの判断として curate に置く。"
+    ],
+    "upload_file": [
+      "下書きにファイルを登録する（mcp:write）。",
+      "",
+      "recid          … 下書きの ID（`create_record` が返す id）",
+      "filename       … 登録するファイル名（キーになる）",
+      "content_base64 … 中身を base64 で。バイナリはこちら",
+      "content_text   … 中身を平文で。テキストならこちらが楽（UTF-8 で符号化する）",
+      "",
+      "overwrite      … 同名のファイルが既にあるとき置き換える（既定 True）。",
+      "                 False なら「既にある」と伝えて何もしない。",
+      "",
+      "**公開済みレコードには足せない**（InvenioRDM の仕様。新バージョンを作ること）。",
+      "下書きの files が無効なら自動で有効にする。"
+    ],
+    "list_files": [
+      "レコードのファイル一覧を返す（未認証でも公開レコードなら見られる）。",
+      "",
+      "draft=True で下書きのファイルを見る（本人の認証が要る）。"
+    ],
+    "delete_file": "下書きからファイルを削除する（mcp:write）。公開済みレコードからは消せない。",
+    "download_file": [
+      "ファイルの中身を取り出す（公開レコードなら未認証でも可）。",
+      "",
+      "InvenioRDM は S3 の **presigned URL へリダイレクト**して返す。その URL のホストは",
+      "クラスタ内部名（`minio:9000`）なので**クラスタ外からは辿れない**。そこで MCP サーバが",
+      "代わりに取得し、中身を base64 で返す。UTF-8 として読めるものは `text` にも入れる。",
+      "",
+      "draft=True で下書きのファイルを取る（本人の認証が要る）。"
+    ],
+    "new_version": [
+      "公開済みレコードの**新しいバージョンの下書き**を作る（mcp:write）。",
+      "",
+      "InvenioRDM は公開済みレコードを書き換えられない。ファイルを足す・差し替えるには",
+      "新バージョンを作ってそこで作業し、改めて公開する。",
+      "",
+      "recid        … 元の（公開済み）レコード ID",
+      "import_files … True なら**前バージョンのファイルを引き継ぐ**",
+      "               （InvenioRDM の files-import。既定 True）。",
+      "               False だとファイル無しの下書きから始まる。",
+      "publication_date … 新バージョンの公開日（`YYYY-MM-DD`）。",
+      "               **InvenioRDM は新バージョン下書きに公開日を引き継がない**ので、",
+      "               省略時は今日の日付を入れる。これが無いと publish が",
+      "               `metadata.publication_date: Missing data for required field` で失敗する。",
+      "version      … 版表示（`v2` など）。任意。",
+      "",
+      "戻り値の `id` が新しい下書きの ID。`upload_file` などはその ID に対して行い、",
+      "最後に `publish_record` で公開する。"
+    ],
+    "upload_file_from_url": [
+      "URL を渡して InvenioRDM 側にファイルを取得させる（mcp:write）。",
+      "",
+      "`upload_file` は中身を base64 で運ぶので、MCP の応答が JSON である以上",
+      "大きなファイルには向かない（既定上限 16MB）。こちらは **URI を登録するだけ**で、",
+      "実体は InvenioRDM の Celery ワーカーが非同期にダウンロードする",
+      "（InvenioRDM の transfer 種別 `F` = FETCH）。**サイズの上限が無い。**",
+      "",
+      "**InvenioRDM v14 では通常の利用者は使えない。** 既定の権限方針",
+      "（`RDMRecordPermissionPolicy.can_draft_create_files`）は transfer 種別 `L` と `M`",
+      "にしか一般利用者を通さず、`F`（と `R`）は `SystemProcess()`、つまり",
+      "システム処理と superuser だけに限られている。サーバに任意の URL を",
+      "取りに行かせる操作（SSRF になりうる）を絞ったもの。権限が無ければ 403 になる。",
+      "",
+      "取得先は InvenioRDM 側の許可ドメイン",
+      "（`RECORDS_RESOURCES_FILES_ALLOWED_DOMAINS`）にも含まれている必要がある。",
+      "許可されていない URL は `Domain not allowed` になる。",
+      "",
+      "**非同期なので、戻った時点ではまだ取得中**（`status` が `pending`）のことがある。",
+      "完了は `list_files` の `status` が `completed` になったかで確かめる。",
+      "",
+      "**手元にあるファイル**は URL を持たないので、この経路には乗らない。",
+      "その場合は `start_multipart_upload` を使う（大きさの上限が無く、権限も通常の書き込みでよい）。"
+    ],
+    "start_multipart_upload": [
+      "手元の大容量ファイルを送るための**署名済み URL を発行する**（mcp:write）。",
+      "",
+      "`upload_file` は中身を base64 で運ぶので JSON に載る大きさが限界（既定 16MB）。",
+      "`upload_file_from_url` は URL を持つファイルにしか使えない。",
+      "**手元にある大きなファイル**はこの経路で送る（InvenioRDM の transfer 種別",
+      "`M` = MULTIPART）。中身は MCP サーバも InvenioRDM も通らず、",
+      "**クライアントから S3(MinIO) へ直接** PUT される。サイズの上限は事実上無い。",
+      "",
+      "recid     … 下書きの ID",
+      "filename  … 登録するファイル名",
+      "size      … 送るファイルの**実バイト数**（必須。S3 に事前申告する）",
+      "part_size … 1パートの大きさ。既定 64MiB。最後以外は 5MiB 以上で全て同じ大きさ",
+      "",
+      "返り値の `parts` の各 `url` に、ファイルを先頭から `part_size` ずつ切って",
+      "**PUT** する。全部送ったら `complete_multipart_upload` を呼ぶ。",
+      "やめるときは `abort_multipart_upload`。",
+      "",
+      "分割と送信の例（返り値の `hint` にも同じものが入る）:",
+      "",
+      "    split -b <part_size> ./big.bin part_",
+      "    curl -X PUT --data-binary @part_aa \"<parts[0].url>\"",
+      "    curl -X PUT --data-binary @part_ab \"<parts[1].url>\""
+    ],
+    "complete_multipart_upload": [
+      "全パートを送り終えた multipart を確定する（mcp:write）。",
+      "",
+      "S3 側でパートを1つのオブジェクトに結合し、transfer 種別が `M` から `L`",
+      "（通常のファイル）に変わる。**1つでもパートが欠けていると失敗する。**",
+      "",
+      "直後の `checksum` は `multipart:<ETag>-<パート数>-<パートの大きさ>` の形で、",
+      "これは S3 が返す複合 ETag（パートごとの MD5 をまとめたもの）。",
+      "ファイル全体の MD5 は InvenioRDM が背後の非同期ジョブで計算し直す。"
+    ],
+    "abort_multipart_upload": [
+      "途中でやめた multipart を破棄する（mcp:write）。",
+      "",
+      "S3 側の未完了アップロードも中止されるので、送りかけのパートが",
+      "課金対象として残り続けることを防げる。"
+    ]
+  },
+
+  "auth": {
+    "scheme_not_bearer": "Authorization の方式は Bearer でなければならない",
+    "invalid_token": "トークンが不正か期限切れ",
+    "endpoint_requires_auth": "この入口は認可が必須",
+    "authentication_required": "認証が必要",
+    "tool_requires_auth": "ツール '{tool}' には認可が要る",
+    "tool_requires_scope": "ツール '{tool}' には scope '{scope}' が要る",
+    "whoami_requires_auth": "whoami は認証が要る（mcp:read）",
+    "unverified_token": "未検証のトークン",
+    "token_exchange_failed": "トークン交換に失敗: {status} {body}",
+    "client_secret_missing": [
+      "MCP_SERVER_SECRET が未設定です。keycloak モードでは、Keycloak の",
+      "mcp-server クライアントに設定したシークレットと同じ値が要ります。"
+    ],
+    "pat_mode_no_exchange": "PAT モードのためトークン交換なし（受信した InvenioRDM の個人アクセストークンをそのまま使う）"
+  },
+
+  "errors": {
+    "auth_mode_invalid": "MCP_AUTH_MODE は keycloak か invenio: {given}",
+    "invenio_http": "InvenioRDM HTTP {status}: {body}",
+    "object_store_http": "オブジェクトストアから取得できない HTTP {status}",
+    "destructive_needs_confirm": "破壊的操作です。confirm=True を指定してください。",
+    "destructive_effect": "公開レコードが tombstone になり HTTP 410 を返す（restore_record で復元可）",
+    "reason_id_invalid": "reason_id が不正です。list_vocabulary('removalreasons') で確認できます",
+    "export_format_unknown": "未知の形式です。{formats} のいずれか",
+    "request_status_invalid": "status は {statuses} のいずれか（open / closed という状態は無い）",
+    "request_action_invalid": "action は {actions} のいずれか",
+    "content_exclusive": "content_base64 か content_text のどちらか一方を指定する",
+    "base64_undecodable": "base64 として読めない: {error}",
+    "upload_too_large": "大きすぎる: {size} バイト（上限 {limit}）。MCP の引数は JSON なので巨大ファイルには向かない",
+    "download_too_large": "大きすぎる: {size} バイト（上限 {limit}）。MCP の応答は JSON なので巨大ファイルには向かない",
+    "file_exists": "'{filename}' は既にある。置き換えるなら overwrite=True",
+    "fetch_forbidden": [
+      "URL 取得（transfer F）の権限が無い。InvenioRDM v14 の既定では",
+      "システム処理と superuser にしか許されていない。",
+      "手元のファイルを送るなら start_multipart_upload を使う"
+    ],
+    "import_files_failed": "引き継げなかった: {error}",
+    "size_must_be_positive": "size は 1 以上（実ファイルのバイト数）",
+    "part_size_too_small": "part_size が小さすぎる: {part_size}。最後以外のパートは {minimum} バイト以上でなければならない",
+    "no_part_links": "パートの署名済み URL が返らなかった。保存先が S3 でない可能性がある（ローカル保存では InvenioRDM 経由の PUT になる）"
+  },
+
+  "notes": {
+    "fetch_async": "取得は非同期。list_files の status が completed になれば完了",
+    "multipart_hint": "split -b {part_size} <ファイル> part_ で分けて、各 URL に curl -X PUT --data-binary @<断片> '<url>' で送る。全部送ったら complete_multipart_upload(recid, filename)",
+    "multipart_direct": "中身は MCP サーバを通らず S3 へ直接送られる"
+  },
+
+  "startup": {
+    "server": "MCP リソースサーバ: http://{host}:{port}{path}",
+    "version": "  版                                : {version}",
+    "canonical_uri": "  canonical URI (RFC 8707 resource) : {resource}",
+    "resource_metadata": "  保護リソースメタデータ            : {url}",
+    "auth_mode": "  認証方式 (MCP_AUTH_MODE)          : {mode}",
+    "language": "  言語 (MCP_LANG)                   : {lang}（利用可能: {available}）",
+    "pat_direct": "  InvenioRDM PAT を直接受ける       : {api}/me で検証",
+    "pat_issue": "    PAT 発行                        : {url}",
+    "pat_scopes": "    ロール→scope                    : 既定 {base} ＋ {roles}",
+    "authorization_server": "  authorization server              : {issuer}",
+    "tls": "  TLS 検証 (InvenioRDM / Keycloak)  : {state}",
+    "tls_on": "有効",
+    "tls_off": "**無効** (MCP_TLS_INSECURE)",
+    "audit": "  監査ログ                          : {state}",
+    "audit_on": "有効",
+    "audit_off": "無効 (MCP_AUDIT=off)",
+    "auth_path": [
+      "  認可必須の入口（同じ資源・別パス） : {path}",
+      "    ← 最初の接続から 401。mcp-remote のような",
+      "      「初回接続が 401 でないと認可を始めない」クライアント向け"
+    ]
+  }
+}

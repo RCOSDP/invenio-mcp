@@ -11,8 +11,12 @@ stdio 型 MCP サーバ（公式 mcp SDK / FastMCP）。InvenioRDM REST API を 
   INVENIO_TOKEN       無ければ同ディレクトリの .token を読む
   INVENIO_VERIFY_TLS  既定 true。自己署名なら INVENIO_CA_BUNDLE が要る
   INVENIO_CA_BUNDLE   ルート CA。既定は同ディレクトリの ca.crt（在れば読む）
+  MCP_LANG            ツールの説明・エラーの言語。同梱は en / ja。
+                      未設定ならシステムのロケール、決まらなければ en
+  MCP_LOCALES_DIR     言語リソースの置き場。既定は同ディレクトリの locales/
 
 CLI: `python3 server.py --selftest` で REST 一連を実走して片付ける。
+     `python3 server.py --version` で版を表示する。
 """
 import base64
 import json as _json
@@ -25,8 +29,86 @@ import urllib.parse
 
 from mcp.server.fastmcp import FastMCP
 
+# セマンティックバージョニング（https://semver.org/lang/ja/）。
+# 何を破壊的変更とみなすかは docs/about/versioning.md に書いてある。
+# http/mcp_server.py の __version__ と揃える（CI が一致を検査する）。
+__version__ = "0.0.1"
+
 # ---- 設定 ----
 _HERE = os.path.dirname(os.path.abspath(__file__))
+
+# ---- i18n ----
+# 利用者（と LLM）に見える文字列は locales/<lang>.json に置く。ツールの説明と
+# エラーがその対象で、コード中の注釈は開発者向けなので含めない。
+#
+# MCP のプロトコルに言語交渉は無いので、言語は**プロセス単位**で決まる。
+# MCP_LANG が最優先、無ければシステムのロケール（LC_ALL / LC_MESSAGES / LANG）、
+# それでも決まらなければ英語。locales/ に <tag>.json を置けば言語を足せる。
+LOCALES_DIR = os.environ.get("MCP_LOCALES_DIR") or os.path.join(_HERE, "locales")
+FALLBACK_LANG = "en"
+
+
+def _available_langs():
+    try:
+        return sorted(f[:-5] for f in os.listdir(LOCALES_DIR) if f.endswith(".json"))
+    except OSError:
+        return []
+
+
+def _pick_lang(available):
+    explicit = os.environ.get("MCP_LANG", "").strip()
+    # 明示指定が未知の言語なら、システムのロケールは見ずに既定へ落とす（意図を優先）
+    candidates = [explicit] if explicit else [
+        os.environ.get(k, "") for k in ("LC_ALL", "LC_MESSAGES", "LANG")]
+    for raw in candidates:
+        if not raw:
+            continue
+        tag = raw.split(".")[0].split("@")[0].strip().replace("_", "-").lower()
+        if tag in available:          # ja-jp のような地域付きの資源も選べる
+            return tag
+        if tag.split("-")[0] in available:
+            return tag.split("-")[0]
+    return FALLBACK_LANG
+
+
+def _load_lang(lang):
+    with open(os.path.join(LOCALES_DIR, f"{lang}.json"), encoding="utf-8") as f:
+        return _json.load(f)
+
+
+AVAILABLE_LANGS = _available_langs()
+LANG = _pick_lang(AVAILABLE_LANGS)
+try:
+    _STRINGS = _load_lang(LANG)
+    _FALLBACK_STRINGS = _STRINGS if LANG == FALLBACK_LANG else _load_lang(FALLBACK_LANG)
+except OSError as e:      # ここだけは翻訳できないので両言語で出す
+    raise SystemExit(
+        f"cannot read language resources: {e}\n"
+        "Put locales/ next to this file, or point MCP_LOCALES_DIR at it.\n"
+        "言語リソースを読めません。locales/ をこのファイルと同じ場所に置くか "
+        "MCP_LOCALES_DIR で指してください。") from e
+
+
+def t(key, **kw):
+    """locales/<lang>.json の文字列を引く。無ければ英語 → キー名の順に落ちる。
+
+    値が配列なら改行で連結する。書式引数を渡したときだけ format する
+    （説明文に出てくる波括弧を壊さないため）。
+    """
+    for strings in (_STRINGS, _FALLBACK_STRINGS):
+        cur = strings
+        for part in key.split("."):
+            if not isinstance(cur, dict) or part not in cur:
+                cur = None
+                break
+            cur = cur[part]
+        if cur is not None:
+            if isinstance(cur, list):
+                cur = "\n".join(cur)
+            return cur.format(**kw) if kw else cur
+    return key
+
+
 API = os.environ.get("INVENIO_API", "https://localhost/api").rstrip("/")
 VERIFY = os.environ.get("INVENIO_VERIFY_TLS", "true").lower() in ("1", "true", "yes")
 # 自己署名のルート CA。MCP サーバはクライアントの子プロセスなので、ログインシェルの
@@ -43,7 +125,7 @@ def _token():
     p = os.path.join(_HERE, ".token")
     if os.path.exists(p):
         return open(p).read().strip()
-    raise RuntimeError("INVENIO_TOKEN 未設定かつ .token が無い")
+    raise RuntimeError(t("errors.token_missing"))
 
 _CTX = ssl.create_default_context()
 if VERIFY:
@@ -85,7 +167,8 @@ def _req(method, path, body=None, raw=None, ctype="application/json"):
             detail = _json.loads(detail)
         except Exception:
             pass
-        raise ApiError(f"HTTP {e.code} {method} {path}: {detail}")
+        raise ApiError(t("errors.api_http", status=e.code, method=method,
+                         path=path, detail=detail))
 
 
 def _brief(rec):
@@ -108,20 +191,21 @@ def _brief(rec):
 
 
 mcp = FastMCP("inveniordm")
+# FastMCP は version を受け取らないので、低レベルサーバに直接入れる。
+# initialize の応答の serverInfo.version としてクライアントに見える。
+mcp._mcp_server.version = __version__
 
 # ---------------- 読取 ----------------
-@mcp.tool()
+@mcp.tool(description=t("tools.search_records"))
 def search_records(query: str = "", size: int = 10) -> dict:
-    """公開レコードを検索する。query は Invenio 検索式（空で全件）。要点のみ返す。"""
     q = f"?q={urllib.parse.quote(query)}&size={int(size)}" if query else f"?size={int(size)}"
     _, j = _req("GET", f"/records{q}")
     hits = (j or {}).get("hits", {}).get("hits", [])
     return {"total": (j or {}).get("hits", {}).get("total"), "records": [_brief(h) for h in hits]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.get_record"))
 def get_record(recid: str, draft: bool = False) -> dict:
-    """1レコードを取得する。draft=True で下書きを取得。"""
     path = f"/records/{recid}/draft" if draft else f"/records/{recid}"
     _, j = _req("GET", path)
     return _brief(j)
@@ -132,11 +216,8 @@ def _default_access():
     return {"record": "public", "files": "public"}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.create_record"))
 def create_record(metadata: dict, access: dict = None, files_enabled: bool = False, publish: bool = False) -> dict:
-    """新規レコードを作成する。metadata は Invenio の metadata オブジェクト
-    （必須: resource_type{id}, title(≥3), publication_date(EDTF), creators[{person_or_org{type,family_name,given_name}}]）。
-    files_enabled=False は metadata-only。publish=True で即公開。返り値に recid を含む。"""
     body = {"access": access or _default_access(), "files": {"enabled": bool(files_enabled)}, "metadata": metadata}
     _, j = _req("POST", "/records", body=body)
     recid = j.get("id")
@@ -147,10 +228,8 @@ def create_record(metadata: dict, access: dict = None, files_enabled: bool = Fal
     return out
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.update_record"))
 def update_record(recid: str, metadata: dict, publish: bool = True) -> dict:
-    """既存レコードのメタデータを更新する。公開済みなら edit(下書き化)→更新→(publish) を行う。
-    metadata は完全な metadata オブジェクト（部分ではなく置換）。publish=False なら下書きのまま。"""
     # 既存の下書きがあればそれを、無ければ公開レコードから編集下書きを作る
     try:
         _, draft = _req("GET", f"/records/{recid}/draft")
@@ -166,16 +245,14 @@ def update_record(recid: str, metadata: dict, publish: bool = True) -> dict:
     return out
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.publish_record"))
 def publish_record(recid: str) -> dict:
-    """下書きを公開する。"""
     _, j = _req("POST", f"/records/{recid}/draft/actions/publish")
     return {"recid": recid, "state": "published", "record": _brief(j)}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.new_version"))
 def new_version(recid: str, metadata: dict = None, publish: bool = False) -> dict:
-    """新しいバージョンの下書きを作る。metadata を渡すと差し替え、publish=True で即公開。"""
     _, nv = _req("POST", f"/records/{recid}/versions")
     new_id = nv.get("id")
     if metadata is not None:
@@ -190,27 +267,22 @@ def new_version(recid: str, metadata: dict = None, publish: bool = False) -> dic
 
 
 # ---------------- 削除 ----------------
-@mcp.tool()
+@mcp.tool(description=t("tools.delete_draft"))
 def delete_draft(recid: str) -> dict:
-    """下書き（未公開 or 編集中の下書き）を破棄する。"""
     _req("DELETE", f"/records/{recid}/draft")
     return {"recid": recid, "deleted": "draft"}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.delete_record"))
 def delete_record(recid: str, confirm: bool = False, reason_id: str = "out-of-scope", note: str = "removed via MCP") -> dict:
-    """公開レコードをソフト削除（tombstone・HTTP 410）する。admin トークン必須。
-    confirm=True が無いと実行しない。restore_record で復元可能。
-    reason_id は removalreasons 語彙（out-of-scope / duplicate / spam / retracted 等）。"""
     if not confirm:
-        return {"error": "破壊的操作です。confirm=True を指定してください。", "recid": recid}
+        return {"error": t("errors.destructive_needs_confirm"), "recid": recid}
     _req("DELETE", f"/records/{recid}/delete", body={"removal_reason": {"id": reason_id}, "note": note})
     return {"recid": recid, "deleted": "record(soft)", "restorable": True}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.restore_record"))
 def restore_record(recid: str) -> dict:
-    """ソフト削除された公開レコードを復元する。admin トークン必須。"""
     _, j = _req("POST", f"/records/{recid}/restore")
     return {"recid": recid, "restored": True, "record": _brief(j)}
 
@@ -223,13 +295,11 @@ def _resolve_bytes(text, content_base64, source_path):
         return base64.b64decode(content_base64)
     if text is not None:
         return text.encode("utf-8")
-    raise ValueError("text / content_base64 / source_path のいずれかが必要")
+    raise ValueError(t("errors.content_required"))
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.add_file"))
 def add_file(recid: str, key: str, text: str = None, content_base64: str = None, source_path: str = None) -> dict:
-    """下書きにファイルを追加（init→content→commit）する。対象レコードは files_enabled=True である必要がある。
-    中身は text(UTF-8) / content_base64 / source_path(サーバ上のパス) のいずれかで渡す。"""
     data = _resolve_bytes(text, content_base64, source_path)
     _req("POST", f"/records/{recid}/draft/files", body=[{"key": key}])
     _req("PUT", f"/records/{recid}/draft/files/{key}/content", raw=data, ctype="application/octet-stream")
@@ -237,18 +307,16 @@ def add_file(recid: str, key: str, text: str = None, content_base64: str = None,
     return {"recid": recid, "key": key, "size": (j or {}).get("size", len(data)), "status": (j or {}).get("status")}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_files"))
 def list_files(recid: str, draft: bool = True) -> dict:
-    """レコード/下書きのファイル一覧。"""
     seg = "draft/files" if draft else "files"
     _, j = _req("GET", f"/records/{recid}/{seg}")
     ents = (j or {}).get("entries", [])
     return {"recid": recid, "files": [{"key": e.get("key"), "size": e.get("size"), "status": e.get("status")} for e in ents]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.delete_file"))
 def delete_file(recid: str, key: str) -> dict:
-    """下書きからファイルを削除する。"""
     _req("DELETE", f"/records/{recid}/draft/files/{key}")
     return {"recid": recid, "key": key, "deleted": True}
 
@@ -282,7 +350,9 @@ def _selftest():
 
 
 if __name__ == "__main__":
-    if "--selftest" in sys.argv:
+    if "--version" in sys.argv:
+        print(f"invenio-mcp stdio server {__version__}")
+    elif "--selftest" in sys.argv:
         _selftest()
     else:
         mcp.run()
