@@ -40,7 +40,7 @@ The banner tells you what it decided:
 
 ```
 MCP resource server: http://0.0.0.0:9100/mcp
-  version                           : 0.0.1
+  version                           : 0.0.2
   canonical URI (RFC 8707 resource) : http://127.0.0.1:9100/mcp
   auth mode (MCP_AUTH_MODE)         : invenio
   language (MCP_LANG)               : en (available: en ja)

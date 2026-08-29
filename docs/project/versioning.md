@@ -10,7 +10,7 @@ written on this page**, because it would go stale at every release; it is in the
 [changelog](changelog.md).
 
 ```bash
-python3 stdio/server.py --version      # invenio-mcp stdio server 0.0.1
+python3 stdio/server.py --version      # invenio-mcp stdio server <version>
 # the HTTP server prints it in the startup banner
 ```
 
@@ -88,7 +88,7 @@ Until then, pin an exact version.
 ## Releasing
 
 ```bash
-# 1. Bump both servers and write the changelog in both languages
+# 1. Bump both servers and move [Unreleased] into the new version, in both languages
 vim http/mcp_server.py stdio/server.py CHANGELOG.md CHANGELOG.ja.md
 
 # 2. Check what CI will check
@@ -96,7 +96,7 @@ python3 tools/gen_tool_reference.py --check
 mkdocs build --strict
 
 # 3. Tag
-git tag -a v0.0.2 -m "v0.0.2" && git push origin v0.0.2
+git tag -a v0.0.3 -m "v0.0.3" && git push origin v0.0.3
 ```
 
 The release workflow verifies that the tag matches `__version__` in **both** servers and
