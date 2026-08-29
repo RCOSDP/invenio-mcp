@@ -9,3 +9,6 @@ __pycache__/
 *.key
 *.pem
 ca.crt
+
+# mkdocs のビルド出力
+site/

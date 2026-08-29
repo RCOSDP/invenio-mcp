@@ -11,6 +11,7 @@ Targets InvenioRDM v14. All 12 tools have been exercised against a live instance
 ## Layout
 
 - `server.py` — the server itself (12 tools)
+- `locales/en.json`, `locales/ja.json` — language resources (tool descriptions and errors)
 - `.token` — the API token (mode 600, **gitignored**, never commit it)
 - Registration goes in the client's MCP config (`.mcp.json` / `claude_desktop_config.json`)
 
@@ -59,6 +60,13 @@ Tools appear as `mcp__inveniordm__<name>`.
 | `INVENIO_TOKEN` | (falls back to reading `.token`) | Bearer token |
 | `INVENIO_VERIFY_TLS` | `true` | TLS verification. Set `false` only to turn it off |
 | `INVENIO_CA_BUNDLE` | (required when self-signed) | Root CA used for verification |
+| `MCP_LANG` | (the system locale, else `en`) | Language of tool descriptions and errors: `en` / `ja`, or any other `<tag>.json` in `locales/` |
+| `MCP_LOCALES_DIR` | `locales/` next to `server.py` | Where to read the language resources from |
+
+`MCP_LANG` also accepts a locale in the system's own form (`ja_JP.UTF-8`, `ja-JP`).
+Keys missing from the chosen language fall back to English, so a partial translation
+still runs. MCP has no locale negotiation in the protocol, so the language is fixed per
+process — **restart the client after changing it**, the same as for any other variable.
 
 ## Tools (12)
 

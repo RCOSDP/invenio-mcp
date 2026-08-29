@@ -1,0 +1,32 @@
+# 依存の更新を受け取る。**版を固定しただけでは古びていくのを止められない。**
+#
+# 固定は「今日と同じものが明日も入る」ための仕組みであって、「新しいものを
+# 見なくてよい」という意味ではない。放っておくと、直っている脆弱性を抱えたまま
+# 動き続けることになる——**まとめて上げるほうが、1つずつより難しい。**
+version: 2
+updates:
+  # ドキュメントのビルドに使うもの（docs/requirements.txt）。
+  # サーバ本体の実行時には要らないので、ここが動いても配布物は変わらない。
+  - package-ecosystem: pip
+    directory: /docs
+    schedule: {interval: weekly, day: monday}
+    open-pull-requests-limit: 3
+    groups:
+      docs:
+        patterns: ["*"]
+    commit-message: {prefix: "chore(deps)"}
+
+  # サーバの依存は Dockerfile が pip で直接入れている。
+  - package-ecosystem: docker
+    directory: /http
+    schedule: {interval: monthly}
+    commit-message: {prefix: "chore(deps)"}
+
+  # ワークフローの action も同じ理由で古びる。
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: monthly}
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message: {prefix: "chore(ci)"}

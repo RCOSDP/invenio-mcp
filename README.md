@@ -2,6 +2,13 @@
 
 *[日本語版はこちら / Japanese version](README.ja.md)*
 
+[![docs](https://img.shields.io/badge/docs-rcosdp.github.io%2Finvenio--mcp-teal)](https://rcosdp.github.io/invenio-mcp/)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![InvenioRDM](https://img.shields.io/badge/InvenioRDM-v14-informational)](https://inveniordm.docs.cern.ch/)
+[![MCP](https://img.shields.io/badge/MCP%20authorization-2026--07--28-informational)](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization)
+
+**Documentation: <https://rcosdp.github.io/invenio-mcp/>**
+
 MCP (Model Context Protocol) servers for **operating InvenioRDM from an LLM client**.
 Search, create, update and publish records; attach files; submit to communities and
 run the review workflow; withdraw and restore published records — all exposed as tools.
@@ -29,6 +36,9 @@ for yourself alone.
   and it is a soft delete, so it can be restored.
 - The final permission decision is left to **InvenioRDM**. The MCP scopes only separate
   *what a client may ask for*.
+- Everything a user sees — tool descriptions, error messages, the startup banner — comes
+  from language resources. **English and Japanese ship by default**; `MCP_LANG` selects
+  one.
 
 ## Tools
 
@@ -57,6 +67,24 @@ Because the vocabulary tools are there, an agent never has to guess at values su
 `resource_type.id`. It can check with `list_vocabulary("resourcetypes")` before writing
 any metadata.
 
+## Language
+
+Tool descriptions and error messages are read from `locales/<tag>.json`, which sits
+next to each server (`stdio/locales/`, `http/locales/`). `en.json` and `ja.json` are
+included.
+
+| `MCP_LANG` | Result |
+| --- | --- |
+| `en` | English |
+| `ja` | Japanese |
+| unset | taken from the system locale (`LC_ALL` / `LC_MESSAGES` / `LANG`), English if that does not resolve |
+| anything else | English (an explicit unknown tag does not fall back to the system locale) |
+
+Adding a language means dropping another `<tag>.json` into `locales/` — the server
+picks up whatever is there. Any key missing from it falls back to English, so a partial
+translation still runs. MCP has no locale negotiation in the protocol, so **the language
+is per process**: to serve two languages at once, run two instances.
+
 ## Getting started
 
 ```bash
@@ -74,8 +102,19 @@ curl -X POST http://127.0.0.1:9100/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-See [`http/README.md`](http/README.md) and [`stdio/README.md`](stdio/README.md) for details.
+See [`http/README.md`](http/README.md) and [`stdio/README.md`](stdio/README.md) for the
+short version, or the [documentation site](https://rcosdp.github.io/invenio-mcp/) for
+the full one — concepts, guides, the generated tool reference and every setting.
+
+## Project
+
+- [Changelog](CHANGELOG.md) — [Semantic Versioning](https://rcosdp.github.io/invenio-mcp/project/versioning/);
+  both servers carry the same version
+- [Contributing](CONTRIBUTING.md) — and the
+  [full guide](https://rcosdp.github.io/invenio-mcp/project/contributing/)
+- [Security](SECURITY.md) — report privately through GitHub, not as an issue
+- [Code of conduct](CODE_OF_CONDUCT.md)
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

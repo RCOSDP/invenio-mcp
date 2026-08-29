@@ -2,6 +2,13 @@
 
 *[English version](README.md)*
 
+[![docs](https://img.shields.io/badge/docs-rcosdp.github.io%2Finvenio--mcp-teal)](https://rcosdp.github.io/invenio-mcp/ja/)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![InvenioRDM](https://img.shields.io/badge/InvenioRDM-v14-informational)](https://inveniordm.docs.cern.ch/)
+[![MCP](https://img.shields.io/badge/MCP%20authorization-2026--07--28-informational)](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization)
+
+**ドキュメント: <https://rcosdp.github.io/invenio-mcp/ja/>**
+
 InvenioRDM を **MCP（Model Context Protocol）経由で操作する**ためのサーバ。
 レコードの検索・登録・更新・公開、ファイルの添付、コミュニティへの投稿と査読、
 公開レコードの取り下げと復元までを、LLM クライアントからツールとして呼べる。
@@ -26,6 +33,8 @@ InvenioRDM を **MCP（Model Context Protocol）経由で操作する**ための
 - InvenioRDM の **REST API を叩くだけ**で、InvenioRDM 側に拡張を入れる必要がない
 - 破壊的操作（公開レコードの取り下げ）は `confirm=True` を要求し、ソフト削除なので復元できる
 - 最終的な権限判定は **InvenioRDM に委ねる**。MCP 側の scope は「そもそも要求できるか」の分離
+- 利用者に見える文字列（ツールの説明・エラー・起動時の表示）は言語リソースから読む。
+  **日本語と英語を標準で同梱**し、`MCP_LANG` で選ぶ
 
 ## ツール
 
@@ -53,6 +62,22 @@ InvenioRDM を **MCP（Model Context Protocol）経由で操作する**ための
 語彙ツールがあるので、`resource_type.id` などの値を当てずっぽうで書く必要がない。
 メタデータを書く前に `list_vocabulary("resourcetypes")` で確かめられる。
 
+## 言語
+
+ツールの説明とエラーは、各サーバの隣にある `locales/<tag>.json`
+（`stdio/locales/`・`http/locales/`）から読む。`en.json` と `ja.json` を同梱している。
+
+| `MCP_LANG` | 結果 |
+| --- | --- |
+| `ja` | 日本語 |
+| `en` | 英語 |
+| 未設定 | システムのロケール（`LC_ALL` / `LC_MESSAGES` / `LANG`）に従う。決まらなければ英語 |
+| それ以外 | 英語（明示した未知のタグは、システムのロケールへは落とさない） |
+
+言語を足すには `locales/` に `<tag>.json` を置くだけでよく、サーバは在るものを拾う。
+足りないキーは英語に落ちるので、途中まで訳した状態でも動く。MCP のプロトコルには
+言語交渉が無いため、**言語はプロセス単位**で決まる。2言語を同時に出すならインスタンスを2つ立てる。
+
 ## 使いはじめ
 
 ```bash
@@ -70,8 +95,18 @@ curl -X POST http://127.0.0.1:9100/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-詳細は [`http/README.md`](http/README.md) と [`stdio/README.md`](stdio/README.md)。
+短い説明は [`http/README.md`](http/README.md) と [`stdio/README.md`](stdio/README.md) に、
+詳しくは[ドキュメントサイト](https://rcosdp.github.io/invenio-mcp/ja/)に——考え方・手引き・
+生成しているツール一覧・設定の全項目。
+
+## プロジェクト
+
+- [変更履歴](CHANGELOG.ja.md) — [セマンティックバージョニング](https://rcosdp.github.io/invenio-mcp/ja/project/versioning/)。
+  2つのサーバは同じ版を持つ
+- [参加する](CONTRIBUTING.md) —[詳しい手引き](https://rcosdp.github.io/invenio-mcp/ja/project/contributing/)
+- [セキュリティ](SECURITY.md) — 公開の issue ではなく GitHub の非公開報告から
+- [行動規範](CODE_OF_CONDUCT.md)
 
 ## ライセンス
 
-MIT。[LICENSE](LICENSE) を参照。
+MIT。[LICENSE](LICENSE) と [NOTICE](NOTICE) を参照。

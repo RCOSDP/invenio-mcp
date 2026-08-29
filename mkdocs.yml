@@ -1,0 +1,164 @@
+# invenio-mcp のドキュメント。**Markdown だけで書けること**を最優先にしてある。
+#   - 本文は docs/ 以下の .md。日本語は同じ名前に `.ja` を挟む（docs/index.ja.md）
+#   - 図は Mermaid をコードブロックに書く（画像を書き出す手順を挟まない）
+#   - ツール一覧は実装と locales/ から生成する（手で二重に書かない）
+#
+# 言語の切り方はサーバ本体（MCP_LANG）と揃えてある。**英語が既定でルート**、日本語は /ja/。
+site_name: invenio-mcp
+site_description: MCP servers for operating InvenioRDM from an LLM client
+site_url: https://rcosdp.github.io/invenio-mcp/
+repo_url: https://github.com/RCOSDP/invenio-mcp
+repo_name: RCOSDP/invenio-mcp
+edit_uri: edit/main/docs/
+# `mkdocs gh-deploy` の出力先。GitHub Pages はこのブランチを見ている
+# （Settings → Pages → Deploy from a branch → gh-pages / root）。
+remote_branch: gh-pages
+copyright: MIT — National Institute of Informatics
+
+theme:
+  name: material
+  language: en
+  icon:
+    logo: material/robot-outline
+    repo: fontawesome/brands/github
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle: {icon: material/weather-night, name: Switch to dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle: {icon: material/weather-sunny, name: Switch to light mode}
+  features:
+    # navigation.instant は i18n の言語切替と両立しない（警告になる）
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search:
+      # 日本語は空白で切れない。既定の区切りだと「レコード」のような語が
+      # 索引に載らず、日本語ページの検索が事実上効かなくなる。
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  # 日英。**同じ名前に `.ja` を挟むだけ**で対訳になる（別ディレクトリを掘らない）。
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: ja
+          name: 日本語
+          build: true
+          site_description: InvenioRDM を LLM クライアントから操作する MCP サーバ
+          nav_translations:
+            Introduction: はじめに
+            Overview: invenio-mcp とは
+            Quickstart: クイックスタート
+            Concepts: 考え方
+            The two servers: 2つのサーバ
+            Authorization: 認可
+            Files and transfers: ファイルの運び方
+            Guides: 手引き
+            Connecting to InvenioRDM: InvenioRDM と繋ぐ
+            Running the stdio server: stdio 版を動かす
+            Running the HTTP server: HTTP 版を動かす
+            Connecting a client: クライアントから繋ぐ
+            Deployment: デプロイ
+            Troubleshooting: 困ったとき
+            Reference: リファレンス
+            Tools: ツール一覧
+            Configuration: 設定
+            Languages: 言語
+            Project: プロジェクト
+            Contributing: 参加する
+            Versioning: バージョン
+            Changelog: 変更履歴
+            Security: セキュリティ
+            License: ライセンス
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+      # **既定の slugify は非 ASCII を落とす。** 日本語見出しのアンカーが
+      # `_1` `_2` … になり、深いリンクが使えないうえ、見出しを 1 つ足すと
+      # 番号がずれて既存のリンクが黙って別の場所を指す。
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+  - pymdownx.details
+  - pymdownx.highlight: {anchor_linenums: true}
+  - pymdownx.inlinehilite
+  # ルートの CHANGELOG をドキュメントに取り込む（二重管理しない）
+  - pymdownx.snippets: {base_path: ['.', 'docs']}
+  - pymdownx.tabbed: {alternate_style: true}
+  # Mermaid をそのまま書けるようにする（画像を書き出す手順を挟まない）
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra:
+  alternate:
+    - name: English
+      link: /invenio-mcp/
+      lang: en
+    - name: 日本語
+      link: /invenio-mcp/ja/
+      lang: ja
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/RCOSDP/invenio-mcp
+
+extra_css: [assets/extra.css]
+
+# docs/ に置いた Markdown 以外は既定でサイトに複写される。ビルドに使うだけの
+# 依存表を公開しても意味が無い（dependabot が /docs を見るのでファイルは動かさない）。
+exclude_docs: |
+  requirements.txt
+
+nav:
+  - Introduction:
+      - Overview: index.md
+      - Quickstart: quickstart.md
+  - Concepts:
+      - The two servers: concepts/servers.md
+      - Authorization: concepts/authorization.md
+      - Files and transfers: concepts/files.md
+  - Guides:
+      - Connecting to InvenioRDM: guides/invenio.md
+      - Running the stdio server: guides/stdio.md
+      - Running the HTTP server: guides/http.md
+      - Connecting a client: guides/clients.md
+      - Deployment: guides/deployment.md
+      - Troubleshooting: guides/troubleshooting.md
+  - Reference:
+      - Tools: reference/tools.md
+      - Configuration: reference/configuration.md
+      - Languages: reference/languages.md
+  - Project:
+      - Contributing: project/contributing.md
+      - Versioning: project/versioning.md
+      - Changelog: project/changelog.md
+      - Security: project/security.md
+      - License: project/license.md

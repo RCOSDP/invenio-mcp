@@ -20,6 +20,7 @@ The authentication method is selected with `MCP_AUTH_MODE`.
 | | |
 | --- | --- |
 | `mcp_server.py` | the server |
+| `locales/en.json`, `locales/ja.json` | language resources: tool descriptions, errors, startup banner |
 | `Dockerfile` | based on `python:3.12-slim`; shared by compose and k8s |
 | `docker-compose.yml` | standalone run, PAT mode by default |
 | `.env.example` | configuration template |
@@ -58,6 +59,30 @@ A PAT carries no scopes, so the MCP scopes are assembled from the **roles** retu
 | `MCP_INVENIO_VERIFY_TTL` | `60` | seconds to cache the result of `/me` |
 
 This uses nothing but stock InvenioRDM roles — no extra vocabulary, no extension to install.
+
+## Language
+
+Everything the user and the model see — the 33 tool descriptions, error messages and
+the startup banner — is read from `locales/<tag>.json`. English and Japanese ship with
+the server.
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `MCP_LANG` | (the system locale, else `en`) | `en` / `ja`, or any other `<tag>.json` present |
+| `MCP_LOCALES_DIR` | `locales/` next to `mcp_server.py` | where to read the resources from |
+
+`MCP_LANG` also accepts a locale in the system's own form (`ja_JP.UTF-8`, `ja-JP`), and
+a regional resource such as `ja-jp.json` is picked over the plain `ja.json` when one
+exists. Keys missing from the chosen language fall back to English, so a partial
+translation still runs.
+
+MCP has no locale negotiation in the protocol — `initialize` carries no locale field —
+so **the language is fixed per process**. Serving two languages at once means running
+two instances with different `MCP_LANG` values.
+
+One thing stays English on purpose: `error_description` inside the `WWW-Authenticate`
+header. RFC 6750 only allows a subset of ASCII there. The translated text goes in the
+JSON body of the same 401/403 response instead.
 
 ## Running in keycloak mode
 
