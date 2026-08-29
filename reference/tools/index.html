@@ -1,0 +1,3308 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MCP servers for operating InvenioRDM from an LLM client">
+      
+      
+      
+        <link rel="canonical" href="https://rcosdp.github.io/invenio-mcp/reference/tools/">
+      
+      
+        <link rel="prev" href="../../guides/troubleshooting/">
+      
+      
+        <link rel="next" href="../configuration/">
+      
+      
+        
+          <link rel="alternate" href="./" hreflang="en">
+        
+          <link rel="alternate" href="../../ja/reference/tools/" hreflang="ja">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Tools - invenio-mcp</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tool-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="invenio-mcp" class="md-header__button md-logo" aria-label="invenio-mcp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            invenio-mcp
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tools
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../ja/reference/tools/" hreflang="ja" class="md-select__link">
+              日本語
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/RCOSDP/invenio-mcp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    RCOSDP/invenio-mcp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="invenio-mcp" class="md-nav__button md-logo" aria-label="invenio-mcp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    invenio-mcp
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/RCOSDP/invenio-mcp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    RCOSDP/invenio-mcp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Introduction
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The two servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files and transfers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/invenio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connecting to InvenioRDM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/stdio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running the stdio server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/http/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running the HTTP server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connecting a client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reading-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading records
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading records">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#my_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        my_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_versions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_revisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_revisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vocabularies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vocabularies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary_types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary_types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-and-updating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating and updating
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating and updating">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publish_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        publish_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        new_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_draft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#withdrawing-and-restoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Withdrawing and restoring
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Withdrawing and restoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restore_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upload_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload_file_from_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file_from_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        start_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        complete_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abort_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abort_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#communities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Communities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Communities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_communities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_communities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_community_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_community_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reviews-and-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reviews and requests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reviews and requests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#submit_to_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        submit_to_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment_on_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comment_on_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        request_action
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Session">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../languages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Languages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Project
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reading-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading records
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading records">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#my_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        my_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_versions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_revisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_revisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vocabularies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vocabularies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary_types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary_types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-and-updating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating and updating
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating and updating">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publish_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        publish_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        new_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_draft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#withdrawing-and-restoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Withdrawing and restoring
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Withdrawing and restoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restore_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upload_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload_file_from_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file_from_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        start_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        complete_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abort_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abort_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#communities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Communities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Communities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_communities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_communities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_community_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_community_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reviews-and-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reviews and requests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reviews and requests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#submit_to_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        submit_to_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment_on_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comment_on_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        request_action
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Session">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/RCOSDP/invenio-mcp/edit/main/docs/reference/tools.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<!-- Generated by tools/gen_tool_reference.py. Do not edit by hand. -->
+<h1 id="tool-reference">Tool reference<a class="headerlink" href="#tool-reference" title="Permanent link">&para;</a></h1>
+<p>Every tool both servers expose, with its arguments and the scope it needs. The
+descriptions here are the <strong>same strings the servers hand to the model</strong> — they come out
+of <code>locales/en.json</code>, so this page cannot drift from what a client actually sees.</p>
+<ul>
+<li><strong>http</strong> — the 33 tools of <a href="../../guides/http/">the HTTP server</a></li>
+<li><strong>stdio</strong> — the 12 tools of <a href="../../guides/stdio/">the stdio server</a></li>
+</ul>
+<p>A tool with no scope reads public information and works unauthenticated. See
+<a href="../../concepts/authorization/">Authorization</a> for what each scope means.</p>
+<h2 id="reading-records">Reading records<a class="headerlink" href="#reading-records" title="Permanent link">&para;</a></h2>
+<h3 id="search_records"><code>search_records</code><a class="headerlink" href="#search_records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">search_records</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<p>Search published records (<strong>works unauthenticated</strong>).</p>
+<p>With a token the search runs as that user, so their own drafts are included too.</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Search published records. query is an Invenio search expression (empty matches everything). Returns summary fields only.</p>
+</div>
+<h3 id="get_record"><code>get_record</code><a class="headerlink" href="#get_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">get_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<p>Fetch a single record (<strong>works unauthenticated</strong>). draft=True fetches the draft (authentication required).</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Fetch one record. draft=True fetches the draft.</p>
+</div>
+<h3 id="my_records"><code>my_records</code><a class="headerlink" href="#my_records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">my_records</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>List your own records and drafts (mcp:read).</p>
+<p><strong>Unpublished drafts are included</strong>, not just published records, so it can answer
+"what am I still working on".</p>
+<h3 id="list_versions"><code>list_versions</code><a class="headerlink" href="#list_versions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">list_versions</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>List every version of a record (works unauthenticated). Versions made by <code>new_version</code> show up here.</p>
+<h3 id="list_revisions"><code>list_revisions</code><a class="headerlink" href="#list_revisions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">list_revisions</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>List a record's revision history — what changed and when (mcp:read).</p>
+<p>Different from versions (<code>list_versions</code>): this is the <strong>edit history of the same
+record</strong>. Authentication is required even for published records.</p>
+<h3 id="export_record"><code>export_record</code><a class="headerlink" href="#export_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">export_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'datacite-json'</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Export a published record in another metadata format (works unauthenticated).</p>
+<p>fmt is one of json / inveniordm / jsonld / datacite-json / datacite-xml /
+dublincore / marcxml / dcat / csl / bibtex / citation / geojson.
+<strong>Not available for drafts</strong> (published records only).</p>
+<h2 id="vocabularies">Vocabularies<a class="headerlink" href="#vocabularies" title="Permanent link">&para;</a></h2>
+<h3 id="list_vocabulary_types"><code>list_vocabulary_types</code><a class="headerlink" href="#list_vocabulary_types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">list_vocabulary_types</span><span class="p">()</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>List the vocabulary types this repository has (works unauthenticated).</p>
+<p>Pass one of the returned ids to <code>list_vocabulary</code> to read its entries.</p>
+<h3 id="list_vocabulary"><code>list_vocabulary</code><a class="headerlink" href="#list_vocabulary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">list_vocabulary</span><span class="p">(</span><span class="n">vocab_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Read the entries of a vocabulary (works unauthenticated).</p>
+<p>vocab_type is an id returned by <code>list_vocabulary_types</code> (resourcetypes / licenses /
+languages / subjects / removalreasons / creatorsroles / descriptiontypes /
+relationtypes / titletypes / datetypes and so on).
+<strong>Check the right id here before writing any metadata.</strong></p>
+<h2 id="creating-and-updating">Creating and updating<a class="headerlink" href="#creating-and-updating" title="Permanent link">&para;</a></h2>
+<h3 id="create_record"><code>create_record</code><a class="headerlink" href="#create_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">create_record</span><span class="p">(</span><span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">create_record</span><span class="p">(</span><span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">access</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">files_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>Create a record (mcp:write).</p>
+<p>publish=True publishes it as well.
+files=True makes a draft that can carry files (put them in with <code>upload_file</code>).
+<strong>Leave publishing until after the files are in</strong> — once published, files can only be
+added through a new version.</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Create a new record. metadata is an Invenio metadata object
+(required: resource_type{id}, title (&gt;= 3 chars), publication_date (EDTF),
+creators[{person_or_org{type,family_name,given_name}}]).
+files_enabled=False makes it metadata-only. publish=True publishes it right away.
+The result contains recid.</p>
+</div>
+<h3 id="update_record"><code>update_record</code><a class="headerlink" href="#update_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">update_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>Update a record's metadata (mcp:write). For a published record this does edit -&gt; update -&gt; publish.</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Update an existing record's metadata. For a published record this does
+edit (back to draft) -&gt; update -&gt; (publish).
+metadata is the complete metadata object (a replacement, not a patch).
+publish=False leaves it as a draft.</p>
+</div>
+<h3 id="publish_record"><code>publish_record</code><a class="headerlink" href="#publish_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">publish_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+</code></pre></div>
+<p>Publish a draft (mcp:write).</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Publish a draft.</p>
+</div>
+<h3 id="new_version"><code>new_version</code><a class="headerlink" href="#new_version" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">new_version</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">import_files</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">publication_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">new_version</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>Create a <strong>draft of a new version</strong> of a published record (mcp:write).</p>
+<p>InvenioRDM cannot rewrite a published record. To add or replace files you make a new
+version, work in it, and publish again.</p>
+<p>recid        ... the original (published) record ID
+import_files ... True <strong>carries the previous version's files over</strong>
+                 (InvenioRDM's files-import; default True).
+                 False starts from a draft with no files.
+publication_date ... the new version's publication date (<code>YYYY-MM-DD</code>).
+                 <strong>InvenioRDM does not carry the publication date into a new version
+                 draft</strong>, so today's date is filled in when this is omitted. Without
+                 it, publishing fails with
+                 <code>metadata.publication_date: Missing data for required field</code>.
+version      ... the version label (<code>v2</code> and the like). Optional.</p>
+<p>The <code>id</code> in the result is the new draft's ID. Run <code>upload_file</code> and friends against
+that ID, then publish with <code>publish_record</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Create a draft of a new version. Passing metadata replaces it; publish=True publishes right away.</p>
+</div>
+<h3 id="delete_draft"><code>delete_draft</code><a class="headerlink" href="#delete_draft" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">delete_draft</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+</code></pre></div>
+<p>Discard a draft (mcp:write).</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Discard a draft (unpublished, or the draft of an edit in progress).</p>
+</div>
+<h2 id="withdrawing-and-restoring">Withdrawing and restoring<a class="headerlink" href="#withdrawing-and-restoring" title="Permanent link">&para;</a></h2>
+<h3 id="delete_record"><code>delete_record</code><a class="headerlink" href="#delete_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">delete_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">confirm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">reason_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'out-of-scope'</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'removed via MCP'</span><span class="p">)</span>
+</code></pre></div>
+<p>Soft-delete a published record, leaving a tombstone that returns HTTP 410 (mcp:curate).</p>
+<p><strong>Destructive, so it does nothing without confirm=True.</strong> <code>restore_record</code> brings it back.
+reason_id is an id from the removalreasons vocabulary (list them with
+<code>list_vocabulary("removalreasons")</code>; the stock twelve are out-of-scope / copyright /
+disputed-authorship / duplicate / fraud / misconduct / personal-data / retracted /
+spam / replaced / take-down-request / test-record). note is a public remark left on
+the tombstone.
+Fails with 403 unless the user holds the admin role in InvenioRDM.</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Soft-delete a published record, leaving a tombstone that returns HTTP 410.
+Requires an admin token. Does nothing without confirm=True.
+restore_record brings it back.
+reason_id comes from the removalreasons vocabulary
+(out-of-scope / duplicate / spam / retracted and so on).</p>
+</div>
+<h3 id="restore_record"><code>restore_record</code><a class="headerlink" href="#restore_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">restore_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+</code></pre></div>
+<p>Restore a soft-deleted published record (mcp:curate).</p>
+<p>The tombstone is lifted and the record is published again. Fails with 403 unless the
+user holds the admin role in InvenioRDM.</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Restore a soft-deleted published record. Requires an admin token.</p>
+</div>
+<h2 id="files">Files<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
+<h3 id="upload_file"><code>upload_file</code><a class="headerlink" href="#upload_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">upload_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content_base64</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">content_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Register a file on a draft (mcp:write).</p>
+<p>recid          ... the draft's ID (the id returned by <code>create_record</code>)
+filename       ... the name to register it under (it becomes the key)
+content_base64 ... the content as base64; use this for binaries
+content_text   ... the content as plain text; easier for text (encoded as UTF-8)</p>
+<p>overwrite      ... replace a file of the same name if one exists (default True).
+                   False reports that it already exists and does nothing.</p>
+<p><strong>Files cannot be added to a published record</strong> (an InvenioRDM rule — make a new
+version instead). If the draft has files disabled, they are enabled automatically.</p>
+<h3 id="add_file"><code>add_file</code><a class="headerlink" href="#add_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>stdio server only</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">add_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">content_base64</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>Add a file to a draft (init -&gt; content -&gt; commit). The record must have
+files_enabled=True.
+Give the content as one of text (UTF-8), content_base64, or source_path
+(a path on the server).</p>
+<h3 id="list_files"><code>list_files</code><a class="headerlink" href="#list_files" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">list_files</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">list_files</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>List a record's files (published records are visible unauthenticated).</p>
+<p>draft=True lists the draft's files (requires the owner's authentication).</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>List the files of a record or draft.</p>
+</div>
+<h3 id="download_file"><code>download_file</code><a class="headerlink" href="#download_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">download_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Retrieve a file's contents (works unauthenticated for published records).</p>
+<p>InvenioRDM answers with a <strong>redirect to an S3 presigned URL</strong>. That URL's host is an
+in-cluster name (<code>minio:9000</code>), so it <strong>cannot be followed from outside the cluster</strong>.
+The MCP server therefore fetches it instead and returns the bytes as base64. Anything
+that decodes as UTF-8 is also returned in <code>text</code>.</p>
+<p>draft=True fetches the draft's file (requires the owner's authentication).</p>
+<h3 id="delete_file"><code>delete_file</code><a class="headerlink" href="#delete_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>both servers</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">delete_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">delete_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>Delete a file from a draft (mcp:write). Files cannot be removed from a published record.</p>
+<div class="admonition note">
+<p class="admonition-title">The stdio version differs:</p>
+<p>Delete a file from a draft.</p>
+</div>
+<h3 id="upload_file_from_url"><code>upload_file_from_url</code><a class="headerlink" href="#upload_file_from_url" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">upload_file_from_url</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Hand InvenioRDM a URL and let it fetch the file itself (mcp:write).</p>
+<p><code>upload_file</code> carries the bytes as base64, and since MCP responses are JSON that does
+not suit large files (default limit 16MB). This tool <strong>only registers a URI</strong>; the
+bytes are downloaded asynchronously by InvenioRDM's Celery worker (InvenioRDM
+transfer type <code>F</code> = FETCH). <strong>There is no size limit.</strong></p>
+<p><strong>Ordinary users cannot use this on InvenioRDM v14.</strong> The default permission policy
+(<code>RDMRecordPermissionPolicy.can_draft_create_files</code>) admits ordinary users only for
+transfer types <code>L</code> and <code>M</code>; <code>F</code> (and <code>R</code>) are limited to <code>SystemProcess()</code>, meaning
+system processes and superusers. Making the server fetch an arbitrary URL is a
+potential SSRF, hence the restriction. Without the permission this returns 403.</p>
+<p>The target must also be within InvenioRDM's allowed domains
+(<code>RECORDS_RESOURCES_FILES_ALLOWED_DOMAINS</code>). A URL outside them fails with
+<code>Domain not allowed</code>.</p>
+<p><strong>Because it is asynchronous, the fetch may still be running when this returns</strong>
+(<code>status</code> is <code>pending</code>). Confirm completion by checking that <code>list_files</code> reports
+<code>status</code> as <code>completed</code>.</p>
+<p><strong>A file on your own machine</strong> has no URL and cannot take this path. Use
+<code>start_multipart_upload</code> for that (no size limit, and ordinary write permission is
+enough).</p>
+<h3 id="start_multipart_upload"><code>start_multipart_upload</code><a class="headerlink" href="#start_multipart_upload" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">start_multipart_upload</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">part_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p><strong>Issue presigned URLs</strong> for sending a large local file (mcp:write).</p>
+<p><code>upload_file</code> carries the bytes as base64, so it is bounded by what fits in JSON
+(default 16MB). <code>upload_file_from_url</code> only works for files that have a URL.
+<strong>A large file on your own machine</strong> goes this way (InvenioRDM transfer type
+<code>M</code> = MULTIPART). The bytes pass through neither the MCP server nor InvenioRDM: they
+are PUT <strong>straight from the client to S3 (MinIO)</strong>. There is effectively no size limit.</p>
+<p>recid     ... the draft's ID
+filename  ... the name to register it under
+size      ... the file's <strong>exact byte count</strong> (required; it is declared to S3 up front)
+part_size ... bytes per part. Default 64MiB. Every part but the last must be at least
+              5MiB and all of them the same size</p>
+<p>PUT the file to each <code>url</code> under <code>parts</code> in the result, cutting it into <code>part_size</code>
+chunks from the beginning. Call <code>complete_multipart_upload</code> once every part is sent,
+or <code>abort_multipart_upload</code> to give up.</p>
+<p>Splitting and sending, as an example (the same text is in <code>hint</code> in the result):</p>
+<div class="highlight"><pre><span></span><code>split -b &lt;part_size&gt; ./big.bin part_
+curl -X PUT --data-binary @part_aa "&lt;parts[0].url&gt;"
+curl -X PUT --data-binary @part_ab "&lt;parts[1].url&gt;"
+</code></pre></div>
+<h3 id="complete_multipart_upload"><code>complete_multipart_upload</code><a class="headerlink" href="#complete_multipart_upload" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">complete_multipart_upload</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Finalise a multipart upload once every part has been sent (mcp:write).</p>
+<p>S3 joins the parts into a single object and the transfer type changes from <code>M</code> to <code>L</code>
+(an ordinary file). <strong>It fails if even one part is missing.</strong></p>
+<p>The <code>checksum</code> right afterwards has the form
+<code>multipart:&lt;ETag&gt;-&lt;part count&gt;-&lt;part size&gt;</code>, which is the composite ETag S3 returns
+(the per-part MD5s rolled together). InvenioRDM recomputes the MD5 of the whole file
+in a background job.</p>
+<h3 id="abort_multipart_upload"><code>abort_multipart_upload</code><a class="headerlink" href="#abort_multipart_upload" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">abort_multipart_upload</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Discard a multipart upload that was given up partway (mcp:write).</p>
+<p>The incomplete upload on the S3 side is aborted too, so half-sent parts do not linger
+and keep costing storage.</p>
+<h2 id="communities">Communities<a class="headerlink" href="#communities" title="Permanent link">&para;</a></h2>
+<h3 id="search_communities"><code>search_communities</code><a class="headerlink" href="#search_communities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">search_communities</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Search communities (works unauthenticated).</p>
+<h3 id="get_community"><code>get_community</code><a class="headerlink" href="#get_community" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">get_community</span><span class="p">(</span><span class="n">community</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Fetch a single community (works unauthenticated). community is an id (UUID) or a slug.</p>
+<h3 id="list_community_records"><code>list_community_records</code><a class="headerlink" href="#list_community_records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>none (unauthenticated)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">list_community_records</span><span class="p">(</span><span class="n">community</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>List the published records belonging to a community (works unauthenticated).</p>
+<h3 id="create_community"><code>create_community</code><a class="headerlink" href="#create_community" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">create_community</span><span class="p">(</span><span class="n">slug</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">community_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'topic'</span><span class="p">,</span> <span class="n">visibility</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'public'</span><span class="p">,</span> <span class="n">review_policy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'closed'</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Create a community (mcp:curate).</p>
+<p>Creating an organisational unit sits under curate rather than write.
+slug is the identifier that appears in URLs (lowercase letters, digits, hyphens).
+community_type comes from the communitytypes vocabulary (organization / event /
+topic / project).
+review_policy=closed puts submissions through review; open lets them publish directly.</p>
+<h2 id="reviews-and-requests">Reviews and requests<a class="headerlink" href="#reviews-and-requests" title="Permanent link">&para;</a></h2>
+<h3 id="list_requests"><code>list_requests</code><a class="headerlink" href="#list_requests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">list_requests</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>List the requests visible to you (mcp:read).</p>
+<p>status is one of submitted / expired / accepted / declined / cancelled.
+<strong>Pending review is status="submitted"</strong> — there is no "open" state.
+Omit it for everything. <code>query</code> also takes Lucene-style filters
+(e.g. type:community-submission).</p>
+<h3 id="get_request"><code>get_request</code><a class="headerlink" href="#get_request" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">get_request</span><span class="p">(</span><span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Fetch a single request (mcp:read). timeline=True also returns its comments and events.</p>
+<h3 id="submit_to_community"><code>submit_to_community</code><a class="headerlink" href="#submit_to_community" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="n">submit_to_community</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">community</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Submit a draft to a community for review (mcp:write).</p>
+<p>Does both steps at once (set the review target, then submit). The target must be an
+<strong>unpublished draft</strong>. Acceptance publishes it. Accepting and declining are
+<code>request_action</code> (mcp:curate).</p>
+<h3 id="comment_on_request"><code>comment_on_request</code><a class="headerlink" href="#comment_on_request" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="n">comment_on_request</span><span class="p">(</span><span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Comment on a request (mcp:write).</p>
+<h3 id="request_action"><code>request_action</code><a class="headerlink" href="#request_action" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">request_action</span><span class="p">(</span><span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Accept or decline a request (mcp:curate).</p>
+<p>action is one of accept / decline / cancel / expire.
+<strong>accept publishes the submission</strong>, which is a curator's decision, hence curate.</p>
+<h2 id="session">Session<a class="headerlink" href="#session" title="Permanent link">&para;</a></h2>
+<h3 id="whoami"><code>whoami</code><a class="headerlink" href="#whoami" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Available in</td>
+<td>HTTP server only</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="n">whoami</span><span class="p">()</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>Return the authenticated subject of this session and the identity resolved on the
+InvenioRDM side (mcp:read).</p>
+<p>When the login came through a federation such as GakuNin, this shows that eppn,
+affiliation (from the issuer) and groups (from mAP) are carried on <strong>both</strong> the token
+addressed to this MCP server and the exchanged token addressed to InvenioRDM.</p>
+<p>When <code>invenio.email_pending_setup</code> is true the user has not yet set an email address
+in InvenioRDM (the federation does not release <code>mail</code>, so a placeholder is in place).
+Notification mail cannot reach them in that state, so point them at
+<code>profile_settings_url</code> and ask them to set one.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../guides/troubleshooting/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Troubleshooting">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Troubleshooting
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../configuration/" class="md-footer__link md-footer__link--next" aria-label="Next: Configuration">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Configuration
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      MIT — National Institute of Informatics
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/RCOSDP/invenio-mcp" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tracking", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "content.code.copy", "content.action.edit", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

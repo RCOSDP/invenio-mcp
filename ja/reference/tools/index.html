@@ -1,0 +1,3287 @@
+
+<!doctype html>
+<html lang="ja" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="InvenioRDM を LLM クライアントから操作する MCP サーバ">
+      
+      
+      
+        <link rel="canonical" href="https://rcosdp.github.io/invenio-mcp/ja/reference/tools/">
+      
+      
+        <link rel="prev" href="../../guides/troubleshooting/">
+      
+      
+        <link rel="next" href="../configuration/">
+      
+      
+        
+          <link rel="alternate" href="../../../reference/tools/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="ja">
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ツール一覧 - invenio-mcp</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ツール一覧" class="md-skip">
+          コンテンツにスキップ
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="ヘッダー">
+    <a href="../../" title="invenio-mcp" class="md-header__button md-logo" aria-label="invenio-mcp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            invenio-mcp
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ツール一覧
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="言語切り替え">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../reference/tools/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="ja" class="md-select__link">
+              日本語
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="検索" placeholder="検索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="検索">
+        
+        <button type="reset" class="md-search__icon md-icon" title="クリア" aria-label="クリア" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            検索を初期化
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/RCOSDP/invenio-mcp" title="リポジトリへ" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    RCOSDP/invenio-mcp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="ナビゲーション" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="invenio-mcp" class="md-nav__button md-logo" aria-label="invenio-mcp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    invenio-mcp
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/RCOSDP/invenio-mcp" title="リポジトリへ" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    RCOSDP/invenio-mcp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    はじめに
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    はじめに
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    invenio-mcp とは
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    クイックスタート
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    考え方
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    考え方
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2つのサーバ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    認可
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ファイルの運び方
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    手引き
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    手引き
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/invenio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InvenioRDM と繋ぐ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/stdio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stdio 版を動かす
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/http/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP 版を動かす
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    クライアントから繋ぐ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    デプロイ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    困ったとき
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    リファレンス
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    リファレンス
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ツール一覧
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ツール一覧
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#レコードを読む" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        レコードを読む
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="レコードを読む">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#my_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        my_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_versions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_revisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_revisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#語彙" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        語彙
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="語彙">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary_types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary_types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#作成と更新" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作成と更新
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="作成と更新">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publish_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        publish_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        new_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_draft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#取り下げと復元" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        取り下げと復元
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="取り下げと復元">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restore_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ファイル" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ファイル
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ファイル">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upload_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload_file_from_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file_from_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        start_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        complete_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abort_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abort_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#コミュニティ" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        コミュニティ
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="コミュニティ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_communities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_communities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_community_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_community_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#査読とリクエスト" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        査読とリクエスト
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="査読とリクエスト">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#submit_to_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        submit_to_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment_on_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comment_on_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        request_action
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#セッション" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        セッション
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="セッション">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    設定
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../languages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    言語
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    プロジェクト
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    プロジェクト
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参加する
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    バージョン
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    変更履歴
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    セキュリティ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project/license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ライセンス
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#レコードを読む" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        レコードを読む
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="レコードを読む">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#my_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        my_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_versions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_revisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_revisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#語彙" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        語彙
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="語彙">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary_types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary_types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#作成と更新" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作成と更新
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="作成と更新">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publish_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        publish_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        new_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_draft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#取り下げと復元" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        取り下げと復元
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="取り下げと復元">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restore_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ファイル" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ファイル
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ファイル">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upload_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload_file_from_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload_file_from_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        start_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        complete_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abort_multipart_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abort_multipart_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#コミュニティ" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        コミュニティ
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="コミュニティ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search_communities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        search_communities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_community_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_community_records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#査読とリクエスト" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        査読とリクエスト
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="査読とリクエスト">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list_requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#submit_to_community" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        submit_to_community
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment_on_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comment_on_request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        request_action
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#セッション" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        セッション
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="セッション">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/RCOSDP/invenio-mcp/edit/main/docs/reference/tools.ja.md" title="編集" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<!-- tools/gen_tool_reference.py が生成する。手で書き換えない。 -->
+<h1 id="ツール一覧">ツール一覧<a class="headerlink" href="#ツール一覧" title="Permanent link">&para;</a></h1>
+<p>2つのサーバが公開しているすべてのツールと、その引数・必要な scope。ここに載る説明は
+<strong>サーバが実際に LLM へ渡している文字列そのもの</strong>で、<code>locales/ja.json</code> から取っている。
+クライアントが見るものとずれることがない。</p>
+<ul>
+<li><strong>http</strong> — <a href="../../guides/http/">HTTP 版</a>の 33 ツール</li>
+<li><strong>stdio</strong> — <a href="../../guides/stdio/">stdio 版</a>の 12 ツール</li>
+</ul>
+<p>scope の欄が空のツールは公開情報の読取で、未認証でも呼べる。scope の意味は
+<a href="../../concepts/authorization/">認可</a>を見ること。</p>
+<h2 id="レコードを読む">レコードを読む<a class="headerlink" href="#レコードを読む" title="Permanent link">&para;</a></h2>
+<h3 id="search_records"><code>search_records</code><a class="headerlink" href="#search_records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">search_records</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<p>公開レコードを検索する（<strong>未認証でも可</strong>）。</p>
+<p>トークンがあればその人として検索するので、自分の下書きなども対象になる。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>公開レコードを検索する。query は Invenio 検索式（空で全件）。要点のみ返す。</p>
+</div>
+<h3 id="get_record"><code>get_record</code><a class="headerlink" href="#get_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">get_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<p>レコードを1件取得する（<strong>未認証でも可</strong>）。draft=True で下書き（要認証）。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>1レコードを取得する。draft=True で下書きを取得。</p>
+</div>
+<h3 id="my_records"><code>my_records</code><a class="headerlink" href="#my_records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">my_records</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>自分のレコードと下書きを一覧する（mcp:read）。</p>
+<p>公開済みだけでなく<strong>未公開の下書きも含む</strong>ので、「書きかけはどれ」を答えられる。</p>
+<h3 id="list_versions"><code>list_versions</code><a class="headerlink" href="#list_versions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">list_versions</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>レコードの全バージョンを一覧する（未認証可）。<code>new_version</code> で作った版もここに出る。</p>
+<h3 id="list_revisions"><code>list_revisions</code><a class="headerlink" href="#list_revisions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">list_revisions</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>レコードの版履歴（いつ何が変わったか）を一覧する（mcp:read）。</p>
+<p>バージョン（<code>list_versions</code>）とは別物で、こちらは<strong>同じレコードの編集履歴</strong>。
+公開レコードでも認証が要る。</p>
+<h3 id="export_record"><code>export_record</code><a class="headerlink" href="#export_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">export_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'datacite-json'</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>公開レコードを別のメタデータ形式で出す（未認証可）。</p>
+<p>fmt は json / inveniordm / jsonld / datacite-json / datacite-xml /
+dublincore / marcxml / dcat / csl / bibtex / citation / geojson。
+<strong>下書きには使えない</strong>（公開レコードのみ）。</p>
+<h2 id="語彙">語彙<a class="headerlink" href="#語彙" title="Permanent link">&para;</a></h2>
+<h3 id="list_vocabulary_types"><code>list_vocabulary_types</code><a class="headerlink" href="#list_vocabulary_types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">list_vocabulary_types</span><span class="p">()</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>このリポジトリが持つ語彙の種類を一覧する（未認証可）。</p>
+<p>返った id を <code>list_vocabulary</code> に渡すと中身が引ける。</p>
+<h3 id="list_vocabulary"><code>list_vocabulary</code><a class="headerlink" href="#list_vocabulary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">list_vocabulary</span><span class="p">(</span><span class="n">vocab_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>語彙の項目を引く（未認証可）。</p>
+<p>vocab_type は <code>list_vocabulary_types</code> が返す id
+（resourcetypes / licenses / languages / subjects / removalreasons /
+creatorsroles / descriptiontypes / relationtypes / titletypes / datetypes など）。
+<strong>メタデータを書く前にここで正しい id を確かめること。</strong></p>
+<h2 id="作成と更新">作成と更新<a class="headerlink" href="#作成と更新" title="Permanent link">&para;</a></h2>
+<h3 id="create_record"><code>create_record</code><a class="headerlink" href="#create_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">create_record</span><span class="p">(</span><span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">create_record</span><span class="p">(</span><span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">access</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">files_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>レコードを作成する（mcp:write）。</p>
+<p>publish=True で公開まで行う。
+files=True にするとファイルを添付できる下書きになる（<code>upload_file</code> で入れる）。
+<strong>ファイルを入れるなら publish は後回しにする</strong>（公開後は新バージョンでしか足せない）。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>新規レコードを作成する。metadata は Invenio の metadata オブジェクト
+（必須: resource_type{id}, title(≥3), publication_date(EDTF),
+creators[{person_or_org{type,family_name,given_name}}]）。
+files_enabled=False は metadata-only。publish=True で即公開。返り値に recid を含む。</p>
+</div>
+<h3 id="update_record"><code>update_record</code><a class="headerlink" href="#update_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">update_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>レコードのメタデータを更新する（mcp:write）。公開済みは edit→更新→publish。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>既存レコードのメタデータを更新する。公開済みなら edit(下書き化)→更新→(publish) を行う。
+metadata は完全な metadata オブジェクト（部分ではなく置換）。publish=False なら下書きのまま。</p>
+</div>
+<h3 id="publish_record"><code>publish_record</code><a class="headerlink" href="#publish_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">publish_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+</code></pre></div>
+<p>下書きを公開する（mcp:write）。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>下書きを公開する。</p>
+</div>
+<h3 id="new_version"><code>new_version</code><a class="headerlink" href="#new_version" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">new_version</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">import_files</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">publication_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">new_version</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>公開済みレコードの<strong>新しいバージョンの下書き</strong>を作る（mcp:write）。</p>
+<p>InvenioRDM は公開済みレコードを書き換えられない。ファイルを足す・差し替えるには
+新バージョンを作ってそこで作業し、改めて公開する。</p>
+<p>recid        … 元の（公開済み）レコード ID
+import_files … True なら<strong>前バージョンのファイルを引き継ぐ</strong>
+               （InvenioRDM の files-import。既定 True）。
+               False だとファイル無しの下書きから始まる。
+publication_date … 新バージョンの公開日（<code>YYYY-MM-DD</code>）。
+               <strong>InvenioRDM は新バージョン下書きに公開日を引き継がない</strong>ので、
+               省略時は今日の日付を入れる。これが無いと publish が
+               <code>metadata.publication_date: Missing data for required field</code> で失敗する。
+version      … 版表示（<code>v2</code> など）。任意。</p>
+<p>戻り値の <code>id</code> が新しい下書きの ID。<code>upload_file</code> などはその ID に対して行い、
+最後に <code>publish_record</code> で公開する。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>新しいバージョンの下書きを作る。metadata を渡すと差し替え、publish=True で即公開。</p>
+</div>
+<h3 id="delete_draft"><code>delete_draft</code><a class="headerlink" href="#delete_draft" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">delete_draft</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+</code></pre></div>
+<p>下書きを破棄する（mcp:write）。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>下書き（未公開 or 編集中の下書き）を破棄する。</p>
+</div>
+<h2 id="取り下げと復元">取り下げと復元<a class="headerlink" href="#取り下げと復元" title="Permanent link">&para;</a></h2>
+<h3 id="delete_record"><code>delete_record</code><a class="headerlink" href="#delete_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">delete_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">confirm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">reason_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'out-of-scope'</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'removed via MCP'</span><span class="p">)</span>
+</code></pre></div>
+<p>公開レコードをソフト削除（tombstone・HTTP 410）する（mcp:curate）。</p>
+<p><strong>破壊的操作なので confirm=True が無いと実行しない。</strong> <code>restore_record</code> で復元できる。
+reason_id は removalreasons 語彙の id（<code>list_vocabulary("removalreasons")</code> で引ける。
+既定は out-of-scope / copyright / disputed-authorship / duplicate / fraud /
+misconduct / personal-data / retracted / spam / replaced / take-down-request /
+test-record の12件）。note は tombstone に残る公開メモ。
+InvenioRDM 側で admin 権限が無ければ 403 になる。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>公開レコードをソフト削除（tombstone・HTTP 410）する。admin トークン必須。
+confirm=True が無いと実行しない。restore_record で復元可能。
+reason_id は removalreasons 語彙（out-of-scope / duplicate / spam / retracted 等）。</p>
+</div>
+<h3 id="restore_record"><code>restore_record</code><a class="headerlink" href="#restore_record" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">restore_record</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+</code></pre></div>
+<p>ソフト削除された公開レコードを復元する（mcp:curate）。</p>
+<p>tombstone が外れて再び公開状態に戻る。InvenioRDM 側で admin 権限が無ければ 403。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>ソフト削除された公開レコードを復元する。admin トークン必須。</p>
+</div>
+<h2 id="ファイル">ファイル<a class="headerlink" href="#ファイル" title="Permanent link">&para;</a></h2>
+<h3 id="upload_file"><code>upload_file</code><a class="headerlink" href="#upload_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">upload_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content_base64</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">content_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>下書きにファイルを登録する（mcp:write）。</p>
+<p>recid          … 下書きの ID（<code>create_record</code> が返す id）
+filename       … 登録するファイル名（キーになる）
+content_base64 … 中身を base64 で。バイナリはこちら
+content_text   … 中身を平文で。テキストならこちらが楽（UTF-8 で符号化する）</p>
+<p>overwrite      … 同名のファイルが既にあるとき置き換える（既定 True）。
+                 False なら「既にある」と伝えて何もしない。</p>
+<p><strong>公開済みレコードには足せない</strong>（InvenioRDM の仕様。新バージョンを作ること）。
+下書きの files が無効なら自動で有効にする。</p>
+<h3 id="add_file"><code>add_file</code><a class="headerlink" href="#add_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>stdio 版のみ</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">add_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">content_base64</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>下書きにファイルを追加（init→content→commit）する。対象レコードは files_enabled=True である必要がある。
+中身は text(UTF-8) / content_base64 / source_path(サーバ上のパス) のいずれかで渡す。</p>
+<h3 id="list_files"><code>list_files</code><a class="headerlink" href="#list_files" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">list_files</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">list_files</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>レコードのファイル一覧を返す（未認証でも公開レコードなら見られる）。</p>
+<p>draft=True で下書きのファイルを見る（本人の認証が要る）。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>レコード/下書きのファイル一覧。</p>
+</div>
+<h3 id="download_file"><code>download_file</code><a class="headerlink" href="#download_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">download_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>ファイルの中身を取り出す（公開レコードなら未認証でも可）。</p>
+<p>InvenioRDM は S3 の <strong>presigned URL へリダイレクト</strong>して返す。その URL のホストは
+クラスタ内部名（<code>minio:9000</code>）なので<strong>クラスタ外からは辿れない</strong>。そこで MCP サーバが
+代わりに取得し、中身を base64 で返す。UTF-8 として読めるものは <code>text</code> にも入れる。</p>
+<p>draft=True で下書きのファイルを取る（本人の認証が要る）。</p>
+<h3 id="delete_file"><code>delete_file</code><a class="headerlink" href="#delete_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>両方</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">delete_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">delete_file</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># stdio</span>
+</code></pre></div>
+<p>下書きからファイルを削除する（mcp:write）。公開済みレコードからは消せない。</p>
+<div class="admonition note">
+<p class="admonition-title">stdio 版はふるまいが違う:</p>
+<p>下書きからファイルを削除する。</p>
+</div>
+<h3 id="upload_file_from_url"><code>upload_file_from_url</code><a class="headerlink" href="#upload_file_from_url" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">upload_file_from_url</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>URL を渡して InvenioRDM 側にファイルを取得させる（mcp:write）。</p>
+<p><code>upload_file</code> は中身を base64 で運ぶので、MCP の応答が JSON である以上
+大きなファイルには向かない（既定上限 16MB）。こちらは <strong>URI を登録するだけ</strong>で、
+実体は InvenioRDM の Celery ワーカーが非同期にダウンロードする
+（InvenioRDM の transfer 種別 <code>F</code> = FETCH）。<strong>サイズの上限が無い。</strong></p>
+<p><strong>InvenioRDM v14 では通常の利用者は使えない。</strong> 既定の権限方針
+（<code>RDMRecordPermissionPolicy.can_draft_create_files</code>）は transfer 種別 <code>L</code> と <code>M</code>
+にしか一般利用者を通さず、<code>F</code>（と <code>R</code>）は <code>SystemProcess()</code>、つまり
+システム処理と superuser だけに限られている。サーバに任意の URL を
+取りに行かせる操作（SSRF になりうる）を絞ったもの。権限が無ければ 403 になる。</p>
+<p>取得先は InvenioRDM 側の許可ドメイン
+（<code>RECORDS_RESOURCES_FILES_ALLOWED_DOMAINS</code>）にも含まれている必要がある。
+許可されていない URL は <code>Domain not allowed</code> になる。</p>
+<p><strong>非同期なので、戻った時点ではまだ取得中</strong>（<code>status</code> が <code>pending</code>）のことがある。
+完了は <code>list_files</code> の <code>status</code> が <code>completed</code> になったかで確かめる。</p>
+<p><strong>手元にあるファイル</strong>は URL を持たないので、この経路には乗らない。
+その場合は <code>start_multipart_upload</code> を使う（大きさの上限が無く、権限も通常の書き込みでよい）。</p>
+<h3 id="start_multipart_upload"><code>start_multipart_upload</code><a class="headerlink" href="#start_multipart_upload" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">start_multipart_upload</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">part_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>手元の大容量ファイルを送るための<strong>署名済み URL を発行する</strong>（mcp:write）。</p>
+<p><code>upload_file</code> は中身を base64 で運ぶので JSON に載る大きさが限界（既定 16MB）。
+<code>upload_file_from_url</code> は URL を持つファイルにしか使えない。
+<strong>手元にある大きなファイル</strong>はこの経路で送る（InvenioRDM の transfer 種別
+<code>M</code> = MULTIPART）。中身は MCP サーバも InvenioRDM も通らず、
+<strong>クライアントから S3(MinIO) へ直接</strong> PUT される。サイズの上限は事実上無い。</p>
+<p>recid     … 下書きの ID
+filename  … 登録するファイル名
+size      … 送るファイルの<strong>実バイト数</strong>（必須。S3 に事前申告する）
+part_size … 1パートの大きさ。既定 64MiB。最後以外は 5MiB 以上で全て同じ大きさ</p>
+<p>返り値の <code>parts</code> の各 <code>url</code> に、ファイルを先頭から <code>part_size</code> ずつ切って
+<strong>PUT</strong> する。全部送ったら <code>complete_multipart_upload</code> を呼ぶ。
+やめるときは <code>abort_multipart_upload</code>。</p>
+<p>分割と送信の例（返り値の <code>hint</code> にも同じものが入る）:</p>
+<div class="highlight"><pre><span></span><code>split -b &lt;part_size&gt; ./big.bin part_
+curl -X PUT --data-binary @part_aa "&lt;parts[0].url&gt;"
+curl -X PUT --data-binary @part_ab "&lt;parts[1].url&gt;"
+</code></pre></div>
+<h3 id="complete_multipart_upload"><code>complete_multipart_upload</code><a class="headerlink" href="#complete_multipart_upload" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">complete_multipart_upload</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>全パートを送り終えた multipart を確定する（mcp:write）。</p>
+<p>S3 側でパートを1つのオブジェクトに結合し、transfer 種別が <code>M</code> から <code>L</code>
+（通常のファイル）に変わる。<strong>1つでもパートが欠けていると失敗する。</strong></p>
+<p>直後の <code>checksum</code> は <code>multipart:&lt;ETag&gt;-&lt;パート数&gt;-&lt;パートの大きさ&gt;</code> の形で、
+これは S3 が返す複合 ETag（パートごとの MD5 をまとめたもの）。
+ファイル全体の MD5 は InvenioRDM が背後の非同期ジョブで計算し直す。</p>
+<h3 id="abort_multipart_upload"><code>abort_multipart_upload</code><a class="headerlink" href="#abort_multipart_upload" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">abort_multipart_upload</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>途中でやめた multipart を破棄する（mcp:write）。</p>
+<p>S3 側の未完了アップロードも中止されるので、送りかけのパートが
+課金対象として残り続けることを防げる。</p>
+<h2 id="コミュニティ">コミュニティ<a class="headerlink" href="#コミュニティ" title="Permanent link">&para;</a></h2>
+<h3 id="search_communities"><code>search_communities</code><a class="headerlink" href="#search_communities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">search_communities</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>コミュニティを検索する（未認証可）。</p>
+<h3 id="get_community"><code>get_community</code><a class="headerlink" href="#get_community" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">get_community</span><span class="p">(</span><span class="n">community</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>コミュニティを1件取る（未認証可）。community は id(UUID) か slug。</p>
+<h3 id="list_community_records"><code>list_community_records</code><a class="headerlink" href="#list_community_records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td>不要（未認証で可）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">list_community_records</span><span class="p">(</span><span class="n">community</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>コミュニティに属する公開レコードを一覧する（未認証可）。</p>
+<h3 id="create_community"><code>create_community</code><a class="headerlink" href="#create_community" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">create_community</span><span class="p">(</span><span class="n">slug</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">community_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'topic'</span><span class="p">,</span> <span class="n">visibility</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'public'</span><span class="p">,</span> <span class="n">review_policy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'closed'</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>コミュニティを作る（mcp:curate）。</p>
+<p>組織単位を作る操作なので write ではなく curate に置く。
+slug はURLに出る識別子（英小文字・数字・ハイフン）。
+community_type は communitytypes 語彙（organization / event / topic / project）。
+review_policy=closed なら投稿は査読を経る、open なら直接公開できる。</p>
+<h2 id="査読とリクエスト">査読とリクエスト<a class="headerlink" href="#査読とリクエスト" title="Permanent link">&para;</a></h2>
+<h3 id="list_requests"><code>list_requests</code><a class="headerlink" href="#list_requests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">list_requests</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>自分に見えるリクエストを一覧する（mcp:read）。</p>
+<p>status は submitted / expired / accepted / declined / cancelled。
+<strong>査読待ちは status="submitted"</strong>（"open" という状態は無い）。
+未指定なら全件。<code>query</code> は Lucene 風の絞り込みも受ける（例 type:community-submission）。</p>
+<h3 id="get_request"><code>get_request</code><a class="headerlink" href="#get_request" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">get_request</span><span class="p">(</span><span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>リクエストを1件取る（mcp:read）。timeline=True でコメント等の経過も返す。</p>
+<h3 id="submit_to_community"><code>submit_to_community</code><a class="headerlink" href="#submit_to_community" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="n">submit_to_community</span><span class="p">(</span><span class="n">recid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">community</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>下書きをコミュニティに査読申請する（mcp:write）。</p>
+<p>2手順（査読先を設定 → 提出）をまとめて行う。対象は<strong>未公開の下書き</strong>。
+受理されると公開される。受理・却下は <code>request_action</code>（mcp:curate）。</p>
+<h3 id="comment_on_request"><code>comment_on_request</code><a class="headerlink" href="#comment_on_request" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="n">comment_on_request</span><span class="p">(</span><span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>リクエストにコメントする（mcp:write）。</p>
+<h3 id="request_action"><code>request_action</code><a class="headerlink" href="#request_action" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:curate</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">request_action</span><span class="p">(</span><span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span><span class="p">)</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>リクエストを受理・却下する（mcp:curate）。</p>
+<p>action は accept / decline / cancel / expire。
+<strong>accept は投稿を公開する</strong>ので、キュレーターの判断として curate に置く。</p>
+<h2 id="セッション">セッション<a class="headerlink" href="#セッション" title="Permanent link">&para;</a></h2>
+<h3 id="whoami"><code>whoami</code><a class="headerlink" href="#whoami" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>提供</td>
+<td>HTTP 版のみ</td>
+</tr>
+<tr>
+<td>必要な scope</td>
+<td><code>mcp:read</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="n">whoami</span><span class="p">()</span>   <span class="c1"># http</span>
+</code></pre></div>
+<p>このセッションの認証主体と、InvenioRDM 側で解決された身元を返す（mcp:read）。</p>
+<p>学認経由の場合は eppn / 所属（Issuer 由来）/ グループ（mAP 由来）が、
+MCP サーバ宛トークンと InvenioRDM 宛の交換後トークンの<strong>両方</strong>に
+載っていることを確認できる。</p>
+<p><code>invenio.email_pending_setup</code> が true のときは、利用者がまだ
+InvenioRDM 側でメールアドレスを設定していない（学認からは mail が
+降りてこないため仮アドレスのまま）。通知メールが届かない状態なので、
+<code>profile_settings_url</code> を案内して設定を促すこと。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  ページトップへ戻る
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="フッター" >
+        
+          
+          <a href="../../guides/troubleshooting/" class="md-footer__link md-footer__link--prev" aria-label="前: 困ったとき">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                前
+              </span>
+              <div class="md-ellipsis">
+                困ったとき
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../configuration/" class="md-footer__link md-footer__link--next" aria-label="次: 設定">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                次
+              </span>
+              <div class="md-ellipsis">
+                設定
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      MIT — National Institute of Informatics
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/RCOSDP/invenio-mcp" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tracking", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "content.code.copy", "content.action.edit", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

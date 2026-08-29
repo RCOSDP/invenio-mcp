@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/quickstart/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/quickstart/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/quickstart/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/concepts/authorization/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/concepts/authorization/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/concepts/authorization/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/concepts/files/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/concepts/files/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/concepts/files/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/concepts/servers/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/concepts/servers/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/concepts/servers/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/guides/clients/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/clients/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/clients/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/guides/deployment/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/deployment/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/deployment/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/guides/http/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/http/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/http/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/guides/invenio/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/invenio/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/invenio/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/guides/stdio/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/stdio/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/stdio/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/guides/troubleshooting/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/troubleshooting/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/project/changelog/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/changelog/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/changelog/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/project/contributing/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/contributing/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/project/license/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/license/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/license/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/project/security/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/security/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/security/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/project/versioning/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/versioning/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/versioning/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/reference/configuration/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/reference/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/reference/configuration/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/reference/languages/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/reference/languages/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/reference/languages/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/reference/tools/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/reference/tools/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/reference/tools/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/quickstart/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/quickstart/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/quickstart/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/concepts/authorization/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/concepts/authorization/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/concepts/authorization/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/concepts/files/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/concepts/files/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/concepts/files/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/concepts/servers/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/concepts/servers/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/concepts/servers/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/guides/clients/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/clients/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/clients/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/guides/deployment/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/deployment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/deployment/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/guides/http/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/http/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/http/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/guides/invenio/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/invenio/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/invenio/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/guides/stdio/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/stdio/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/stdio/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/guides/troubleshooting/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/guides/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/guides/troubleshooting/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/project/changelog/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/changelog/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/changelog/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/project/contributing/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/contributing/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/project/license/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/license/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/license/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/project/security/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/security/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/security/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/project/versioning/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/project/versioning/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/project/versioning/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/reference/configuration/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/reference/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/reference/configuration/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/reference/languages/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/reference/languages/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/reference/languages/"/>
+    </url>
+    <url>
+        <loc>https://rcosdp.github.io/invenio-mcp/ja/reference/tools/</loc>
+        <lastmod>2026-08-29</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://rcosdp.github.io/invenio-mcp/ja/reference/tools/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rcosdp.github.io/invenio-mcp/reference/tools/"/>
+    </url>
+</urlset>

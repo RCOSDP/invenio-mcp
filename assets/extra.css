@@ -1,0 +1,4 @@
+/* Mermaid を中央に置き、はみ出すときだけ横スクロールさせる。 */
+.mermaid { text-align: center; overflow-x: auto; }
+/* ツール一覧の「提供 / scope」の小表。値が短いので、幅を取らせない。 */
+.md-typeset table:not([class]) th:empty { padding: 0; }
