@@ -37,6 +37,7 @@ spec:
           env:
             - {name: MCP_BIND_HOST, value: "0.0.0.0"}
             - {name: MCP_BIND_PORT, value: "9100"}
+            - {name: MCP_LANG, value: "en"}          # ツールの説明・エラーの言語（en / ja）
             - {name: MCP_RESOURCE, value: "https://mcp.example.org/mcp"}
             - {name: KC_ISSUER, value: "https://keycloak.example.org/realms/mcp"}
             - {name: INVENIO_API, value: "https://invenio.example.org/api"}

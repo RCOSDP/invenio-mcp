@@ -10,9 +10,12 @@ RUN pip install --no-cache-dir \
 
 WORKDIR /app
 COPY mcp_server.py /app/mcp_server.py
+# 言語リソース（同梱は en / ja）。MCP_LANG で選ぶ。
+COPY locales /app/locales
 
 # 既定値はマニフェスト側の環境変数で上書きする
 ENV MCP_BIND_HOST=0.0.0.0 \
-    MCP_BIND_PORT=9100
+    MCP_BIND_PORT=9100 \
+    MCP_LANG=en
 
 CMD ["python3", "/app/mcp_server.py"]

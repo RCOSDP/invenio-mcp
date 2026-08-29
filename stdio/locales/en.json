@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "language": "en",
+    "name": "English",
+    "note": "User-facing strings only. Arrays are joined with newlines. {name} is a format argument."
+  },
+
+  "tools": {
+    "search_records": "Search published records. query is an Invenio search expression (empty matches everything). Returns summary fields only.",
+    "get_record": "Fetch one record. draft=True fetches the draft.",
+    "create_record": [
+      "Create a new record. metadata is an Invenio metadata object",
+      "(required: resource_type{id}, title (>= 3 chars), publication_date (EDTF),",
+      "creators[{person_or_org{type,family_name,given_name}}]).",
+      "files_enabled=False makes it metadata-only. publish=True publishes it right away.",
+      "The result contains recid."
+    ],
+    "update_record": [
+      "Update an existing record's metadata. For a published record this does",
+      "edit (back to draft) -> update -> (publish).",
+      "metadata is the complete metadata object (a replacement, not a patch).",
+      "publish=False leaves it as a draft."
+    ],
+    "publish_record": "Publish a draft.",
+    "new_version": "Create a draft of a new version. Passing metadata replaces it; publish=True publishes right away.",
+    "delete_draft": "Discard a draft (unpublished, or the draft of an edit in progress).",
+    "delete_record": [
+      "Soft-delete a published record, leaving a tombstone that returns HTTP 410.",
+      "Requires an admin token. Does nothing without confirm=True.",
+      "restore_record brings it back.",
+      "reason_id comes from the removalreasons vocabulary",
+      "(out-of-scope / duplicate / spam / retracted and so on)."
+    ],
+    "restore_record": "Restore a soft-deleted published record. Requires an admin token.",
+    "add_file": [
+      "Add a file to a draft (init -> content -> commit). The record must have",
+      "files_enabled=True.",
+      "Give the content as one of text (UTF-8), content_base64, or source_path",
+      "(a path on the server)."
+    ],
+    "list_files": "List the files of a record or draft.",
+    "delete_file": "Delete a file from a draft."
+  },
+
+  "errors": {
+    "token_missing": "INVENIO_TOKEN is unset and there is no .token file",
+    "api_http": "HTTP {status} {method} {path}: {detail}",
+    "content_required": "one of text / content_base64 / source_path is required",
+    "destructive_needs_confirm": "This is a destructive operation. Pass confirm=True."
+  }
+}

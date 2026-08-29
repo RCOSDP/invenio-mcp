@@ -1,0 +1,316 @@
+{
+  "_meta": {
+    "language": "en",
+    "name": "English",
+    "note": "User-facing strings only. Arrays are joined with newlines. {name} is a format argument."
+  },
+
+  "tools": {
+    "whoami": [
+      "Return the authenticated subject of this session and the identity resolved on the",
+      "InvenioRDM side (mcp:read).",
+      "",
+      "When the login came through a federation such as GakuNin, this shows that eppn,",
+      "affiliation (from the issuer) and groups (from mAP) are carried on **both** the token",
+      "addressed to this MCP server and the exchanged token addressed to InvenioRDM.",
+      "",
+      "When `invenio.email_pending_setup` is true the user has not yet set an email address",
+      "in InvenioRDM (the federation does not release `mail`, so a placeholder is in place).",
+      "Notification mail cannot reach them in that state, so point them at",
+      "`profile_settings_url` and ask them to set one."
+    ],
+    "search_records": [
+      "Search published records (**works unauthenticated**).",
+      "",
+      "With a token the search runs as that user, so their own drafts are included too."
+    ],
+    "get_record": "Fetch a single record (**works unauthenticated**). draft=True fetches the draft (authentication required).",
+    "create_record": [
+      "Create a record (mcp:write).",
+      "",
+      "publish=True publishes it as well.",
+      "files=True makes a draft that can carry files (put them in with `upload_file`).",
+      "**Leave publishing until after the files are in** — once published, files can only be",
+      "added through a new version."
+    ],
+    "update_record": "Update a record's metadata (mcp:write). For a published record this does edit -> update -> publish.",
+    "publish_record": "Publish a draft (mcp:write).",
+    "delete_draft": "Discard a draft (mcp:write).",
+    "delete_record": [
+      "Soft-delete a published record, leaving a tombstone that returns HTTP 410 (mcp:curate).",
+      "",
+      "**Destructive, so it does nothing without confirm=True.** `restore_record` brings it back.",
+      "reason_id is an id from the removalreasons vocabulary (list them with",
+      "`list_vocabulary(\"removalreasons\")`; the stock twelve are out-of-scope / copyright /",
+      "disputed-authorship / duplicate / fraud / misconduct / personal-data / retracted /",
+      "spam / replaced / take-down-request / test-record). note is a public remark left on",
+      "the tombstone.",
+      "Fails with 403 unless the user holds the admin role in InvenioRDM."
+    ],
+    "restore_record": [
+      "Restore a soft-deleted published record (mcp:curate).",
+      "",
+      "The tombstone is lifted and the record is published again. Fails with 403 unless the",
+      "user holds the admin role in InvenioRDM."
+    ],
+    "list_vocabulary_types": [
+      "List the vocabulary types this repository has (works unauthenticated).",
+      "",
+      "Pass one of the returned ids to `list_vocabulary` to read its entries."
+    ],
+    "list_vocabulary": [
+      "Read the entries of a vocabulary (works unauthenticated).",
+      "",
+      "vocab_type is an id returned by `list_vocabulary_types` (resourcetypes / licenses /",
+      "languages / subjects / removalreasons / creatorsroles / descriptiontypes /",
+      "relationtypes / titletypes / datetypes and so on).",
+      "**Check the right id here before writing any metadata.**"
+    ],
+    "export_record": [
+      "Export a published record in another metadata format (works unauthenticated).",
+      "",
+      "fmt is one of json / inveniordm / jsonld / datacite-json / datacite-xml /",
+      "dublincore / marcxml / dcat / csl / bibtex / citation / geojson.",
+      "**Not available for drafts** (published records only)."
+    ],
+    "list_versions": "List every version of a record (works unauthenticated). Versions made by `new_version` show up here.",
+    "list_revisions": [
+      "List a record's revision history — what changed and when (mcp:read).",
+      "",
+      "Different from versions (`list_versions`): this is the **edit history of the same",
+      "record**. Authentication is required even for published records."
+    ],
+    "my_records": [
+      "List your own records and drafts (mcp:read).",
+      "",
+      "**Unpublished drafts are included**, not just published records, so it can answer",
+      "\"what am I still working on\"."
+    ],
+    "search_communities": "Search communities (works unauthenticated).",
+    "get_community": "Fetch a single community (works unauthenticated). community is an id (UUID) or a slug.",
+    "list_community_records": "List the published records belonging to a community (works unauthenticated).",
+    "create_community": [
+      "Create a community (mcp:curate).",
+      "",
+      "Creating an organisational unit sits under curate rather than write.",
+      "slug is the identifier that appears in URLs (lowercase letters, digits, hyphens).",
+      "community_type comes from the communitytypes vocabulary (organization / event /",
+      "topic / project).",
+      "review_policy=closed puts submissions through review; open lets them publish directly."
+    ],
+    "list_requests": [
+      "List the requests visible to you (mcp:read).",
+      "",
+      "status is one of submitted / expired / accepted / declined / cancelled.",
+      "**Pending review is status=\"submitted\"** — there is no \"open\" state.",
+      "Omit it for everything. `query` also takes Lucene-style filters",
+      "(e.g. type:community-submission)."
+    ],
+    "get_request": "Fetch a single request (mcp:read). timeline=True also returns its comments and events.",
+    "submit_to_community": [
+      "Submit a draft to a community for review (mcp:write).",
+      "",
+      "Does both steps at once (set the review target, then submit). The target must be an",
+      "**unpublished draft**. Acceptance publishes it. Accepting and declining are",
+      "`request_action` (mcp:curate)."
+    ],
+    "comment_on_request": "Comment on a request (mcp:write).",
+    "request_action": [
+      "Accept or decline a request (mcp:curate).",
+      "",
+      "action is one of accept / decline / cancel / expire.",
+      "**accept publishes the submission**, which is a curator's decision, hence curate."
+    ],
+    "upload_file": [
+      "Register a file on a draft (mcp:write).",
+      "",
+      "recid          ... the draft's ID (the id returned by `create_record`)",
+      "filename       ... the name to register it under (it becomes the key)",
+      "content_base64 ... the content as base64; use this for binaries",
+      "content_text   ... the content as plain text; easier for text (encoded as UTF-8)",
+      "",
+      "overwrite      ... replace a file of the same name if one exists (default True).",
+      "                   False reports that it already exists and does nothing.",
+      "",
+      "**Files cannot be added to a published record** (an InvenioRDM rule — make a new",
+      "version instead). If the draft has files disabled, they are enabled automatically."
+    ],
+    "list_files": [
+      "List a record's files (published records are visible unauthenticated).",
+      "",
+      "draft=True lists the draft's files (requires the owner's authentication)."
+    ],
+    "delete_file": "Delete a file from a draft (mcp:write). Files cannot be removed from a published record.",
+    "download_file": [
+      "Retrieve a file's contents (works unauthenticated for published records).",
+      "",
+      "InvenioRDM answers with a **redirect to an S3 presigned URL**. That URL's host is an",
+      "in-cluster name (`minio:9000`), so it **cannot be followed from outside the cluster**.",
+      "The MCP server therefore fetches it instead and returns the bytes as base64. Anything",
+      "that decodes as UTF-8 is also returned in `text`.",
+      "",
+      "draft=True fetches the draft's file (requires the owner's authentication)."
+    ],
+    "new_version": [
+      "Create a **draft of a new version** of a published record (mcp:write).",
+      "",
+      "InvenioRDM cannot rewrite a published record. To add or replace files you make a new",
+      "version, work in it, and publish again.",
+      "",
+      "recid        ... the original (published) record ID",
+      "import_files ... True **carries the previous version's files over**",
+      "                 (InvenioRDM's files-import; default True).",
+      "                 False starts from a draft with no files.",
+      "publication_date ... the new version's publication date (`YYYY-MM-DD`).",
+      "                 **InvenioRDM does not carry the publication date into a new version",
+      "                 draft**, so today's date is filled in when this is omitted. Without",
+      "                 it, publishing fails with",
+      "                 `metadata.publication_date: Missing data for required field`.",
+      "version      ... the version label (`v2` and the like). Optional.",
+      "",
+      "The `id` in the result is the new draft's ID. Run `upload_file` and friends against",
+      "that ID, then publish with `publish_record`."
+    ],
+    "upload_file_from_url": [
+      "Hand InvenioRDM a URL and let it fetch the file itself (mcp:write).",
+      "",
+      "`upload_file` carries the bytes as base64, and since MCP responses are JSON that does",
+      "not suit large files (default limit 16MB). This tool **only registers a URI**; the",
+      "bytes are downloaded asynchronously by InvenioRDM's Celery worker (InvenioRDM",
+      "transfer type `F` = FETCH). **There is no size limit.**",
+      "",
+      "**Ordinary users cannot use this on InvenioRDM v14.** The default permission policy",
+      "(`RDMRecordPermissionPolicy.can_draft_create_files`) admits ordinary users only for",
+      "transfer types `L` and `M`; `F` (and `R`) are limited to `SystemProcess()`, meaning",
+      "system processes and superusers. Making the server fetch an arbitrary URL is a",
+      "potential SSRF, hence the restriction. Without the permission this returns 403.",
+      "",
+      "The target must also be within InvenioRDM's allowed domains",
+      "(`RECORDS_RESOURCES_FILES_ALLOWED_DOMAINS`). A URL outside them fails with",
+      "`Domain not allowed`.",
+      "",
+      "**Because it is asynchronous, the fetch may still be running when this returns**",
+      "(`status` is `pending`). Confirm completion by checking that `list_files` reports",
+      "`status` as `completed`.",
+      "",
+      "**A file on your own machine** has no URL and cannot take this path. Use",
+      "`start_multipart_upload` for that (no size limit, and ordinary write permission is",
+      "enough)."
+    ],
+    "start_multipart_upload": [
+      "**Issue presigned URLs** for sending a large local file (mcp:write).",
+      "",
+      "`upload_file` carries the bytes as base64, so it is bounded by what fits in JSON",
+      "(default 16MB). `upload_file_from_url` only works for files that have a URL.",
+      "**A large file on your own machine** goes this way (InvenioRDM transfer type",
+      "`M` = MULTIPART). The bytes pass through neither the MCP server nor InvenioRDM: they",
+      "are PUT **straight from the client to S3 (MinIO)**. There is effectively no size limit.",
+      "",
+      "recid     ... the draft's ID",
+      "filename  ... the name to register it under",
+      "size      ... the file's **exact byte count** (required; it is declared to S3 up front)",
+      "part_size ... bytes per part. Default 64MiB. Every part but the last must be at least",
+      "              5MiB and all of them the same size",
+      "",
+      "PUT the file to each `url` under `parts` in the result, cutting it into `part_size`",
+      "chunks from the beginning. Call `complete_multipart_upload` once every part is sent,",
+      "or `abort_multipart_upload` to give up.",
+      "",
+      "Splitting and sending, as an example (the same text is in `hint` in the result):",
+      "",
+      "    split -b <part_size> ./big.bin part_",
+      "    curl -X PUT --data-binary @part_aa \"<parts[0].url>\"",
+      "    curl -X PUT --data-binary @part_ab \"<parts[1].url>\""
+    ],
+    "complete_multipart_upload": [
+      "Finalise a multipart upload once every part has been sent (mcp:write).",
+      "",
+      "S3 joins the parts into a single object and the transfer type changes from `M` to `L`",
+      "(an ordinary file). **It fails if even one part is missing.**",
+      "",
+      "The `checksum` right afterwards has the form",
+      "`multipart:<ETag>-<part count>-<part size>`, which is the composite ETag S3 returns",
+      "(the per-part MD5s rolled together). InvenioRDM recomputes the MD5 of the whole file",
+      "in a background job."
+    ],
+    "abort_multipart_upload": [
+      "Discard a multipart upload that was given up partway (mcp:write).",
+      "",
+      "The incomplete upload on the S3 side is aborted too, so half-sent parts do not linger",
+      "and keep costing storage."
+    ]
+  },
+
+  "auth": {
+    "scheme_not_bearer": "Authorization scheme must be Bearer",
+    "invalid_token": "Invalid or expired token",
+    "endpoint_requires_auth": "this endpoint requires authorization",
+    "authentication_required": "Authentication required",
+    "tool_requires_auth": "tool '{tool}' requires authorization",
+    "tool_requires_scope": "tool '{tool}' requires scope '{scope}'",
+    "whoami_requires_auth": "whoami requires authentication (mcp:read)",
+    "unverified_token": "unverified token",
+    "token_exchange_failed": "token exchange failed: {status} {body}",
+    "client_secret_missing": [
+      "MCP_SERVER_SECRET is not set. In keycloak mode it has to match the secret configured",
+      "on the mcp-server client in Keycloak."
+    ],
+    "pat_mode_no_exchange": "no token exchange in PAT mode (the InvenioRDM personal access token received is used as-is)"
+  },
+
+  "errors": {
+    "auth_mode_invalid": "MCP_AUTH_MODE must be keycloak or invenio: {given}",
+    "invenio_http": "InvenioRDM HTTP {status}: {body}",
+    "object_store_http": "cannot fetch from the object store, HTTP {status}",
+    "destructive_needs_confirm": "This is a destructive operation. Pass confirm=True.",
+    "destructive_effect": "the published record becomes a tombstone returning HTTP 410 (restore_record brings it back)",
+    "reason_id_invalid": "invalid reason_id. Check the valid ids with list_vocabulary('removalreasons')",
+    "export_format_unknown": "unknown format. One of {formats}",
+    "request_status_invalid": "status must be one of {statuses} (there is no open / closed state)",
+    "request_action_invalid": "action must be one of {actions}",
+    "content_exclusive": "give exactly one of content_base64 or content_text",
+    "base64_undecodable": "not readable as base64: {error}",
+    "upload_too_large": "too large: {size} bytes (limit {limit}). MCP arguments are JSON, which does not suit huge files",
+    "download_too_large": "too large: {size} bytes (limit {limit}). MCP responses are JSON, which does not suit huge files",
+    "file_exists": "'{filename}' already exists. Pass overwrite=True to replace it",
+    "fetch_forbidden": [
+      "no permission for URL fetching (transfer F). InvenioRDM v14 allows it only to system",
+      "processes and superusers by default.",
+      "Use start_multipart_upload to send a local file instead"
+    ],
+    "import_files_failed": "could not carry the files over: {error}",
+    "size_must_be_positive": "size must be 1 or more (the file's actual byte count)",
+    "part_size_too_small": "part_size is too small: {part_size}. Every part but the last must be at least {minimum} bytes",
+    "no_part_links": "no presigned part URLs came back. The storage may not be S3 (local storage uploads go through InvenioRDM instead)"
+  },
+
+  "notes": {
+    "fetch_async": "the fetch is asynchronous; it is done once list_files reports status as completed",
+    "multipart_hint": "split the file with split -b {part_size} <file> part_ and send each piece with curl -X PUT --data-binary @<piece> '<url>'. Once every part is sent, call complete_multipart_upload(recid, filename)",
+    "multipart_direct": "the bytes go straight to S3 without passing through the MCP server"
+  },
+
+  "startup": {
+    "server": "MCP resource server: http://{host}:{port}{path}",
+    "version": "  version                           : {version}",
+    "canonical_uri": "  canonical URI (RFC 8707 resource) : {resource}",
+    "resource_metadata": "  protected resource metadata       : {url}",
+    "auth_mode": "  auth mode (MCP_AUTH_MODE)         : {mode}",
+    "language": "  language (MCP_LANG)               : {lang} (available: {available})",
+    "pat_direct": "  accepts InvenioRDM PATs directly  : verified against {api}/me",
+    "pat_issue": "    issue a PAT                     : {url}",
+    "pat_scopes": "    roles -> scopes                 : {base} by default, plus {roles}",
+    "authorization_server": "  authorization server              : {issuer}",
+    "tls": "  TLS verification (InvenioRDM / Keycloak) : {state}",
+    "tls_on": "on",
+    "tls_off": "**off** (MCP_TLS_INSECURE)",
+    "audit": "  audit log                         : {state}",
+    "audit_on": "on",
+    "audit_off": "off (MCP_AUDIT=off)",
+    "auth_path": [
+      "  authorization-required entrance (same resource, second path) : {path}",
+      "    <- 401 from the very first connection, for clients such as mcp-remote that",
+      "       do not start authorization unless the first connection is a 401"
+    ]
+  }
+}

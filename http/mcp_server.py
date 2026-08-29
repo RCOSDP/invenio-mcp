@@ -24,6 +24,9 @@ Streamable HTTP ＋ OAuth 2.1 リソースサーバとして動く。
   KC_ISSUER                       既定 http://localhost:8080/realms/mcp
   MCP_SERVER_SECRET               既定 mcp-server-secret
   INVENIO_API                     既定 https://127.0.0.1/api
+  MCP_LANG                        ツールの説明・エラーの言語。同梱は en / ja。
+                                  未設定ならシステムのロケール、決まらなければ en
+  MCP_LOCALES_DIR                 言語リソースの置き場。既定は本ファイルと同じ場所の locales/
 """
 from __future__ import annotations
 
@@ -41,6 +44,114 @@ from mcp.server.auth.settings import AuthSettings
 from mcp.server.fastmcp import FastMCP
 from mcp.server.auth.middleware.auth_context import get_access_token
 from starlette.types import ASGIApp, Receive, Scope, Send
+
+# セマンティックバージョニング（https://semver.org/lang/ja/）。
+# 何を破壊的変更とみなすかは docs/about/versioning.md に書いてある。
+# stdio/server.py の __version__ と揃える（CI が一致を検査する）。
+__version__ = "0.0.1"
+
+# ------------------------------------------------------------------ i18n
+# 利用者（と LLM）に見える文字列は locales/<lang>.json に置く。ツールの説明・
+# エラー・起動時の表示がその対象で、コード中の注釈は開発者向けなので含めない。
+#
+# MCP のプロトコルに言語交渉は無い（initialize にロケールの項目が無い）。
+# したがって言語は**プロセス単位**で決まる。MCP_LANG が最優先で、無ければ
+# システムのロケール（LC_ALL / LC_MESSAGES / LANG）を見て、それでも決まらなければ英語。
+# 利用者ごとに言語を変えたいときは、言語ごとにインスタンスを立てる。
+#
+# locales/ に <tag>.json を置けばその言語が増える（同梱は en と ja）。
+_HERE = os.path.dirname(os.path.abspath(__file__))
+LOCALES_DIR = os.environ.get("MCP_LOCALES_DIR") or os.path.join(_HERE, "locales")
+FALLBACK_LANG = "en"
+
+
+def _available_langs() -> list[str]:
+    try:
+        return sorted(f[:-5] for f in os.listdir(LOCALES_DIR) if f.endswith(".json"))
+    except OSError:
+        return []
+
+
+def _normalize_tag(raw: str) -> str:
+    """ja_JP.UTF-8 / ja-JP / JA → ja-jp のような比較しやすい形にする。"""
+    return raw.split(".")[0].split("@")[0].strip().replace("_", "-").lower()
+
+
+def _pick_lang(available: list[str]) -> str:
+    explicit = os.environ.get("MCP_LANG", "").strip()
+    # 明示指定が未知の言語なら、システムのロケールは見ずに既定へ落とす（意図を優先）
+    candidates = [explicit] if explicit else [
+        os.environ.get(k, "") for k in ("LC_ALL", "LC_MESSAGES", "LANG")]
+    for raw in candidates:
+        if not raw:
+            continue
+        tag = _normalize_tag(raw)
+        if tag in available:          # ja-jp のような地域付きの資源も選べる
+            return tag
+        if tag.split("-")[0] in available:
+            return tag.split("-")[0]
+    return FALLBACK_LANG
+
+
+def _load_lang(lang: str) -> dict:
+    with open(os.path.join(LOCALES_DIR, f"{lang}.json"), encoding="utf-8") as f:
+        return json.load(f)
+
+
+AVAILABLE_LANGS = _available_langs()
+LANG = _pick_lang(AVAILABLE_LANGS)
+try:
+    _STRINGS = _load_lang(LANG)
+    _FALLBACK_STRINGS = _STRINGS if LANG == FALLBACK_LANG else _load_lang(FALLBACK_LANG)
+except OSError as e:      # ここだけは翻訳できないので両言語で出す
+    raise SystemExit(
+        f"cannot read language resources: {e}\n"
+        "Put locales/ next to this file, or point MCP_LOCALES_DIR at it.\n"
+        "言語リソースを読めません。locales/ をこのファイルと同じ場所に置くか "
+        "MCP_LOCALES_DIR で指してください。") from e
+
+
+def _dig(strings: dict, key: str):
+    cur = strings
+    for part in key.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return None
+        cur = cur[part]
+    return cur
+
+
+def t_ascii(key: str, **kw) -> str:
+    """HTTP ヘッダに載せる版。**常に英語**で、ASCII 以外を落とす。
+
+    RFC 6750 の error_description に置けるのは ASCII の一部（NQSCHAR）だけなので、
+    翻訳文をそのまま WWW-Authenticate に入れることはできない。翻訳は JSON 本文の
+    error_description に載せ、ヘッダにはこちらを使う。
+    """
+    v = _dig(_FALLBACK_STRINGS, key)
+    if v is None:
+        return key
+    if isinstance(v, list):
+        v = " ".join(v)
+    if kw:
+        v = v.format(**kw)
+    v = v.encode("ascii", "replace").decode("ascii")
+    return v.replace('"', "'").replace("\\", "/")
+
+
+def t(key: str, **kw) -> str:
+    """locales/<lang>.json の文字列を引く。無ければ英語 → キー名の順に落ちる。
+
+    値が配列なら改行で連結する（長い説明文を JSON でも読める形に保つため）。
+    書式引数を渡したときだけ format する（説明文に出てくる波括弧を壊さないため）。
+    """
+    v = _dig(_STRINGS, key)
+    if v is None:
+        v = _dig(_FALLBACK_STRINGS, key)
+    if v is None:
+        return key
+    if isinstance(v, list):
+        v = "\n".join(v)
+    return v.format(**kw) if kw else v
 
 # ---------------------------------------------------------------- 設定
 BIND_HOST = os.environ.get("MCP_BIND_HOST", "127.0.0.1")
@@ -72,7 +183,7 @@ INVENIO_AUDIENCE = os.environ.get("INVENIO_AUDIENCE", "invenio-api")
 #   違うのは入手方法だけ。ならば手間の少ない PAT を採る。
 AUTH_MODE = os.environ.get("MCP_AUTH_MODE", "keycloak").lower()
 if AUTH_MODE not in ("keycloak", "invenio"):
-    raise SystemExit(f"MCP_AUTH_MODE は keycloak か invenio: {AUTH_MODE}")
+    raise SystemExit(t("errors.auth_mode_invalid", given=AUTH_MODE))
 
 # PAT には scope が無いので、**InvenioRDM のロール**から MCP scope を導く。
 # 素の InvenioRDM が持つ役割をそのまま使うので、追加の語彙も拡張も要らない。
@@ -281,7 +392,7 @@ class InvenioPATVerifier(TokenVerifier):
         """
         hit = self._cache.get(token)
         if not hit:
-            raise RuntimeError("未検証のトークン")
+            raise RuntimeError(t("auth.unverified_token"))
         me = hit[0]
         return {
             "sub": str(me.get("id")),
@@ -318,13 +429,15 @@ else:
 
 
 # --------------------------------------- 仕様適合のための ASGI ミドルウェア
-def _www_authenticate(error: str, scope_str: str, description: str,
-                      prm_url: str = RESOURCE_METADATA_URL) -> str:
+def _www_authenticate(error: str, scope_str: str, msg_key: str,
+                      prm_url: str = RESOURCE_METADATA_URL,
+                      msg_kw: dict | None = None) -> str:
+    """RFC 6750 のチャレンジ。error_description は ASCII の英語（t_ascii）。"""
     return (
         f'Bearer error="{error}", '
         f'scope="{scope_str}", '
         f'resource_metadata="{prm_url}", '
-        f'error_description="{description}"'
+        f'error_description="{t_ascii(msg_key, **(msg_kw or {}))}"'
     )
 
 
@@ -437,7 +550,7 @@ class ScopeChallengeMiddleware:
             claims = self._claims(scope, verifier)
             challenge = self._check(scope, body, require_auth, verifier, adv_scopes)
             if challenge is not None:
-                status, err, need, desc = challenge
+                status, err, need = challenge[:3]
                 _audit("deny", path=path, method=rpc_method, tool=tool,
                        status=status, error=err, required_scope=need,
                        **_subject(claims))
@@ -449,7 +562,7 @@ class ScopeChallengeMiddleware:
             # GET/DELETE（SSE やセッション終了）も認可必須にする
             await self._send_challenge(
                 send, 401, "invalid_token", " ".join(adv_scopes),
-                "this endpoint requires authorization", prm_url=prm_url,
+                "auth.endpoint_requires_auth", prm_url=prm_url,
             )
             return
 
@@ -489,7 +602,7 @@ class ScopeChallengeMiddleware:
                         b"www-authenticate",
                         _www_authenticate(
                             "invalid_token", " ".join(adv_scopes),
-                            "Authentication required", prm_url,
+                            "auth.authentication_required", prm_url,
                         ).encode(),
                     ))
                 message = {**message, "headers": headers}
@@ -520,7 +633,10 @@ class ScopeChallengeMiddleware:
     def _check(self, scope: Scope, body: bytes, require_auth: bool = False,
                verifier: "KeycloakJWTVerifier" = None,
                adv_scopes: "list | None" = None):
-        """不足があれば (status, error, scope, description) を返す。
+        """不足があれば (status, error, scope, メッセージキー, 書式引数) を返す。
+
+        説明文そのものではなく**キー**を返すのは、同じ内容を JSON 本文には翻訳して、
+        WWW-Authenticate ヘッダには ASCII の英語で載せる必要があるため。
 
         方針:
           * Authorization ヘッダが**有る**のに検証に失敗 → 401（黙って匿名に落とさない）
@@ -537,20 +653,20 @@ class ScopeChallengeMiddleware:
         if raw is not None:
             if not raw.lower().startswith("bearer "):
                 return (401, "invalid_token", " ".join(BASE_SCOPES),
-                        "Authorization scheme must be Bearer")
+                        "auth.scheme_not_bearer", {})
             try:
                 claims = (verifier or VERIFIER).decode(raw[7:].strip())
             except Exception:
                 # 不正・期限切れ・別 issuer・別 audience はここで落とす
                 return (401, "invalid_token", " ".join(BASE_SCOPES),
-                        "Invalid or expired token")
+                        "auth.invalid_token", {})
 
         adv_scopes = adv_scopes or BASE_SCOPES
         if require_auth and claims is None:
             # initialize / tools/list であっても通さない。
             # 「最初の接続が 401 でなければ認可の準備をしない」クライアント向けの入口。
             return (401, "invalid_token", " ".join(adv_scopes),
-                    "this endpoint requires authorization")
+                    "auth.endpoint_requires_auth", {})
 
         try:
             payload = json.loads(body or b"{}")
@@ -565,17 +681,22 @@ class ScopeChallengeMiddleware:
 
         if claims is None:
             return (401, "invalid_token", needed,
-                    f"tool '{tool}' requires authorization")
+                    "auth.tool_requires_auth", {"tool": tool})
         granted = set((claims.get("scope") or "").split())
         if needed in granted:
             return None
         return (403, "insufficient_scope", needed,
-                f"tool '{tool}' requires scope '{needed}'")
+                "auth.tool_requires_scope", {"tool": tool, "scope": needed})
 
-    async def _send_challenge(self, send: Send, status, error, scope_str, description,
+    async def _send_challenge(self, send: Send, status, error, scope_str, msg_key,
+                              msg_kw: dict | None = None,
                               prm_url: str = RESOURCE_METADATA_URL):
+        # 本文（JSON・UTF-8）は翻訳を載せ、ヘッダは ASCII の英語にする
         payload = json.dumps(
-            {"error": error, "error_description": description, "required_scope": scope_str}
+            {"error": error,
+             "error_description": t(msg_key, **(msg_kw or {})),
+             "required_scope": scope_str},
+            ensure_ascii=False,
         ).encode()
         await send({
             "type": "http.response.start",
@@ -583,7 +704,7 @@ class ScopeChallengeMiddleware:
             "headers": [
                 (b"content-type", b"application/json"),
                 (b"www-authenticate",
-                 _www_authenticate(error, scope_str, description, prm_url).encode()),
+                 _www_authenticate(error, scope_str, msg_key, prm_url, msg_kw).encode()),
             ],
         })
         await send({"type": "http.response.body", "body": payload})
@@ -600,9 +721,7 @@ def _client_secret() -> str:
     動いてしまうより、その場で止める方がよい。PAT モードでは呼ばれない。
     """
     if not MCP_CLIENT_SECRET:
-        raise RuntimeError(
-            "MCP_SERVER_SECRET が未設定です。keycloak モードでは、Keycloak の "
-            "mcp-server クライアントに設定したシークレットと同じ値が要ります。")
+        raise RuntimeError(t("auth.client_secret_missing"))
     return MCP_CLIENT_SECRET
 
 
@@ -641,7 +760,8 @@ async def _invenio_token() -> str | None:
             },
         )
     if r.status_code != 200:
-        raise RuntimeError(f"トークン交換に失敗: {r.status_code} {r.text[:200]}")
+        raise RuntimeError(t("auth.token_exchange_failed",
+                            status=r.status_code, body=r.text[:200]))
     tok = r.json()
     _exchange_cache[at.token] = (tok["access_token"], time.time() + tok.get("expires_in", 60))
     return tok["access_token"]
@@ -655,7 +775,8 @@ async def _invenio(method: str, path: str, body=None):
     async with httpx.AsyncClient(verify=VERIFY_TLS, timeout=30) as c:
         r = await c.request(method, f"{INVENIO_API}{path}", headers=headers, json=body)
     if r.status_code >= 400:
-        raise RuntimeError(f"InvenioRDM HTTP {r.status_code}: {r.text[:300]}")
+        raise RuntimeError(t("errors.invenio_http",
+                             status=r.status_code, body=r.text[:300]))
     return r.json() if r.content else None
 
 
@@ -672,7 +793,8 @@ async def _invenio_raw(method: str, path: str, data: bytes, content_type: str):
     async with httpx.AsyncClient(verify=VERIFY_TLS, timeout=120) as c:
         r = await c.request(method, f"{INVENIO_API}{path}", headers=headers, content=data)
     if r.status_code >= 400:
-        raise RuntimeError(f"InvenioRDM HTTP {r.status_code}: {r.text[:300]}")
+        raise RuntimeError(t("errors.invenio_http",
+                             status=r.status_code, body=r.text[:300]))
     return r.json() if r.content else None
 
 
@@ -689,7 +811,8 @@ async def _invenio_text(path: str, accept: str):
     async with httpx.AsyncClient(verify=VERIFY_TLS, timeout=30) as c:
         r = await c.get(f"{INVENIO_API}{path}", headers=headers)
     if r.status_code >= 400:
-        raise RuntimeError(f"InvenioRDM HTTP {r.status_code}: {r.text[:300]}")
+        raise RuntimeError(t("errors.invenio_http",
+                             status=r.status_code, body=r.text[:300]))
     return r.text, r.headers.get("content-type", "")
 
 
@@ -757,6 +880,9 @@ mcp = FastMCP(
         required_scopes=BASE_SCOPES,
     ),
 )
+# FastMCP は version を受け取らないので、低レベルサーバに直接入れる。
+# initialize の応答の serverInfo.version としてクライアントに見える。
+mcp._mcp_server.version = __version__
 
 
 def _peek(token: str) -> dict:
@@ -765,22 +891,11 @@ def _peek(token: str) -> dict:
     return json.loads(base64.urlsafe_b64decode(p + "=" * (-len(p) % 4)))
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.whoami"))
 async def whoami() -> dict:
-    """このセッションの認証主体と、InvenioRDM 側で解決された身元を返す（mcp:read）。
-
-    学認経由の場合は eppn / 所属（Issuer 由来）/ グループ（mAP 由来）が、
-    MCP サーバ宛トークンと InvenioRDM 宛の交換後トークンの**両方**に
-    載っていることを確認できる。
-
-    `invenio.email_pending_setup` が true のときは、利用者がまだ
-    InvenioRDM 側でメールアドレスを設定していない（学認からは mail が
-    降りてこないため仮アドレスのまま）。通知メールが届かない状態なので、
-    `profile_settings_url` を案内して設定を促すこと。
-    """
     at = get_access_token()
     if at is None:
-        raise RuntimeError("whoami は認証が要る（mcp:read）")
+        raise RuntimeError(t("auth.whoami_requires_auth"))
     claims = VERIFIER.decode(at.token)
     # PAT モードでは交換が無く、トークンも JWT でないので覗けない
     exchanged = None if AUTH_MODE == "invenio" else _peek(await _invenio_token())
@@ -817,8 +932,7 @@ async def whoami() -> dict:
             "email": exchanged.get("email"),
             "federation": federation(exchanged),
         } if exchanged else {
-            "note": "PAT モードのためトークン交換なし（受信した InvenioRDM の "
-                    "個人アクセストークンをそのまま使う）",
+            "note": t("auth.pat_mode_no_exchange"),
         },
         "invenio": {
             "user_id": (me or {}).get("id"),
@@ -831,33 +945,22 @@ async def whoami() -> dict:
     }
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.search_records"))
 async def search_records(query: str = "", size: int = 10) -> list[dict]:
-    """公開レコードを検索する（**未認証でも可**）。
-
-    トークンがあればその人として検索するので、自分の下書きなども対象になる。
-    """
     q = f"?q={query}&size={size}" if query else f"?size={size}"
     res = await _invenio("GET", f"/records{q}")
     return [_brief(h) for h in res.get("hits", {}).get("hits", [])]
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.get_record"))
 async def get_record(recid: str, draft: bool = False) -> dict:
-    """レコードを1件取得する（**未認証でも可**）。draft=True で下書き（要認証）。"""
     path = f"/records/{recid}/draft" if draft else f"/records/{recid}"
     return _brief(await _invenio("GET", path))
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.create_record"))
 async def create_record(metadata: dict, publish: bool = False,
                         files: bool = False) -> dict:
-    """レコードを作成する（mcp:write）。
-
-    publish=True で公開まで行う。
-    files=True にするとファイルを添付できる下書きになる（`upload_file` で入れる）。
-    **ファイルを入れるなら publish は後回しにする**（公開後は新バージョンでしか足せない）。
-    """
     draft = await _invenio("POST", "/records", {
         "access": {"record": "public", "files": "public"},
         "files": {"enabled": bool(files)},
@@ -868,9 +971,8 @@ async def create_record(metadata: dict, publish: bool = False,
     return _brief(draft)
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.update_record"))
 async def update_record(recid: str, metadata: dict, publish: bool = True) -> dict:
-    """レコードのメタデータを更新する（mcp:write）。公開済みは edit→更新→publish。"""
     try:
         await _invenio("GET", f"/records/{recid}/draft")
     except RuntimeError:
@@ -883,15 +985,13 @@ async def update_record(recid: str, metadata: dict, publish: bool = True) -> dic
     return _brief(upd)
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.publish_record"))
 async def publish_record(recid: str) -> dict:
-    """下書きを公開する（mcp:write）。"""
     return _brief(await _invenio("POST", f"/records/{recid}/draft/actions/publish"))
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.delete_draft"))
 async def delete_draft(recid: str) -> dict:
-    """下書きを破棄する（mcp:write）。"""
     await _invenio("DELETE", f"/records/{recid}/draft")
     return {"deleted_draft": recid}
 
@@ -914,28 +1014,19 @@ async def _removal_reasons() -> list[str]:
     return [h.get("id") for h in (d.get("hits") or {}).get("hits", [])]
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.delete_record"))
 async def delete_record(recid: str, confirm: bool = False,
                         reason_id: str = "out-of-scope",
                         note: str = "removed via MCP") -> dict:
-    """公開レコードをソフト削除（tombstone・HTTP 410）する（mcp:curate）。
-
-    **破壊的操作なので confirm=True が無いと実行しない。** `restore_record` で復元できる。
-    reason_id は removalreasons 語彙の id（`list_vocabulary("removalreasons")` で引ける。
-    既定は out-of-scope / copyright / disputed-authorship / duplicate / fraud /
-    misconduct / personal-data / retracted / spam / replaced / take-down-request /
-    test-record の12件）。note は tombstone に残る公開メモ。
-    InvenioRDM 側で admin 権限が無ければ 403 になる。
-    """
     if not confirm:
         return {
-            "error": "破壊的操作です。confirm=True を指定してください。",
+            "error": t("errors.destructive_needs_confirm"),
             "recid": recid,
-            "effect": "公開レコードが tombstone になり HTTP 410 を返す（restore_record で復元可）",
+            "effect": t("errors.destructive_effect"),
         }
     reasons = await _removal_reasons()
     if reason_id not in reasons:
-        return {"error": "reason_id が不正です。list_vocabulary('removalreasons') で確認できます",
+        return {"error": t("errors.reason_id_invalid"),
                 "given": reason_id, "valid": reasons}
     await _invenio("DELETE", f"/records/{recid}/delete",
                    {"removal_reason": {"id": reason_id}, "note": note})
@@ -948,25 +1039,14 @@ async def delete_record(recid: str, confirm: bool = False,
 # 素の InvenioRDM が持つ語彙をそのまま見せる。
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_vocabulary_types"))
 async def list_vocabulary_types() -> dict:
-    """このリポジトリが持つ語彙の種類を一覧する（未認証可）。
-
-    返った id を `list_vocabulary` に渡すと中身が引ける。
-    """
     d = await _invenio("GET", "/vocabularies/")
     return {"types": [h.get("id") for h in (d.get("hits") or {}).get("hits", [])]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_vocabulary"))
 async def list_vocabulary(vocab_type: str, query: str = "", size: int = 20) -> dict:
-    """語彙の項目を引く（未認証可）。
-
-    vocab_type は `list_vocabulary_types` が返す id
-    （resourcetypes / licenses / languages / subjects / removalreasons /
-    creatorsroles / descriptiontypes / relationtypes / titletypes / datetypes など）。
-    **メタデータを書く前にここで正しい id を確かめること。**
-    """
     d = await _invenio("GET", f"/vocabularies/{quote(vocab_type)}"
                               + _qs(q=query, size=size))
     hits = (d.get("hits") or {}).get("hits", [])
@@ -996,17 +1076,12 @@ EXPORT_FORMATS = {
 }
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.export_record"))
 async def export_record(recid: str, fmt: str = "datacite-json") -> dict:
-    """公開レコードを別のメタデータ形式で出す（未認証可）。
-
-    fmt は json / inveniordm / jsonld / datacite-json / datacite-xml /
-    dublincore / marcxml / dcat / csl / bibtex / citation / geojson。
-    **下書きには使えない**（公開レコードのみ）。
-    """
     mime = EXPORT_FORMATS.get(fmt)
     if mime is None:
-        return {"error": f"未知の形式です。{' / '.join(EXPORT_FORMATS)} のいずれか",
+        return {"error": t("errors.export_format_unknown",
+                           formats=" / ".join(EXPORT_FORMATS)),
                 "given": fmt}
     text, ctype = await _invenio_text(f"/records/{quote(recid)}", mime)
     return {"recid": recid, "format": fmt, "content_type": ctype, "content": text}
@@ -1015,22 +1090,16 @@ async def export_record(recid: str, fmt: str = "datacite-json") -> dict:
 # --------------------------------------------------------- バージョンと版履歴
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_versions"))
 async def list_versions(recid: str) -> dict:
-    """レコードの全バージョンを一覧する（未認証可）。`new_version` で作った版もここに出る。"""
     d = await _invenio("GET", f"/records/{quote(recid)}/versions" + _qs(size=100))
     hits = (d.get("hits") or {}).get("hits", [])
     return {"total": (d.get("hits") or {}).get("total"),
             "versions": [_brief(h) for h in hits]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_revisions"))
 async def list_revisions(recid: str) -> dict:
-    """レコードの版履歴（いつ何が変わったか）を一覧する（mcp:read）。
-
-    バージョン（`list_versions`）とは別物で、こちらは**同じレコードの編集履歴**。
-    公開レコードでも認証が要る。
-    """
     d = await _invenio("GET", f"/records/{quote(recid)}/revisions")
     revs = d if isinstance(d, list) else []
     return {"recid": recid, "count": len(revs),
@@ -1040,12 +1109,8 @@ async def list_revisions(recid: str) -> dict:
                           for r in revs]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.my_records"))
 async def my_records(query: str = "", size: int = 10) -> dict:
-    """自分のレコードと下書きを一覧する（mcp:read）。
-
-    公開済みだけでなく**未公開の下書きも含む**ので、「書きかけはどれ」を答えられる。
-    """
     d = await _invenio("GET", "/user/records" + _qs(q=query, size=size, sort="updated-desc"))
     hits = (d.get("hits") or {}).get("hits", [])
     return {"total": (d.get("hits") or {}).get("total"),
@@ -1056,24 +1121,21 @@ async def my_records(query: str = "", size: int = 10) -> dict:
 # JAIRO Cloud は機関ごとのマルチテナントで、コミュニティが組織単位そのもの。
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.search_communities"))
 async def search_communities(query: str = "", size: int = 10) -> dict:
-    """コミュニティを検索する（未認証可）。"""
     d = await _invenio("GET", "/communities" + _qs(q=query, size=size))
     hits = (d.get("hits") or {}).get("hits", [])
     return {"total": (d.get("hits") or {}).get("total"),
             "communities": [_brief_community(h) for h in hits]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.get_community"))
 async def get_community(community: str) -> dict:
-    """コミュニティを1件取る（未認証可）。community は id(UUID) か slug。"""
     return _brief_community(await _invenio("GET", f"/communities/{quote(community)}"))
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_community_records"))
 async def list_community_records(community: str, query: str = "", size: int = 10) -> dict:
-    """コミュニティに属する公開レコードを一覧する（未認証可）。"""
     d = await _invenio("GET", f"/communities/{quote(community)}/records"
                               + _qs(q=query, size=size))
     hits = (d.get("hits") or {}).get("hits", [])
@@ -1081,17 +1143,10 @@ async def list_community_records(community: str, query: str = "", size: int = 10
             "records": [_brief(h) for h in hits]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.create_community"))
 async def create_community(slug: str, title: str, community_type: str = "topic",
                            visibility: str = "public",
                            review_policy: str = "closed") -> dict:
-    """コミュニティを作る（mcp:curate）。
-
-    組織単位を作る操作なので write ではなく curate に置く。
-    slug はURLに出る識別子（英小文字・数字・ハイフン）。
-    community_type は communitytypes 語彙（organization / event / topic / project）。
-    review_policy=closed なら投稿は査読を経る、open なら直接公開できる。
-    """
     c = await _invenio("POST", "/communities", {
         "slug": slug,
         "metadata": {"title": title, "type": {"id": community_type}},
@@ -1110,17 +1165,11 @@ async def create_community(slug: str, title: str, community_type: str = "topic",
 REQUEST_STATUSES = ("submitted", "expired", "accepted", "declined", "cancelled")
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_requests"))
 async def list_requests(query: str = "", status: str = "", size: int = 10) -> dict:
-    """自分に見えるリクエストを一覧する（mcp:read）。
-
-    status は submitted / expired / accepted / declined / cancelled。
-    **査読待ちは status="submitted"**（"open" という状態は無い）。
-    未指定なら全件。`query` は Lucene 風の絞り込みも受ける（例 type:community-submission）。
-    """
     if status and status not in REQUEST_STATUSES:
-        return {"error": f"status は {' / '.join(REQUEST_STATUSES)} のいずれか"
-                         "（open / closed という状態は無い）",
+        return {"error": t("errors.request_status_invalid",
+                           statuses=" / ".join(REQUEST_STATUSES)),
                 "given": status}
     d = await _invenio("GET", "/requests/" + _qs(q=query, status=status, size=size))
     hits = (d.get("hits") or {}).get("hits", [])
@@ -1128,9 +1177,8 @@ async def list_requests(query: str = "", status: str = "", size: int = 10) -> di
             "requests": [_brief_request(h) for h in hits]}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.get_request"))
 async def get_request(request_id: str, timeline: bool = False) -> dict:
-    """リクエストを1件取る（mcp:read）。timeline=True でコメント等の経過も返す。"""
     out = _brief_request(await _invenio("GET", f"/requests/{quote(request_id)}"))
     if timeline:
         d = await _invenio("GET", f"/requests/{quote(request_id)}/timeline" + _qs(size=50))
@@ -1143,13 +1191,8 @@ async def get_request(request_id: str, timeline: bool = False) -> dict:
     return out
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.submit_to_community"))
 async def submit_to_community(recid: str, community: str, comment: str = "") -> dict:
-    """下書きをコミュニティに査読申請する（mcp:write）。
-
-    2手順（査読先を設定 → 提出）をまとめて行う。対象は**未公開の下書き**。
-    受理されると公開される。受理・却下は `request_action`（mcp:curate）。
-    """
     await _invenio("PUT", f"/records/{quote(recid)}/draft/review",
                    {"receiver": {"community": community}, "type": "community-submission"})
     body = {"payload": {"content": comment, "format": "html"}} if comment else None
@@ -1157,9 +1200,8 @@ async def submit_to_community(recid: str, community: str, comment: str = "") -> 
     return {"submitted": recid, "community": community, "request": _brief_request(r)}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.comment_on_request"))
 async def comment_on_request(request_id: str, comment: str) -> dict:
-    """リクエストにコメントする（mcp:write）。"""
     c = await _invenio("POST", f"/requests/{quote(request_id)}/comments",
                        {"payload": {"content": comment, "format": "html"}})
     return {"request_id": request_id, "comment_id": (c or {}).get("id")}
@@ -1168,27 +1210,19 @@ async def comment_on_request(request_id: str, comment: str) -> dict:
 REQUEST_ACTIONS = ("accept", "decline", "cancel", "expire")
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.request_action"))
 async def request_action(request_id: str, action: str, comment: str = "") -> dict:
-    """リクエストを受理・却下する（mcp:curate）。
-
-    action は accept / decline / cancel / expire。
-    **accept は投稿を公開する**ので、キュレーターの判断として curate に置く。
-    """
     if action not in REQUEST_ACTIONS:
-        return {"error": f"action は {' / '.join(REQUEST_ACTIONS)} のいずれか",
+        return {"error": t("errors.request_action_invalid",
+                           actions=" / ".join(REQUEST_ACTIONS)),
                 "given": action}
     body = {"payload": {"content": comment, "format": "html"}} if comment else None
     r = await _invenio("POST", f"/requests/{quote(request_id)}/actions/{action}", body)
     return {"request_id": request_id, "action": action, "request": _brief_request(r)}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.restore_record"))
 async def restore_record(recid: str) -> dict:
-    """ソフト削除された公開レコードを復元する（mcp:curate）。
-
-    tombstone が外れて再び公開状態に戻る。InvenioRDM 側で admin 権限が無ければ 403。
-    """
     return {"restored_record": recid,
             "record": _brief(await _invenio("POST", f"/records/{recid}/restore"))}
 
@@ -1200,37 +1234,23 @@ async def restore_record(recid: str) -> dict:
 MAX_UPLOAD_BYTES = int(os.environ.get("MCP_MAX_UPLOAD_BYTES", str(16 * 1024 * 1024)))
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.upload_file"))
 async def upload_file(recid: str, filename: str,
                       content_base64: str | None = None,
                       content_text: str | None = None,
                       overwrite: bool = True) -> dict:
-    """下書きにファイルを登録する（mcp:write）。
-
-    recid          … 下書きの ID（`create_record` が返す id）
-    filename       … 登録するファイル名（キーになる）
-    content_base64 … 中身を base64 で。バイナリはこちら
-    content_text   … 中身を平文で。テキストならこちらが楽（UTF-8 で符号化する）
-
-    overwrite      … 同名のファイルが既にあるとき置き換える（既定 True）。
-                     False なら「既にある」と伝えて何もしない。
-
-    **公開済みレコードには足せない**（InvenioRDM の仕様。新バージョンを作ること）。
-    下書きの files が無効なら自動で有効にする。
-    """
     if (content_base64 is None) == (content_text is None):
-        raise ValueError("content_base64 か content_text のどちらか一方を指定する")
+        raise ValueError(t("errors.content_exclusive"))
     if content_base64 is not None:
         try:
             blob = base64.b64decode(content_base64, validate=True)
         except Exception as e:
-            raise ValueError(f"base64 として読めない: {e}") from e
+            raise ValueError(t("errors.base64_undecodable", error=e)) from e
     else:
         blob = content_text.encode("utf-8")
     if len(blob) > MAX_UPLOAD_BYTES:
-        raise ValueError(
-            f"大きすぎる: {len(blob)} バイト（上限 {MAX_UPLOAD_BYTES}）。"
-            "MCP の引数は JSON なので巨大ファイルには向かない")
+        raise ValueError(t("errors.upload_too_large",
+                           size=len(blob), limit=MAX_UPLOAD_BYTES))
 
     # 下書きの files が無効だと 400 になるので、必要なら有効にしてから進める
     draft = await _invenio("GET", f"/records/{recid}/draft")
@@ -1243,8 +1263,7 @@ async def upload_file(recid: str, filename: str,
     existing = await _invenio("GET", f"/records/{recid}/draft/files")
     if filename in {e.get("key") for e in (existing.get("entries") or [])}:
         if not overwrite:
-            raise ValueError(
-                f"'{filename}' は既にある。置き換えるなら overwrite=True")
+            raise ValueError(t("errors.file_exists", filename=filename))
         await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
         replaced = True
     else:
@@ -1264,12 +1283,8 @@ async def upload_file(recid: str, filename: str,
     }
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.list_files"))
 async def list_files(recid: str, draft: bool = False) -> dict:
-    """レコードのファイル一覧を返す（未認証でも公開レコードなら見られる）。
-
-    draft=True で下書きのファイルを見る（本人の認証が要る）。
-    """
     path = f"/records/{recid}/draft/files" if draft else f"/records/{recid}/files"
     res = await _invenio("GET", path)
     return {
@@ -1284,23 +1299,14 @@ async def list_files(recid: str, draft: bool = False) -> dict:
     }
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.delete_file"))
 async def delete_file(recid: str, filename: str) -> dict:
-    """下書きからファイルを削除する（mcp:write）。公開済みレコードからは消せない。"""
     await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
     return {"recid": recid, "deleted": filename}
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.download_file"))
 async def download_file(recid: str, filename: str, draft: bool = False) -> dict:
-    """ファイルの中身を取り出す（公開レコードなら未認証でも可）。
-
-    InvenioRDM は S3 の **presigned URL へリダイレクト**して返す。その URL のホストは
-    クラスタ内部名（`minio:9000`）なので**クラスタ外からは辿れない**。そこで MCP サーバが
-    代わりに取得し、中身を base64 で返す。UTF-8 として読めるものは `text` にも入れる。
-
-    draft=True で下書きのファイルを取る（本人の認証が要る）。
-    """
     seg = "draft/files" if draft else "files"
     path = f"/records/{recid}/{seg}/{filename}/content"
     token = await _invenio_token()
@@ -1311,7 +1317,8 @@ async def download_file(recid: str, filename: str, draft: bool = False) -> dict:
     async with httpx.AsyncClient(verify=VERIFY_TLS, timeout=120, follow_redirects=False) as c:
         r = await c.get(f"{INVENIO_API}{path}", headers=headers)
         if r.status_code >= 400:
-            raise RuntimeError(f"InvenioRDM HTTP {r.status_code}: {r.text[:200]}")
+            raise RuntimeError(t("errors.invenio_http",
+                                 status=r.status_code, body=r.text[:200]))
         # S3 保存時、InvenioRDM は本体ではなく **presigned URL** を返す。
         # 実測ではリダイレクト（3xx）ではなく **200 で URL を本文**にして返してきた。
         # どちらの形でも拾えるようにする。
@@ -1327,13 +1334,12 @@ async def download_file(recid: str, filename: str, draft: bool = False) -> dict:
             # **Authorization を付けずに**取りに行く（InvenioRDM 宛トークンを S3 に渡さない）
             r = await c.get(target)
             if r.status_code >= 400:
-                raise RuntimeError(f"オブジェクトストアから取得できない HTTP {r.status_code}")
+                raise RuntimeError(t("errors.object_store_http", status=r.status_code))
 
     blob = r.content
     if len(blob) > MAX_UPLOAD_BYTES:
-        raise ValueError(
-            f"大きすぎる: {len(blob)} バイト（上限 {MAX_UPLOAD_BYTES}）。"
-            "MCP の応答は JSON なので巨大ファイルには向かない")
+        raise ValueError(t("errors.download_too_large",
+                           size=len(blob), limit=MAX_UPLOAD_BYTES))
     out = {
         "recid": recid,
         "key": filename,
@@ -1348,28 +1354,10 @@ async def download_file(recid: str, filename: str, draft: bool = False) -> dict:
     return out
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.new_version"))
 async def new_version(recid: str, import_files: bool = True,
                       publication_date: str | None = None,
                       version: str | None = None) -> dict:
-    """公開済みレコードの**新しいバージョンの下書き**を作る（mcp:write）。
-
-    InvenioRDM は公開済みレコードを書き換えられない。ファイルを足す・差し替えるには
-    新バージョンを作ってそこで作業し、改めて公開する。
-
-    recid        … 元の（公開済み）レコード ID
-    import_files … True なら**前バージョンのファイルを引き継ぐ**
-                   （InvenioRDM の files-import。既定 True）。
-                   False だとファイル無しの下書きから始まる。
-    publication_date … 新バージョンの公開日（`YYYY-MM-DD`）。
-                   **InvenioRDM は新バージョン下書きに公開日を引き継がない**ので、
-                   省略時は今日の日付を入れる。これが無いと publish が
-                   `metadata.publication_date: Missing data for required field` で失敗する。
-    version      … 版表示（`v2` など）。任意。
-
-    戻り値の `id` が新しい下書きの ID。`upload_file` などはその ID に対して行い、
-    最後に `publish_record` で公開する。
-    """
     draft = await _invenio("POST", f"/records/{recid}/versions")
     new_id = draft["id"]
     imported = None
@@ -1380,7 +1368,7 @@ async def new_version(recid: str, import_files: bool = True,
             imported = len((res or {}).get("entries") or [])
         except Exception as e:
             # 元にファイルが無い等。新バージョン自体は作れているので失敗にはしない
-            imported = f"引き継げなかった: {e}"
+            imported = t("errors.import_files_failed", error=e)
     # 公開日を埋める（引き継がれないので、ここで入れておかないと publish できない）
     draft = await _invenio("GET", f"/records/{new_id}/draft")
     md = draft.setdefault("metadata", {})
@@ -1404,32 +1392,9 @@ async def new_version(recid: str, import_files: bool = True,
     return out
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.upload_file_from_url"))
 async def upload_file_from_url(recid: str, filename: str, url: str,
                                overwrite: bool = True) -> dict:
-    """URL を渡して InvenioRDM 側にファイルを取得させる（mcp:write）。
-
-    `upload_file` は中身を base64 で運ぶので、MCP の応答が JSON である以上
-    大きなファイルには向かない（既定上限 16MB）。こちらは **URI を登録するだけ**で、
-    実体は InvenioRDM の Celery ワーカーが非同期にダウンロードする
-    （InvenioRDM の transfer 種別 `F` = FETCH）。**サイズの上限が無い。**
-
-    **InvenioRDM v14 では通常の利用者は使えない。** 既定の権限方針
-    （`RDMRecordPermissionPolicy.can_draft_create_files`）は transfer 種別 `L` と `M`
-    にしか一般利用者を通さず、`F`（と `R`）は `SystemProcess()`、つまり
-    システム処理と superuser だけに限られている。サーバに任意の URL を
-    取りに行かせる操作（SSRF になりうる）を絞ったもの。権限が無ければ 403 になる。
-
-    取得先は InvenioRDM 側の許可ドメイン
-    （`RECORDS_RESOURCES_FILES_ALLOWED_DOMAINS`）にも含まれている必要がある。
-    許可されていない URL は `Domain not allowed` になる。
-
-    **非同期なので、戻った時点ではまだ取得中**（`status` が `pending`）のことがある。
-    完了は `list_files` の `status` が `completed` になったかで確かめる。
-
-    **手元にあるファイル**は URL を持たないので、この経路には乗らない。
-    その場合は `start_multipart_upload` を使う（大きさの上限が無く、権限も通常の書き込みでよい）。
-    """
     draft = await _invenio("GET", f"/records/{recid}/draft")
     if not (draft.get("files") or {}).get("enabled"):
         draft["files"] = {"enabled": True}
@@ -1438,7 +1403,7 @@ async def upload_file_from_url(recid: str, filename: str, url: str,
     existing = await _invenio("GET", f"/records/{recid}/draft/files")
     if filename in {e.get("key") for e in (existing.get("entries") or [])}:
         if not overwrite:
-            raise ValueError(f"'{filename}' は既にある。置き換えるなら overwrite=True")
+            raise ValueError(t("errors.file_exists", filename=filename))
         await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
         replaced = True
     else:
@@ -1453,11 +1418,7 @@ async def upload_file_from_url(recid: str, filename: str, url: str,
                              [{"key": filename, "transfer": {"type": "F", "url": url}}])
     except RuntimeError as e:
         if "HTTP 403" in str(e):
-            raise ValueError(
-                "URL 取得（transfer F）の権限が無い。InvenioRDM v14 の既定では "
-                "システム処理と superuser にしか許されていない。"
-                "手元のファイルを送るなら start_multipart_upload を使う"
-            ) from e
+            raise ValueError(t("errors.fetch_forbidden")) from e
         raise
     entry = next((e for e in (res or {}).get("entries", []) if e.get("key") == filename), {})
     return {
@@ -1467,7 +1428,7 @@ async def upload_file_from_url(recid: str, filename: str, url: str,
         "status": entry.get("status"),
         "transfer": (entry.get("transfer") or {}).get("type"),
         "replaced": replaced,
-        "note": "取得は非同期。list_files の status が completed になれば完了",
+        "note": t("notes.fetch_async"),
     }
 
 
@@ -1488,44 +1449,20 @@ def _plan_parts(size: int, part_size: int | None) -> tuple[int, int]:
     指定が無ければ既定値から始め、パート数が 10000 を超えないところまで倍にする。
     """
     if size <= 0:
-        raise ValueError("size は 1 以上（実ファイルのバイト数）")
+        raise ValueError(t("errors.size_must_be_positive"))
     part_size = part_size or DEFAULT_PART_BYTES
     if part_size < S3_MIN_PART_BYTES and size > part_size:
-        raise ValueError(
-            f"part_size が小さすぎる: {part_size}。"
-            f"最後以外のパートは {S3_MIN_PART_BYTES} バイト以上でなければならない")
+        raise ValueError(t("errors.part_size_too_small",
+                           part_size=part_size, minimum=S3_MIN_PART_BYTES))
     while -(-size // part_size) > S3_MAX_PARTS:      # 切り上げ除算
         part_size *= 2
     return -(-size // part_size), part_size
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.start_multipart_upload"))
 async def start_multipart_upload(recid: str, filename: str, size: int,
                                  part_size: int | None = None,
                                  overwrite: bool = True) -> dict:
-    """手元の大容量ファイルを送るための**署名済み URL を発行する**（mcp:write）。
-
-    `upload_file` は中身を base64 で運ぶので JSON に載る大きさが限界（既定 16MB）。
-    `upload_file_from_url` は URL を持つファイルにしか使えない。
-    **手元にある大きなファイル**はこの経路で送る（InvenioRDM の transfer 種別
-    `M` = MULTIPART）。中身は MCP サーバも InvenioRDM も通らず、
-    **クライアントから S3(MinIO) へ直接** PUT される。サイズの上限は事実上無い。
-
-    recid     … 下書きの ID
-    filename  … 登録するファイル名
-    size      … 送るファイルの**実バイト数**（必須。S3 に事前申告する）
-    part_size … 1パートの大きさ。既定 64MiB。最後以外は 5MiB 以上で全て同じ大きさ
-
-    返り値の `parts` の各 `url` に、ファイルを先頭から `part_size` ずつ切って
-    **PUT** する。全部送ったら `complete_multipart_upload` を呼ぶ。
-    やめるときは `abort_multipart_upload`。
-
-    分割と送信の例（返り値の `hint` にも同じものが入る）:
-
-        split -b <part_size> ./big.bin part_
-        curl -X PUT --data-binary @part_aa "<parts[0].url>"
-        curl -X PUT --data-binary @part_ab "<parts[1].url>"
-    """
     parts, part_size = _plan_parts(size, part_size)
 
     draft = await _invenio("GET", f"/records/{recid}/draft")
@@ -1536,7 +1473,7 @@ async def start_multipart_upload(recid: str, filename: str, size: int,
     existing = await _invenio("GET", f"/records/{recid}/draft/files")
     if filename in {e.get("key") for e in (existing.get("entries") or [])}:
         if not overwrite:
-            raise ValueError(f"'{filename}' は既にある。置き換えるなら overwrite=True")
+            raise ValueError(t("errors.file_exists", filename=filename))
         await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
         replaced = True
     else:
@@ -1550,9 +1487,7 @@ async def start_multipart_upload(recid: str, filename: str, size: int,
     links = entry.get("links") or {}
     part_links = links.get("parts") or []
     if not part_links:
-        raise ValueError(
-            "パートの署名済み URL が返らなかった。保存先が S3 でない可能性がある"
-            "（ローカル保存では InvenioRDM 経由の PUT になる）")
+        raise ValueError(t("errors.no_part_links"))
 
     return {
         "recid": recid,
@@ -1566,24 +1501,13 @@ async def start_multipart_upload(recid: str, filename: str, size: int,
              "expiration": p.get("expiration")}
             for p in part_links
         ],
-        "hint": (f"split -b {part_size} <ファイル> part_ で分けて、"
-                 f"各 URL に curl -X PUT --data-binary @<断片> '<url>' で送る。"
-                 f"全部送ったら complete_multipart_upload(recid, filename)"),
-        "note": "中身は MCP サーバを通らず S3 へ直接送られる",
+        "hint": t("notes.multipart_hint", part_size=part_size),
+        "note": t("notes.multipart_direct"),
     }
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.complete_multipart_upload"))
 async def complete_multipart_upload(recid: str, filename: str) -> dict:
-    """全パートを送り終えた multipart を確定する（mcp:write）。
-
-    S3 側でパートを1つのオブジェクトに結合し、transfer 種別が `M` から `L`
-    （通常のファイル）に変わる。**1つでもパートが欠けていると失敗する。**
-
-    直後の `checksum` は `multipart:<ETag>-<パート数>-<パートの大きさ>` の形で、
-    これは S3 が返す複合 ETag（パートごとの MD5 をまとめたもの）。
-    ファイル全体の MD5 は InvenioRDM が背後の非同期ジョブで計算し直す。
-    """
     committed = await _invenio(
         "POST", f"/records/{recid}/draft/files/{filename}/commit")
     return {
@@ -1596,13 +1520,8 @@ async def complete_multipart_upload(recid: str, filename: str) -> dict:
     }
 
 
-@mcp.tool()
+@mcp.tool(description=t("tools.abort_multipart_upload"))
 async def abort_multipart_upload(recid: str, filename: str) -> dict:
-    """途中でやめた multipart を破棄する（mcp:write）。
-
-    S3 側の未完了アップロードも中止されるので、送りかけのパートが
-    課金対象として残り続けることを防げる。
-    """
     await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
     return {"recid": recid, "aborted": filename}
 
@@ -1676,21 +1595,23 @@ def build_app():
 if __name__ == "__main__":
     import uvicorn
 
-    print(f"MCP resource server: http://{BIND_HOST}:{BIND_PORT}{MCP_PATH}")
-    print(f"  canonical URI (RFC 8707 resource) : {RESOURCE}")
-    print(f"  protected resource metadata       : {RESOURCE_METADATA_URL}")
-    print(f"  認証方式 (MCP_AUTH_MODE)          : {AUTH_MODE}")
+    print(t("startup.server", host=BIND_HOST, port=BIND_PORT, path=MCP_PATH))
+    print(t("startup.version", version=__version__))
+    print(t("startup.canonical_uri", resource=RESOURCE))
+    print(t("startup.resource_metadata", url=RESOURCE_METADATA_URL))
+    print(t("startup.auth_mode", mode=AUTH_MODE))
+    print(t("startup.language", lang=LANG, available=" ".join(AVAILABLE_LANGS)))
     if AUTH_MODE == "invenio":
-        print(f"  InvenioRDM PAT を直接受ける        : {INVENIO_API}/me で検証")
-        print(f"    PAT 発行                        : {INVENIO_UI}"
-              "/account/settings/applications/tokens/new/")
-        print(f"    ロール→scope                    : 既定 {' '.join(INVENIO_BASE_SCOPES)}"
-              f" ＋ {INVENIO_ROLE_SCOPES}")
+        print(t("startup.pat_direct", api=INVENIO_API))
+        print(t("startup.pat_issue",
+                url=f"{INVENIO_UI}/account/settings/applications/tokens/new/"))
+        print(t("startup.pat_scopes", base=" ".join(INVENIO_BASE_SCOPES),
+                roles=INVENIO_ROLE_SCOPES))
     else:
-        print(f"  authorization server              : {KC_ISSUER}")
-    print(f"  TLS 検証 (InvenioRDM / Keycloak)  : {'有効' if VERIFY_TLS else '**無効** (MCP_TLS_INSECURE)'}")
-    print(f"  監査ログ                          : {'有効' if AUDIT_ON else '無効 (MCP_AUDIT=off)'}")
-    print(f"  認可必須の入口（同じ資源・別パス） : {MCP_AUTH_PATH}"
-          "  ← 最初の接続から 401。mcp-remote のような"
-          "「初回接続が 401 でないと認可を始めない」クライアント向け")
+        print(t("startup.authorization_server", issuer=KC_ISSUER))
+    print(t("startup.tls",
+            state=t("startup.tls_on" if VERIFY_TLS else "startup.tls_off")))
+    print(t("startup.audit",
+            state=t("startup.audit_on" if AUDIT_ON else "startup.audit_off")))
+    print(t("startup.auth_path", path=MCP_AUTH_PATH))
     uvicorn.run(build_app(), host=BIND_HOST, port=BIND_PORT, log_level="warning")

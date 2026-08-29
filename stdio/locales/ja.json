@@ -1,0 +1,44 @@
+{
+  "_meta": {
+    "language": "ja",
+    "name": "日本語",
+    "note": "利用者に見える文字列だけを置く。配列は改行で連結される。{name} は書式引数。"
+  },
+
+  "tools": {
+    "search_records": "公開レコードを検索する。query は Invenio 検索式（空で全件）。要点のみ返す。",
+    "get_record": "1レコードを取得する。draft=True で下書きを取得。",
+    "create_record": [
+      "新規レコードを作成する。metadata は Invenio の metadata オブジェクト",
+      "（必須: resource_type{id}, title(≥3), publication_date(EDTF),",
+      "creators[{person_or_org{type,family_name,given_name}}]）。",
+      "files_enabled=False は metadata-only。publish=True で即公開。返り値に recid を含む。"
+    ],
+    "update_record": [
+      "既存レコードのメタデータを更新する。公開済みなら edit(下書き化)→更新→(publish) を行う。",
+      "metadata は完全な metadata オブジェクト（部分ではなく置換）。publish=False なら下書きのまま。"
+    ],
+    "publish_record": "下書きを公開する。",
+    "new_version": "新しいバージョンの下書きを作る。metadata を渡すと差し替え、publish=True で即公開。",
+    "delete_draft": "下書き（未公開 or 編集中の下書き）を破棄する。",
+    "delete_record": [
+      "公開レコードをソフト削除（tombstone・HTTP 410）する。admin トークン必須。",
+      "confirm=True が無いと実行しない。restore_record で復元可能。",
+      "reason_id は removalreasons 語彙（out-of-scope / duplicate / spam / retracted 等）。"
+    ],
+    "restore_record": "ソフト削除された公開レコードを復元する。admin トークン必須。",
+    "add_file": [
+      "下書きにファイルを追加（init→content→commit）する。対象レコードは files_enabled=True である必要がある。",
+      "中身は text(UTF-8) / content_base64 / source_path(サーバ上のパス) のいずれかで渡す。"
+    ],
+    "list_files": "レコード/下書きのファイル一覧。",
+    "delete_file": "下書きからファイルを削除する。"
+  },
+
+  "errors": {
+    "token_missing": "INVENIO_TOKEN 未設定かつ .token が無い",
+    "api_http": "HTTP {status} {method} {path}: {detail}",
+    "content_required": "text / content_base64 / source_path のいずれかが必要",
+    "destructive_needs_confirm": "破壊的操作です。confirm=True を指定してください。"
+  }
+}
