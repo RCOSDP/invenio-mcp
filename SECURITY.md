@@ -46,6 +46,13 @@ rather than defects:
   path.
 - **The compose stack reads secrets from `.env` in the clear.** It is a starting point,
   not a deployment.
+- **`add_file(source_path=...)` in the stdio server reads any file the process can
+  read**, and uploads it. That is by design — the server runs as you, so it can reach
+  what you can. It matters because **the caller is a language model**: text in a record,
+  a filename, or a web page it was asked to summarise can all try to talk it into
+  reading `~/.ssh/id_rsa` and attaching it to a public record. Clients ask for approval
+  per tool call; do not approve `source_path` values you did not choose. The HTTP server
+  does not expose this argument at all.
 
 ## Scope
 

@@ -205,6 +205,14 @@ PLACEHOLDER_EMAIL_DOMAIN = os.environ.get("PLACEHOLDER_EMAIL_DOMAIN", "jwt.inval
 TLS_INSECURE = os.environ.get("MCP_TLS_INSECURE", "").lower() in ("1", "true", "yes")
 VERIFY_TLS = not TLS_INSECURE
 
+# 添付として運べる大きさ。MCP の引数も応答も JSON なので、ここが天井になる。
+MAX_UPLOAD_BYTES = int(os.environ.get("MCP_MAX_UPLOAD_BYTES", str(16 * 1024 * 1024)))
+# 認可を判定するには POST の本文を**全部**読む必要がある。上限が無いと 1 本の POST で
+# メモリを食い潰せるので頭を打つ。base64 は 4/3 に膨らみ、JSON の飾りも乗るので、
+# 添付の上限の 2 倍を既定にしておく。
+MAX_REQUEST_BYTES = int(os.environ.get("MCP_MAX_REQUEST_BYTES",
+                                       str(MAX_UPLOAD_BYTES * 2)))
+
 # PRM の scopes_supported は「基本機能に必要な最小集合」（仕様の Scope Minimization）
 BASE_SCOPES = ["mcp:read"]
 
@@ -272,6 +280,29 @@ TOOL_SCOPES = {
     "create_community": "mcp:curate",
     "request_action": "mcp:curate",
 }
+
+# **未知のツール名は None を返す＝「未認証で可」と同じ値になる。** つまり
+# ツールを足して TOOL_SCOPES に書き忘れると、黙って未認証で公開される。
+# 起動時に突き合わせて、食い違っていたら**起動しない**（下の _verify_tool_scopes）。
+
+
+def _verify_tool_scopes() -> None:
+    """登録されたツールと TOOL_SCOPES が1対1であることを確かめる。
+
+    fail-open を構造で潰すための検査。ここで落とすほうが、書き忘れた write ツールが
+    未認証で開いたまま動き続けるより、はるかに安い。
+    """
+    registered = {t.name for t in mcp._tool_manager.list_tools()}
+    mapped = set(TOOL_SCOPES)
+    unmapped = sorted(registered - mapped)
+    stale = sorted(mapped - registered)
+    if unmapped or stale:
+        raise SystemExit(
+            "TOOL_SCOPES と登録済みツールが食い違っている。"
+            "未認証で開いてしまうため起動しない。\n"
+            f"  TOOL_SCOPES に無い（＝未認証で通ってしまう）: {unmapped}\n"
+            f"  登録されていないのに書かれている             : {stale}")
+
 
 RESOURCE_METADATA_URL = str(build_resource_metadata_url(RESOURCE))  # type: ignore[arg-type]
 RESOURCE_METADATA_PATH = urlsplit(RESOURCE_METADATA_URL).path
@@ -478,6 +509,9 @@ def _peek_rpc(body: bytes):
         p = json.loads(body or b"{}")
     except Exception:
         return None, None
+    # JSON-RPC のバッチ（配列）も来うる。監査には最初の1件を載せる。
+    if isinstance(p, list):
+        p = next((x for x in p if isinstance(x, dict)), None)
     if not isinstance(p, dict):
         return None, None
     m = p.get("method")
@@ -538,20 +572,39 @@ class ScopeChallengeMiddleware:
         body = b""
         if scope.get("method") == "POST":
             more = True
+            oversized = False
             while more:
                 msg = await receive()
                 if msg["type"] == "http.request":
                     body += msg.get("body", b"")
+                    # 認可を判定するために本文を**全部**貯める必要がある。上限が無いと
+                    # 1本の POST でメモリを食い潰せるので、ここで頭を打つ。
+                    # 上限は添付の上限（MCP_MAX_UPLOAD_BYTES）＋ JSON/base64 の膨らみ分。
+                    if len(body) > MAX_REQUEST_BYTES:
+                        oversized = True
+                        break
                     more = msg.get("more_body", False)
                 else:
                     more = False
+            if oversized:
+                _audit("deny", path=path, method=scope.get("method"),
+                       status=413, error="payload_too_large", bytes=len(body))
+                await send({"type": "http.response.start", "status": 413,
+                            "headers": [(b"content-type", b"application/json")]})
+                await send({"type": "http.response.body",
+                            "body": json.dumps({"error": "payload_too_large",
+                                                "limit": MAX_REQUEST_BYTES}).encode()})
+                return
 
             tool, rpc_method = _peek_rpc(body)
             claims = self._claims(scope, verifier)
             challenge = self._check(scope, body, require_auth, verifier, adv_scopes)
             if challenge is not None:
                 status, err, need = challenge[:3]
-                _audit("deny", path=path, method=rpc_method, tool=tool,
+                # バッチだと _peek_rpc が拾うのは**先頭の要素**なので、拒否の理由に
+                # なったツールとは限らない。チャレンジが持っている名前を優先する。
+                denied = (challenge[4] or {}).get("tool") or tool
+                _audit("deny", path=path, method=rpc_method, tool=denied,
                        status=status, error=err, required_scope=need,
                        **_subject(claims))
                 await self._send_challenge(send, *challenge, prm_url=prm_url)
@@ -672,21 +725,26 @@ class ScopeChallengeMiddleware:
             payload = json.loads(body or b"{}")
         except Exception:
             return None
-        if not isinstance(payload, dict) or payload.get("method") != "tools/call":
-            return None          # initialize / tools/list などは誰でも呼べる
-        tool = (payload.get("params") or {}).get("name")
-        needed = TOOL_SCOPES.get(tool)
-        if needed is None:
-            return None          # 公開情報の読取。未認証で通す
-
-        if claims is None:
-            return (401, "invalid_token", needed,
-                    "auth.tool_requires_auth", {"tool": tool})
-        granted = set((claims.get("scope") or "").split())
-        if needed in granted:
-            return None
-        return (403, "insufficient_scope", needed,
-                "auth.tool_requires_scope", {"tool": tool, "scope": needed})
+        # **バッチ（配列）を素通しさせない。** いまの SDK は配列を 400 で弾くので
+        # 実害は無いが、それは下流のふるまいに守られているだけで、ここが見ている
+        # わけではない。SDK がバッチを通す版になった瞬間に scope 検査が丸ごと
+        # 迂回される。中の全要素を見て、**一番厳しい要求**を採る。
+        calls = payload if isinstance(payload, list) else [payload]
+        granted = set((claims.get("scope") or "").split()) if claims else set()
+        for call in calls:
+            if not isinstance(call, dict) or call.get("method") != "tools/call":
+                continue         # initialize / tools/list などは誰でも呼べる
+            tool = (call.get("params") or {}).get("name")
+            needed = TOOL_SCOPES.get(tool)
+            if needed is None:
+                continue         # 公開情報の読取。未認証で通す
+            if claims is None:
+                return (401, "invalid_token", needed,
+                        "auth.tool_requires_auth", {"tool": tool})
+            if needed not in granted:
+                return (403, "insufficient_scope", needed,
+                        "auth.tool_requires_scope", {"tool": tool, "scope": needed})
+        return None
 
     async def _send_challenge(self, send: Send, status, error, scope_str, msg_key,
                               msg_kw: dict | None = None,
@@ -843,6 +901,16 @@ def _brief_request(r: dict) -> dict:
     }
 
 
+def _seg(value) -> str:
+    """URL のパス片を1つ分として符号化する。
+
+    既定の `quote` は "/" を残すので、recid やファイル名に `../` が入ると
+    **別のエンドポイントを叩ける**（利用者のトークンで、ではあるが、意図した
+    操作ではない）。ここでは safe="" にして、1片に閉じ込める。
+    """
+    return quote(str(value), safe="")
+
+
 def _qs(**kw) -> str:
     """None・空文字を落としてクエリ文字列にする。"""
     q = {k: v for k, v in kw.items() if v not in (None, "", [])}
@@ -947,14 +1015,13 @@ async def whoami() -> dict:
 
 @mcp.tool(description=t("tools.search_records"))
 async def search_records(query: str = "", size: int = 10) -> list[dict]:
-    q = f"?q={query}&size={size}" if query else f"?size={size}"
-    res = await _invenio("GET", f"/records{q}")
+    res = await _invenio("GET", "/records" + _qs(q=query, size=size))
     return [_brief(h) for h in res.get("hits", {}).get("hits", [])]
 
 
 @mcp.tool(description=t("tools.get_record"))
 async def get_record(recid: str, draft: bool = False) -> dict:
-    path = f"/records/{recid}/draft" if draft else f"/records/{recid}"
+    path = f"/records/{_seg(recid)}/draft" if draft else f"/records/{_seg(recid)}"
     return _brief(await _invenio("GET", path))
 
 
@@ -967,32 +1034,32 @@ async def create_record(metadata: dict, publish: bool = False,
         "metadata": metadata,
     })
     if publish:
-        return _brief(await _invenio("POST", f"/records/{draft['id']}/draft/actions/publish"))
+        return _brief(await _invenio("POST", f"/records/{_seg(draft['id'])}/draft/actions/publish"))
     return _brief(draft)
 
 
 @mcp.tool(description=t("tools.update_record"))
 async def update_record(recid: str, metadata: dict, publish: bool = True) -> dict:
     try:
-        await _invenio("GET", f"/records/{recid}/draft")
+        await _invenio("GET", f"/records/{_seg(recid)}/draft")
     except RuntimeError:
-        await _invenio("POST", f"/records/{recid}/draft")
-    cur = await _invenio("GET", f"/records/{recid}/draft")
+        await _invenio("POST", f"/records/{_seg(recid)}/draft")
+    cur = await _invenio("GET", f"/records/{_seg(recid)}/draft")
     cur["metadata"].update(metadata)
-    upd = await _invenio("PUT", f"/records/{recid}/draft", cur)
+    upd = await _invenio("PUT", f"/records/{_seg(recid)}/draft", cur)
     if publish:
-        return _brief(await _invenio("POST", f"/records/{recid}/draft/actions/publish"))
+        return _brief(await _invenio("POST", f"/records/{_seg(recid)}/draft/actions/publish"))
     return _brief(upd)
 
 
 @mcp.tool(description=t("tools.publish_record"))
 async def publish_record(recid: str) -> dict:
-    return _brief(await _invenio("POST", f"/records/{recid}/draft/actions/publish"))
+    return _brief(await _invenio("POST", f"/records/{_seg(recid)}/draft/actions/publish"))
 
 
 @mcp.tool(description=t("tools.delete_draft"))
 async def delete_draft(recid: str) -> dict:
-    await _invenio("DELETE", f"/records/{recid}/draft")
+    await _invenio("DELETE", f"/records/{_seg(recid)}/draft")
     return {"deleted_draft": recid}
 
 
@@ -1028,7 +1095,7 @@ async def delete_record(recid: str, confirm: bool = False,
     if reason_id not in reasons:
         return {"error": t("errors.reason_id_invalid"),
                 "given": reason_id, "valid": reasons}
-    await _invenio("DELETE", f"/records/{recid}/delete",
+    await _invenio("DELETE", f"/records/{_seg(recid)}/delete",
                    {"removal_reason": {"id": reason_id}, "note": note})
     return {"deleted_record": recid, "reason": reason_id, "note": note, "restorable": True}
 
@@ -1047,7 +1114,7 @@ async def list_vocabulary_types() -> dict:
 
 @mcp.tool(description=t("tools.list_vocabulary"))
 async def list_vocabulary(vocab_type: str, query: str = "", size: int = 20) -> dict:
-    d = await _invenio("GET", f"/vocabularies/{quote(vocab_type)}"
+    d = await _invenio("GET", f"/vocabularies/{_seg(vocab_type)}"
                               + _qs(q=query, size=size))
     hits = (d.get("hits") or {}).get("hits", [])
     return {
@@ -1083,7 +1150,7 @@ async def export_record(recid: str, fmt: str = "datacite-json") -> dict:
         return {"error": t("errors.export_format_unknown",
                            formats=" / ".join(EXPORT_FORMATS)),
                 "given": fmt}
-    text, ctype = await _invenio_text(f"/records/{quote(recid)}", mime)
+    text, ctype = await _invenio_text(f"/records/{_seg(recid)}", mime)
     return {"recid": recid, "format": fmt, "content_type": ctype, "content": text}
 
 
@@ -1092,7 +1159,7 @@ async def export_record(recid: str, fmt: str = "datacite-json") -> dict:
 
 @mcp.tool(description=t("tools.list_versions"))
 async def list_versions(recid: str) -> dict:
-    d = await _invenio("GET", f"/records/{quote(recid)}/versions" + _qs(size=100))
+    d = await _invenio("GET", f"/records/{_seg(recid)}/versions" + _qs(size=100))
     hits = (d.get("hits") or {}).get("hits", [])
     return {"total": (d.get("hits") or {}).get("total"),
             "versions": [_brief(h) for h in hits]}
@@ -1100,7 +1167,7 @@ async def list_versions(recid: str) -> dict:
 
 @mcp.tool(description=t("tools.list_revisions"))
 async def list_revisions(recid: str) -> dict:
-    d = await _invenio("GET", f"/records/{quote(recid)}/revisions")
+    d = await _invenio("GET", f"/records/{_seg(recid)}/revisions")
     revs = d if isinstance(d, list) else []
     return {"recid": recid, "count": len(revs),
             "revisions": [{"created": r.get("created"),
@@ -1131,12 +1198,12 @@ async def search_communities(query: str = "", size: int = 10) -> dict:
 
 @mcp.tool(description=t("tools.get_community"))
 async def get_community(community: str) -> dict:
-    return _brief_community(await _invenio("GET", f"/communities/{quote(community)}"))
+    return _brief_community(await _invenio("GET", f"/communities/{_seg(community)}"))
 
 
 @mcp.tool(description=t("tools.list_community_records"))
 async def list_community_records(community: str, query: str = "", size: int = 10) -> dict:
-    d = await _invenio("GET", f"/communities/{quote(community)}/records"
+    d = await _invenio("GET", f"/communities/{_seg(community)}/records"
                               + _qs(q=query, size=size))
     hits = (d.get("hits") or {}).get("hits", [])
     return {"total": (d.get("hits") or {}).get("total"),
@@ -1179,9 +1246,9 @@ async def list_requests(query: str = "", status: str = "", size: int = 10) -> di
 
 @mcp.tool(description=t("tools.get_request"))
 async def get_request(request_id: str, timeline: bool = False) -> dict:
-    out = _brief_request(await _invenio("GET", f"/requests/{quote(request_id)}"))
+    out = _brief_request(await _invenio("GET", f"/requests/{_seg(request_id)}"))
     if timeline:
-        d = await _invenio("GET", f"/requests/{quote(request_id)}/timeline" + _qs(size=50))
+        d = await _invenio("GET", f"/requests/{_seg(request_id)}/timeline" + _qs(size=50))
         out["timeline"] = [
             {"type": h.get("type"), "created": h.get("created"),
              "by": (h.get("created_by") or {}).get("user"),
@@ -1193,16 +1260,16 @@ async def get_request(request_id: str, timeline: bool = False) -> dict:
 
 @mcp.tool(description=t("tools.submit_to_community"))
 async def submit_to_community(recid: str, community: str, comment: str = "") -> dict:
-    await _invenio("PUT", f"/records/{quote(recid)}/draft/review",
+    await _invenio("PUT", f"/records/{_seg(recid)}/draft/review",
                    {"receiver": {"community": community}, "type": "community-submission"})
     body = {"payload": {"content": comment, "format": "html"}} if comment else None
-    r = await _invenio("POST", f"/records/{quote(recid)}/draft/actions/submit-review", body)
+    r = await _invenio("POST", f"/records/{_seg(recid)}/draft/actions/submit-review", body)
     return {"submitted": recid, "community": community, "request": _brief_request(r)}
 
 
 @mcp.tool(description=t("tools.comment_on_request"))
 async def comment_on_request(request_id: str, comment: str) -> dict:
-    c = await _invenio("POST", f"/requests/{quote(request_id)}/comments",
+    c = await _invenio("POST", f"/requests/{_seg(request_id)}/comments",
                        {"payload": {"content": comment, "format": "html"}})
     return {"request_id": request_id, "comment_id": (c or {}).get("id")}
 
@@ -1217,21 +1284,21 @@ async def request_action(request_id: str, action: str, comment: str = "") -> dic
                            actions=" / ".join(REQUEST_ACTIONS)),
                 "given": action}
     body = {"payload": {"content": comment, "format": "html"}} if comment else None
-    r = await _invenio("POST", f"/requests/{quote(request_id)}/actions/{action}", body)
+    r = await _invenio("POST", f"/requests/{_seg(request_id)}/actions/{action}", body)
     return {"request_id": request_id, "action": action, "request": _brief_request(r)}
 
 
 @mcp.tool(description=t("tools.restore_record"))
 async def restore_record(recid: str) -> dict:
     return {"restored_record": recid,
-            "record": _brief(await _invenio("POST", f"/records/{recid}/restore"))}
+            "record": _brief(await _invenio("POST", f"/records/{_seg(recid)}/restore"))}
 
 
 
 # ------------------------------------------------------------- ファイル
 # InvenioRDM のファイル登録は3手順（初期化 → 本体 → コミット）。
 # MCP の引数は JSON なので、本体は **base64 か平文テキスト**で受け取る。
-MAX_UPLOAD_BYTES = int(os.environ.get("MCP_MAX_UPLOAD_BYTES", str(16 * 1024 * 1024)))
+# 大きさの上限（MAX_UPLOAD_BYTES）は設定の節にある。
 
 
 @mcp.tool(description=t("tools.upload_file"))
@@ -1253,26 +1320,26 @@ async def upload_file(recid: str, filename: str,
                            size=len(blob), limit=MAX_UPLOAD_BYTES))
 
     # 下書きの files が無効だと 400 になるので、必要なら有効にしてから進める
-    draft = await _invenio("GET", f"/records/{recid}/draft")
+    draft = await _invenio("GET", f"/records/{_seg(recid)}/draft")
     if not (draft.get("files") or {}).get("enabled"):
         draft["files"] = {"enabled": True}
-        await _invenio("PUT", f"/records/{recid}/draft", draft)
+        await _invenio("PUT", f"/records/{_seg(recid)}/draft", draft)
 
     # 同名があると InvenioRDM は 400（`File with key ... already exists.`）を返す。
     # 「同じ名前で入れ直す」は普通の操作なので、既定では消してから入れ直す。
-    existing = await _invenio("GET", f"/records/{recid}/draft/files")
+    existing = await _invenio("GET", f"/records/{_seg(recid)}/draft/files")
     if filename in {e.get("key") for e in (existing.get("entries") or [])}:
         if not overwrite:
             raise ValueError(t("errors.file_exists", filename=filename))
-        await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
+        await _invenio("DELETE", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}")
         replaced = True
     else:
         replaced = False
 
-    await _invenio("POST", f"/records/{recid}/draft/files", [{"key": filename}])
-    await _invenio_raw("PUT", f"/records/{recid}/draft/files/{filename}/content",
+    await _invenio("POST", f"/records/{_seg(recid)}/draft/files", [{"key": filename}])
+    await _invenio_raw("PUT", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}/content",
                        blob, "application/octet-stream")
-    committed = await _invenio("POST", f"/records/{recid}/draft/files/{filename}/commit")
+    committed = await _invenio("POST", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}/commit")
     return {
         "recid": recid,
         "key": committed.get("key", filename),
@@ -1285,7 +1352,7 @@ async def upload_file(recid: str, filename: str,
 
 @mcp.tool(description=t("tools.list_files"))
 async def list_files(recid: str, draft: bool = False) -> dict:
-    path = f"/records/{recid}/draft/files" if draft else f"/records/{recid}/files"
+    path = f"/records/{_seg(recid)}/draft/files" if draft else f"/records/{_seg(recid)}/files"
     res = await _invenio("GET", path)
     return {
         "recid": recid,
@@ -1301,14 +1368,23 @@ async def list_files(recid: str, draft: bool = False) -> dict:
 
 @mcp.tool(description=t("tools.delete_file"))
 async def delete_file(recid: str, filename: str) -> dict:
-    await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
+    await _invenio("DELETE", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}")
     return {"recid": recid, "deleted": filename}
 
 
 @mcp.tool(description=t("tools.download_file"))
 async def download_file(recid: str, filename: str, draft: bool = False) -> dict:
     seg = "draft/files" if draft else "files"
-    path = f"/records/{recid}/{seg}/{filename}/content"
+    path = f"/records/{_seg(recid)}/{seg}/{_seg(filename)}/content"
+
+    # 署名済み URL を追うかどうかの判定に使う「登録されている大きさ」。
+    # 取れなければ**追わない**（安全側に倒す）。
+    try:
+        entry = await _invenio("GET", f"/records/{_seg(recid)}/{seg}/{_seg(filename)}")
+        declared_size = (entry or {}).get("size")
+    except Exception:
+        declared_size = None
+
     token = await _invenio_token()
     headers = {"Accept": "*/*"}
     if token:
@@ -1325,7 +1401,10 @@ async def download_file(recid: str, filename: str, draft: bool = False) -> dict:
         target = None
         if r.status_code in (301, 302, 303, 307, 308) and "location" in r.headers:
             target = r.headers["location"]
-        else:
+        elif declared_size is not None and len(r.content) != declared_size:
+            # **本体ではない**ことが長さで分かるときだけ、署名済み URL として読む。
+            # 長さが一致するなら、たとえ中身が署名済み URL の形をしていても、それは
+            # 利用者が置いたファイルそのものなので追わない（SSRF を塞ぐ）。
             head = r.content[:2048].lstrip()
             if head[:4] in (b"http",) and b"X-Amz-Signature" in head:
                 target = r.content.decode("utf-8", "replace").strip()
@@ -1358,19 +1437,19 @@ async def download_file(recid: str, filename: str, draft: bool = False) -> dict:
 async def new_version(recid: str, import_files: bool = True,
                       publication_date: str | None = None,
                       version: str | None = None) -> dict:
-    draft = await _invenio("POST", f"/records/{recid}/versions")
+    draft = await _invenio("POST", f"/records/{_seg(recid)}/versions")
     new_id = draft["id"]
     imported = None
     if import_files:
         try:
             res = await _invenio(
-                "POST", f"/records/{new_id}/draft/actions/files-import")
+                "POST", f"/records/{_seg(new_id)}/draft/actions/files-import")
             imported = len((res or {}).get("entries") or [])
         except Exception as e:
             # 元にファイルが無い等。新バージョン自体は作れているので失敗にはしない
             imported = t("errors.import_files_failed", error=e)
     # 公開日を埋める（引き継がれないので、ここで入れておかないと publish できない）
-    draft = await _invenio("GET", f"/records/{new_id}/draft")
+    draft = await _invenio("GET", f"/records/{_seg(new_id)}/draft")
     md = draft.setdefault("metadata", {})
     changed = False
     if not md.get("publication_date"):
@@ -1383,7 +1462,7 @@ async def new_version(recid: str, import_files: bool = True,
         md["version"] = version
         changed = True
     if changed:
-        draft = await _invenio("PUT", f"/records/{new_id}/draft", draft)
+        draft = await _invenio("PUT", f"/records/{_seg(new_id)}/draft", draft)
 
     out = _brief(draft)
     out["source_recid"] = recid
@@ -1395,16 +1474,16 @@ async def new_version(recid: str, import_files: bool = True,
 @mcp.tool(description=t("tools.upload_file_from_url"))
 async def upload_file_from_url(recid: str, filename: str, url: str,
                                overwrite: bool = True) -> dict:
-    draft = await _invenio("GET", f"/records/{recid}/draft")
+    draft = await _invenio("GET", f"/records/{_seg(recid)}/draft")
     if not (draft.get("files") or {}).get("enabled"):
         draft["files"] = {"enabled": True}
-        await _invenio("PUT", f"/records/{recid}/draft", draft)
+        await _invenio("PUT", f"/records/{_seg(recid)}/draft", draft)
 
-    existing = await _invenio("GET", f"/records/{recid}/draft/files")
+    existing = await _invenio("GET", f"/records/{_seg(recid)}/draft/files")
     if filename in {e.get("key") for e in (existing.get("entries") or [])}:
         if not overwrite:
             raise ValueError(t("errors.file_exists", filename=filename))
-        await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
+        await _invenio("DELETE", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}")
         replaced = True
     else:
         replaced = False
@@ -1414,7 +1493,7 @@ async def upload_file_from_url(recid: str, filename: str, url: str,
     #   v14: {"transfer": {"type": "F", "url": ...}}
     # v14 のスキーマは未知フィールドを RAISE するので、旧形式は 400 になる。
     try:
-        res = await _invenio("POST", f"/records/{recid}/draft/files",
+        res = await _invenio("POST", f"/records/{_seg(recid)}/draft/files",
                              [{"key": filename, "transfer": {"type": "F", "url": url}}])
     except RuntimeError as e:
         if "HTTP 403" in str(e):
@@ -1465,21 +1544,21 @@ async def start_multipart_upload(recid: str, filename: str, size: int,
                                  overwrite: bool = True) -> dict:
     parts, part_size = _plan_parts(size, part_size)
 
-    draft = await _invenio("GET", f"/records/{recid}/draft")
+    draft = await _invenio("GET", f"/records/{_seg(recid)}/draft")
     if not (draft.get("files") or {}).get("enabled"):
         draft["files"] = {"enabled": True}
-        await _invenio("PUT", f"/records/{recid}/draft", draft)
+        await _invenio("PUT", f"/records/{_seg(recid)}/draft", draft)
 
-    existing = await _invenio("GET", f"/records/{recid}/draft/files")
+    existing = await _invenio("GET", f"/records/{_seg(recid)}/draft/files")
     if filename in {e.get("key") for e in (existing.get("entries") or [])}:
         if not overwrite:
             raise ValueError(t("errors.file_exists", filename=filename))
-        await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
+        await _invenio("DELETE", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}")
         replaced = True
     else:
         replaced = False
 
-    res = await _invenio("POST", f"/records/{recid}/draft/files", [{
+    res = await _invenio("POST", f"/records/{_seg(recid)}/draft/files", [{
         "key": filename, "size": size,
         "transfer": {"type": "M", "parts": parts, "part_size": part_size},
     }])
@@ -1509,7 +1588,7 @@ async def start_multipart_upload(recid: str, filename: str, size: int,
 @mcp.tool(description=t("tools.complete_multipart_upload"))
 async def complete_multipart_upload(recid: str, filename: str) -> dict:
     committed = await _invenio(
-        "POST", f"/records/{recid}/draft/files/{filename}/commit")
+        "POST", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}/commit")
     return {
         "recid": recid,
         "key": committed.get("key", filename),
@@ -1522,8 +1601,12 @@ async def complete_multipart_upload(recid: str, filename: str) -> dict:
 
 @mcp.tool(description=t("tools.abort_multipart_upload"))
 async def abort_multipart_upload(recid: str, filename: str) -> dict:
-    await _invenio("DELETE", f"/records/{recid}/draft/files/{filename}")
+    await _invenio("DELETE", f"/records/{_seg(recid)}/draft/files/{_seg(filename)}")
     return {"recid": recid, "aborted": filename}
+
+# ツールの定義がすべて済んだところで突き合わせる。**import した時点で落ちる。**
+_verify_tool_scopes()
+
 
 def build_app():
     """匿名アクセスを通すため、MCP ルートの RequireAuthMiddleware を外す。

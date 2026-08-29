@@ -10,6 +10,42 @@ as breaking when the consumer is a language model rather than a compiler.
 
 ## [Unreleased]
 
+### Security
+
+- **A tool missing from `TOOL_SCOPES` no longer defaults to public.** `TOOL_SCOPES.get()`
+  returned `None` both for "this tool is public" and for "this tool is not in the map",
+  so adding a write tool and forgetting the entry would have opened it to anyone. The
+  server now compares the map against the registered tools at import and **refuses to
+  start** when they disagree.
+- **The scope check now inspects JSON-RPC batches.** A batch (a JSON array) fell through
+  `isinstance(payload, dict)` and was passed on unchecked. The current SDK rejects
+  batches with a 400, so nothing was exposed — but the guard was the SDK's behaviour
+  rather than ours, and an SDK that accepted batches would have bypassed authorization
+  entirely. Every `tools/call` in a batch is now checked, and the strictest requirement
+  wins.
+- **`download_file` no longer follows a URL found in a file's own bytes.** InvenioRDM
+  answers a content request for S3 storage with a presigned URL in the body, which the
+  server followed. The same shape can be produced by **uploading a file whose contents
+  are a URL**, which turned the tool into an SSRF with the response handed back to the
+  caller. The body is now only read as a presigned URL when its length differs from the
+  file's registered size — a file always comes back at its own size.
+- **`recid`, filenames and other values are encoded as single URL path segments.**
+  `quote()`'s default leaves `/` intact, so a value containing `../` reached a different
+  endpoint than the one intended.
+- **The request body is capped** (`MCP_MAX_REQUEST_BYTES`, twice the upload limit).
+  Authorization needs the whole body, so an unbounded POST could exhaust memory. Over
+  the cap the answer is `413`.
+- **Documented that `add_file(source_path=...)` in the stdio server reads any file the
+  process can read.** That is by design, but the caller is a language model, so it is a
+  prompt-injection target worth naming.
+
+### Fixed
+
+- **`search_records` URL-encodes its query.** A query containing `&size=10000` was
+  injected into the InvenioRDM request as a separate parameter.
+- **The audit line for a denied batch names the tool that was actually denied**, not the
+  first entry in the batch.
+
 ## [0.0.1] — 2026-08-29
 
 **First public release.** Two MCP servers that drive InvenioRDM over nothing but its

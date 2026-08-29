@@ -74,6 +74,7 @@
 | 変数 | 既定 | 意味 |
 | --- | --- | --- |
 | `MCP_MAX_UPLOAD_BYTES` | `16777216`（16MiB） | 往復両方の base64 の上限 |
+| `MCP_MAX_REQUEST_BYTES` | `MCP_MAX_UPLOAD_BYTES` の2倍 | 要求本文そのものの上限。認可の判定に本文を全部読むので、上限が無いと1本の POST でメモリを食い潰せる。超えると `413` |
 | `MCP_MULTIPART_PART_BYTES` | `67108864`（64MiB） | multipart の既定パートサイズ |
 
 `MCP_MAX_UPLOAD_BYTES` を上げても、大きなファイルが良い考えになるわけではない。
