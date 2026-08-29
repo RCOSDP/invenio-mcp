@@ -1,6 +1,6 @@
 # MCP リソースサーバ（OAuth 2.1 / MCP 2026-07-28）。
 # build context: このディレクトリ（http/）。docker-compose.yml と k8s/mcp-server.yaml が共用する。
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 RUN pip install --no-cache-dir \
       "mcp==1.26.0" \
