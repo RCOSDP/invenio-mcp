@@ -10,6 +10,14 @@ as breaking when the consumer is a language model rather than a compiler.
 
 ## [Unreleased]
 
+## [0.0.2] — 2026-08-29
+
+**A security release.** Nothing changes for a client that was using the servers as
+documented; what changes is what a client could reach if it went looking. One of these
+was reachable in practice — `download_file` could be turned into an SSRF by uploading a
+file whose contents are a URL. The rest closed structures that were open but not yet
+exposed.
+
 ### Security
 
 - **A tool missing from `TOOL_SCOPES` no longer defaults to public.** `TOOL_SCOPES.get()`
@@ -125,6 +133,7 @@ REST API — no extension to install on the repository side.
 - **TLS verification is on by default.** Turning it off takes `MCP_TLS_INSECURE=1`.
 - Demo users are not created unless `MCP_DEMO_USERS=yes`; their passwords are weak.
 
-[Unreleased]: https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/RCOSDP/invenio-mcp/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/RCOSDP/invenio-mcp/releases/tag/v0.0.1
 <!-- --8<-- [end:body] -->

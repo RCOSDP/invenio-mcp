@@ -39,7 +39,7 @@ docker compose up -d --build
 
 ```
 MCP リソースサーバ: http://0.0.0.0:9100/mcp
-  版                                : 0.0.1
+  版                                : 0.0.2
   canonical URI (RFC 8707 resource) : http://127.0.0.1:9100/mcp
   認証方式 (MCP_AUTH_MODE)          : invenio
   言語 (MCP_LANG)                   : ja（利用可能: en ja）

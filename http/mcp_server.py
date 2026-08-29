@@ -48,7 +48,7 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 # セマンティックバージョニング（https://semver.org/lang/ja/）。
 # 何を破壊的変更とみなすかは docs/about/versioning.md に書いてある。
 # stdio/server.py の __version__ と揃える（CI が一致を検査する）。
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 # ------------------------------------------------------------------ i18n
 # 利用者（と LLM）に見える文字列は locales/<lang>.json に置く。ツールの説明・

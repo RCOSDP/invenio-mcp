@@ -10,6 +10,13 @@
 
 ## [Unreleased]
 
+## [0.0.2] — 2026-08-29
+
+**セキュリティ修正の版。** ドキュメントどおりに使っているクライアントには何も変わらない。
+変わるのは、探しに行ったときに届く先である。このうち1件は実際に成立していた——
+`download_file` は、中身が URL のファイルを上げるだけで SSRF にできた。残りは、
+開いてはいたがまだ露出していなかった構造を閉じたものである。
+
 ### Security
 
 - **`TOOL_SCOPES` に書き忘れたツールが未認証で開かなくなった。** `TOOL_SCOPES.get()` は
@@ -112,6 +119,7 @@
 - **TLS 検証は既定で有効。** 切るには `MCP_TLS_INSECURE=1` が要る。
 - デモ利用者は `MCP_DEMO_USERS=yes` を付けない限り作らない（パスワードが弱いため）。
 
-[Unreleased]: https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/RCOSDP/invenio-mcp/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/RCOSDP/invenio-mcp/releases/tag/v0.0.1
 <!-- --8<-- [end:body] -->

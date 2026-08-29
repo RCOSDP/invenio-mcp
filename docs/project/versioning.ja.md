@@ -9,7 +9,7 @@ invenio-mcp は[セマンティックバージョニング 2.0.0](https://semver
 出すたびに古くなるからで、[変更履歴](changelog.md)にある。
 
 ```bash
-python3 stdio/server.py --version      # invenio-mcp stdio server 0.0.1
+python3 stdio/server.py --version      # invenio-mcp stdio server <version>
 # HTTP 版は起動時の表示に出る
 ```
 
@@ -83,7 +83,7 @@ python3 stdio/server.py --version      # invenio-mcp stdio server 0.0.1
 ## 出し方
 
 ```bash
-# 1. 両方のサーバの版を上げ、変更履歴を両言語で書く
+# 1. 両方のサーバの版を上げ、[Unreleased] を新しい版へ移す（両言語とも）
 vim http/mcp_server.py stdio/server.py CHANGELOG.md CHANGELOG.ja.md
 
 # 2. CI が見るものを先に見る
@@ -91,7 +91,7 @@ python3 tools/gen_tool_reference.py --check
 mkdocs build --strict
 
 # 3. タグを打つ
-git tag -a v0.0.2 -m "v0.0.2" && git push origin v0.0.2
+git tag -a v0.0.3 -m "v0.0.3" && git push origin v0.0.3
 ```
 
 リリースのワークフローは、タグが**両方**のサーバの `__version__` と一致すること、
