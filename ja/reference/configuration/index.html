@@ -1628,6 +1628,11 @@
 <td>往復両方の base64 の上限</td>
 </tr>
 <tr>
+<td><code>MCP_MAX_REQUEST_BYTES</code></td>
+<td><code>MCP_MAX_UPLOAD_BYTES</code> の2倍</td>
+<td>要求本文そのものの上限。認可の判定に本文を全部読むので、上限が無いと1本の POST でメモリを食い潰せる。超えると <code>413</code></td>
+</tr>
+<tr>
 <td><code>MCP_MULTIPART_PART_BYTES</code></td>
 <td><code>67108864</code>（64MiB）</td>
 <td>multipart の既定パートサイズ</td>

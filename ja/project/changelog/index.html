@@ -1103,6 +1103,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#002--2026-08-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.0.2 — 2026-08-29
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.0.2 — 2026-08-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#001--2026-08-29" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1126,7 +1165,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1251,6 +1290,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#002--2026-08-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.0.2 — 2026-08-29
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.0.2 — 2026-08-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#001--2026-08-29" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1274,7 +1352,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1319,7 +1397,43 @@
 版の付け方は <a href="https://semver.org/lang/ja/">セマンティックバージョニング</a>。
 <strong>利用者が言語モデルであるときに何を破壊的変更と数えるか</strong>は
 <a href="https://rcosdp.github.io/invenio-mcp/ja/project/versioning/">方針</a>に書いた。</p>
-<h2 id="unreleased"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="unreleased"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.2...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="002--2026-08-29"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...v0.0.2">0.0.2</a> — 2026-08-29<a class="headerlink" href="#002--2026-08-29" title="Permanent link">&para;</a></h2>
+<p><strong>セキュリティ修正の版。</strong> ドキュメントどおりに使っているクライアントには何も変わらない。
+変わるのは、探しに行ったときに届く先である。このうち1件は実際に成立していた——
+<code>download_file</code> は、中身が URL のファイルを上げるだけで SSRF にできた。残りは、
+開いてはいたがまだ露出していなかった構造を閉じたものである。</p>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>TOOL_SCOPES</code> に書き忘れたツールが未認証で開かなくなった。</strong> <code>TOOL_SCOPES.get()</code> は
+  「公開してよい」と「表に無い」の両方で <code>None</code> を返していたので、write ツールを足して
+  書き忘れると誰でも呼べるようになっていた。import 時に登録済みツールと突き合わせ、
+  食い違っていれば<strong>起動しない</strong>。</li>
+<li><strong>scope 検査が JSON-RPC のバッチを見るようになった。</strong> バッチ（配列）は
+  <code>isinstance(payload, dict)</code> を素通りして検査されずに流れていた。いまの SDK が配列を
+  400 で弾くので実害は無かったが、守っていたのは SDK のふるまいであってこちらではなく、
+  バッチを通す SDK なら認可が丸ごと迂回された。バッチ内のすべての <code>tools/call</code> を見て、
+  一番厳しい要求を採る。</li>
+<li><strong><code>download_file</code> がファイルの中身に書かれた URL を追わなくなった。</strong> S3 保存では
+  InvenioRDM が本文に署名済み URL を入れて返すため、サーバはそれを追っていた。同じ形は
+  <strong>中身が URL のファイルを1つ上げる</strong>だけで作れるので、任意の URL を取りに行かせて
+  応答まで受け取れる SSRF になっていた。応答の長さが登録サイズと違うときだけ署名済み
+  URL として読む（ファイル本体は必ず自分の大きさで返る）。</li>
+<li><strong><code>recid</code>・ファイル名などを URL のパス片1つとして符号化するようにした。</strong>
+  <code>quote()</code> の既定は <code>/</code> を残すので、<code>../</code> を含む値は意図と別のエンドポイントに届いた。</li>
+<li><strong>要求本文に上限を設けた</strong>（<code>MCP_MAX_REQUEST_BYTES</code>、添付上限の2倍）。認可の判定には
+  本文が全部要るので、上限が無いと1本の POST でメモリを食い潰せた。超えると <code>413</code>。</li>
+<li><strong>stdio 版の <code>add_file(source_path=...)</code> が、プロセスの読めるファイルを何でも読むこと
+  を明記した。</strong> 設計どおりではあるが、呼び出すのは言語モデルなので、プロンプト
+  インジェクションの的になる。名前を付けておく価値がある。</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>search_records</code> がクエリを URL エンコードするようにした。</strong> <code>&amp;size=10000</code> を含む
+  クエリが、InvenioRDM への要求に別のパラメータとして差し込まれていた。</li>
+<li><strong>バッチが拒否されたときの監査の行が、実際に拒否されたツールを載せるようにした。</strong>
+  それまではバッチの先頭の要素を載せていた。</li>
+</ul>
 <h2 id="001--2026-08-29"><a href="https://github.com/RCOSDP/invenio-mcp/releases/tag/v0.0.1">0.0.1</a> — 2026-08-29<a class="headerlink" href="#001--2026-08-29" title="Permanent link">&para;</a></h2>
 <p><strong>最初の公開版。</strong> InvenioRDM を <strong>REST API だけ</strong>で操作する MCP サーバ2種。
 リポジトリ側に入れる拡張は無い。</p>
@@ -1394,7 +1508,7 @@
   サーバの実装と言語リソースから生成するので、クライアントが実際に見るものとずれない。</p>
 </li>
 </ul>
-<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<h3 id="security_1">Security<a class="headerlink" href="#security_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>資格情報に既定値を置かない。</strong> <code>MCP_SERVER_SECRET</code> と <code>KC_ADMIN_PASSWORD</code> は
   未設定ならその場で止まる。推測可能な値で動いてしまうより良い。</li>

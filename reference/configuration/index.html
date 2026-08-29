@@ -1629,6 +1629,11 @@ store.</p>
 <td>Cap on base64 content in both directions</td>
 </tr>
 <tr>
+<td><code>MCP_MAX_REQUEST_BYTES</code></td>
+<td>twice <code>MCP_MAX_UPLOAD_BYTES</code></td>
+<td>Cap on the raw request body. Authorization needs the whole body, so without a cap one POST could exhaust memory; over it the answer is <code>413</code></td>
+</tr>
+<tr>
 <td><code>MCP_MULTIPART_PART_BYTES</code></td>
 <td><code>67108864</code> (64MiB)</td>
 <td>Default part size for multipart uploads</td>

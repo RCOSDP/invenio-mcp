@@ -1103,6 +1103,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#002--2026-08-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.0.2 — 2026-08-29
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.0.2 — 2026-08-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#001--2026-08-29" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1126,7 +1165,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1251,6 +1290,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#002--2026-08-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.0.2 — 2026-08-29
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.0.2 — 2026-08-29">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#001--2026-08-29" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1274,7 +1352,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1319,7 +1397,49 @@
 Versioning: <a href="https://semver.org/">SemVer</a> — see
 <a href="https://rcosdp.github.io/invenio-mcp/project/versioning/">the policy</a> for what counts
 as breaking when the consumer is a language model rather than a compiler.</p>
-<h2 id="unreleased"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="unreleased"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.2...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="002--2026-08-29"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...v0.0.2">0.0.2</a> — 2026-08-29<a class="headerlink" href="#002--2026-08-29" title="Permanent link">&para;</a></h2>
+<p><strong>A security release.</strong> Nothing changes for a client that was using the servers as
+documented; what changes is what a client could reach if it went looking. One of these
+was reachable in practice — <code>download_file</code> could be turned into an SSRF by uploading a
+file whose contents are a URL. The rest closed structures that were open but not yet
+exposed.</p>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>A tool missing from <code>TOOL_SCOPES</code> no longer defaults to public.</strong> <code>TOOL_SCOPES.get()</code>
+  returned <code>None</code> both for "this tool is public" and for "this tool is not in the map",
+  so adding a write tool and forgetting the entry would have opened it to anyone. The
+  server now compares the map against the registered tools at import and <strong>refuses to
+  start</strong> when they disagree.</li>
+<li><strong>The scope check now inspects JSON-RPC batches.</strong> A batch (a JSON array) fell through
+  <code>isinstance(payload, dict)</code> and was passed on unchecked. The current SDK rejects
+  batches with a 400, so nothing was exposed — but the guard was the SDK's behaviour
+  rather than ours, and an SDK that accepted batches would have bypassed authorization
+  entirely. Every <code>tools/call</code> in a batch is now checked, and the strictest requirement
+  wins.</li>
+<li><strong><code>download_file</code> no longer follows a URL found in a file's own bytes.</strong> InvenioRDM
+  answers a content request for S3 storage with a presigned URL in the body, which the
+  server followed. The same shape can be produced by <strong>uploading a file whose contents
+  are a URL</strong>, which turned the tool into an SSRF with the response handed back to the
+  caller. The body is now only read as a presigned URL when its length differs from the
+  file's registered size — a file always comes back at its own size.</li>
+<li><strong><code>recid</code>, filenames and other values are encoded as single URL path segments.</strong>
+  <code>quote()</code>'s default leaves <code>/</code> intact, so a value containing <code>../</code> reached a different
+  endpoint than the one intended.</li>
+<li><strong>The request body is capped</strong> (<code>MCP_MAX_REQUEST_BYTES</code>, twice the upload limit).
+  Authorization needs the whole body, so an unbounded POST could exhaust memory. Over
+  the cap the answer is <code>413</code>.</li>
+<li><strong>Documented that <code>add_file(source_path=...)</code> in the stdio server reads any file the
+  process can read.</strong> That is by design, but the caller is a language model, so it is a
+  prompt-injection target worth naming.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>search_records</code> URL-encodes its query.</strong> A query containing <code>&amp;size=10000</code> was
+  injected into the InvenioRDM request as a separate parameter.</li>
+<li><strong>The audit line for a denied batch names the tool that was actually denied</strong>, not the
+  first entry in the batch.</li>
+</ul>
 <h2 id="001--2026-08-29"><a href="https://github.com/RCOSDP/invenio-mcp/releases/tag/v0.0.1">0.0.1</a> — 2026-08-29<a class="headerlink" href="#001--2026-08-29" title="Permanent link">&para;</a></h2>
 <p><strong>First public release.</strong> Two MCP servers that drive InvenioRDM over nothing but its
 REST API — no extension to install on the repository side.</p>
@@ -1402,7 +1522,7 @@ REST API — no extension to install on the repository side.</p>
   resources, so it cannot drift from what a client actually sees.</p>
 </li>
 </ul>
-<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<h3 id="security_1">Security<a class="headerlink" href="#security_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>No credential has a default.</strong> <code>MCP_SERVER_SECRET</code> and <code>KC_ADMIN_PASSWORD</code> stop the
   program when unset, rather than running on a guessable value.</li>

@@ -1344,6 +1344,13 @@ rather than defects:</p>
   path.</li>
 <li><strong>The compose stack reads secrets from <code>.env</code> in the clear.</strong> It is a starting point,
   not a deployment.</li>
+<li><strong><code>add_file(source_path=...)</code> in the stdio server reads any file the process can
+  read</strong>, and uploads it. That is by design — the server runs as you, so it can reach
+  what you can. It matters because <strong>the caller is a language model</strong>: text in a record,
+  a filename, or a web page it was asked to summarise can all try to talk it into
+  reading <code>~/.ssh/id_rsa</code> and attaching it to a public record. Clients ask for approval
+  per tool call; do not approve <code>source_path</code> values you did not choose. The HTTP server
+  does not expose this argument at all.</li>
 </ul>
 <h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
 <p>The final permission decision is InvenioRDM's. A report that amounts to "an admin token

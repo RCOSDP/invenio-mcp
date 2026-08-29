@@ -1337,6 +1337,13 @@
   自己署名の開発用インスタンスのために在る。正しい手順は、CA をシステムの束に足すこと。</li>
 <li><strong><code>mcp-remote</code> の <code>--allow-http</code> はトークンを平文で送る。</strong> 信頼できる経路に限ること。</li>
 <li><strong>compose のスタックは <code>.env</code> の秘密を平文で読む。</strong> 出発点であって、配備物ではない。</li>
+<li><strong>stdio 版の <code>add_file(source_path=...)</code> は、そのプロセスが読めるファイルを何でも
+  読んで送る。</strong> これは設計どおりで、サーバは利用者本人として動くのだから、本人が
+  読めるものには届く。問題になるのは<strong>呼び出す側が言語モデル</strong>だからである。レコードの
+  本文、ファイル名、要約を頼んだ Web ページ——そのどれもが、<code>~/.ssh/id_rsa</code> を読んで
+  公開レコードに添付するよう仕向けようとしうる。クライアントはツール呼び出しごとに
+  承認を求めるので、<strong>自分で選んでいない <code>source_path</code> を承認しないこと。</strong>
+  HTTP 版はこの引数をそもそも公開していない。</li>
 </ul>
 <h2 id="範囲">範囲<a class="headerlink" href="#範囲" title="Permanent link">&para;</a></h2>
 <p>最終的な権限判定は InvenioRDM のものである。「admin トークンならレコードを消せる」と
