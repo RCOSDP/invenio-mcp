@@ -136,6 +136,15 @@ else:
     _CTX.verify_mode = ssl.CERT_NONE
 
 
+def _seg(value):
+    """URL のパス片を1つ分として符号化する。
+
+    既定の `quote` は "/" を残すので、recid やファイル名に `../` が入ると
+    **別のエンドポイントを叩ける**。safe="" にして1片に閉じ込める。
+    """
+    return urllib.parse.quote(str(value), safe="")
+
+
 class ApiError(Exception):
     pass
 
@@ -206,7 +215,7 @@ def search_records(query: str = "", size: int = 10) -> dict:
 
 @mcp.tool(description=t("tools.get_record"))
 def get_record(recid: str, draft: bool = False) -> dict:
-    path = f"/records/{recid}/draft" if draft else f"/records/{recid}"
+    path = f"/records/{_seg(recid)}/draft" if draft else f"/records/{_seg(recid)}"
     _, j = _req("GET", path)
     return _brief(j)
 
@@ -223,7 +232,7 @@ def create_record(metadata: dict, access: dict = None, files_enabled: bool = Fal
     recid = j.get("id")
     out = {"recid": recid, "state": "draft", "record": _brief(j)}
     if publish:
-        out["record"] = _brief(_req("POST", f"/records/{recid}/draft/actions/publish")[1])
+        out["record"] = _brief(_req("POST", f"/records/{_seg(recid)}/draft/actions/publish")[1])
         out["state"] = "published"
     return out
 
@@ -232,36 +241,36 @@ def create_record(metadata: dict, access: dict = None, files_enabled: bool = Fal
 def update_record(recid: str, metadata: dict, publish: bool = True) -> dict:
     # 既存の下書きがあればそれを、無ければ公開レコードから編集下書きを作る
     try:
-        _, draft = _req("GET", f"/records/{recid}/draft")
+        _, draft = _req("GET", f"/records/{_seg(recid)}/draft")
     except ApiError:
-        _req("POST", f"/records/{recid}/draft")            # 公開レコードから編集下書きを作成
-        _, draft = _req("GET", f"/records/{recid}/draft")
+        _req("POST", f"/records/{_seg(recid)}/draft")            # 公開レコードから編集下書きを作成
+        _, draft = _req("GET", f"/records/{_seg(recid)}/draft")
     draft["metadata"] = metadata
-    _, upd = _req("PUT", f"/records/{recid}/draft", body=draft)
+    _, upd = _req("PUT", f"/records/{_seg(recid)}/draft", body=draft)
     out = {"recid": recid, "state": "draft", "record": _brief(upd)}
     if publish:
-        out["record"] = _brief(_req("POST", f"/records/{recid}/draft/actions/publish")[1])
+        out["record"] = _brief(_req("POST", f"/records/{_seg(recid)}/draft/actions/publish")[1])
         out["state"] = "published"
     return out
 
 
 @mcp.tool(description=t("tools.publish_record"))
 def publish_record(recid: str) -> dict:
-    _, j = _req("POST", f"/records/{recid}/draft/actions/publish")
+    _, j = _req("POST", f"/records/{_seg(recid)}/draft/actions/publish")
     return {"recid": recid, "state": "published", "record": _brief(j)}
 
 
 @mcp.tool(description=t("tools.new_version"))
 def new_version(recid: str, metadata: dict = None, publish: bool = False) -> dict:
-    _, nv = _req("POST", f"/records/{recid}/versions")
+    _, nv = _req("POST", f"/records/{_seg(recid)}/versions")
     new_id = nv.get("id")
     if metadata is not None:
         nv["metadata"] = metadata
         # 新版は publication_date が必須になる場合があるため呼び出し側で含めること
-        _, nv = _req("PUT", f"/records/{new_id}/draft", body=nv)
+        _, nv = _req("PUT", f"/records/{_seg(new_id)}/draft", body=nv)
     out = {"recid": new_id, "state": "draft", "record": _brief(nv)}
     if publish:
-        out["record"] = _brief(_req("POST", f"/records/{new_id}/draft/actions/publish")[1])
+        out["record"] = _brief(_req("POST", f"/records/{_seg(new_id)}/draft/actions/publish")[1])
         out["state"] = "published"
     return out
 
@@ -269,7 +278,7 @@ def new_version(recid: str, metadata: dict = None, publish: bool = False) -> dic
 # ---------------- 削除 ----------------
 @mcp.tool(description=t("tools.delete_draft"))
 def delete_draft(recid: str) -> dict:
-    _req("DELETE", f"/records/{recid}/draft")
+    _req("DELETE", f"/records/{_seg(recid)}/draft")
     return {"recid": recid, "deleted": "draft"}
 
 
@@ -277,13 +286,13 @@ def delete_draft(recid: str) -> dict:
 def delete_record(recid: str, confirm: bool = False, reason_id: str = "out-of-scope", note: str = "removed via MCP") -> dict:
     if not confirm:
         return {"error": t("errors.destructive_needs_confirm"), "recid": recid}
-    _req("DELETE", f"/records/{recid}/delete", body={"removal_reason": {"id": reason_id}, "note": note})
+    _req("DELETE", f"/records/{_seg(recid)}/delete", body={"removal_reason": {"id": reason_id}, "note": note})
     return {"recid": recid, "deleted": "record(soft)", "restorable": True}
 
 
 @mcp.tool(description=t("tools.restore_record"))
 def restore_record(recid: str) -> dict:
-    _, j = _req("POST", f"/records/{recid}/restore")
+    _, j = _req("POST", f"/records/{_seg(recid)}/restore")
     return {"recid": recid, "restored": True, "record": _brief(j)}
 
 
@@ -301,23 +310,23 @@ def _resolve_bytes(text, content_base64, source_path):
 @mcp.tool(description=t("tools.add_file"))
 def add_file(recid: str, key: str, text: str = None, content_base64: str = None, source_path: str = None) -> dict:
     data = _resolve_bytes(text, content_base64, source_path)
-    _req("POST", f"/records/{recid}/draft/files", body=[{"key": key}])
-    _req("PUT", f"/records/{recid}/draft/files/{key}/content", raw=data, ctype="application/octet-stream")
-    _, j = _req("POST", f"/records/{recid}/draft/files/{key}/commit")
+    _req("POST", f"/records/{_seg(recid)}/draft/files", body=[{"key": key}])
+    _req("PUT", f"/records/{_seg(recid)}/draft/files/{_seg(key)}/content", raw=data, ctype="application/octet-stream")
+    _, j = _req("POST", f"/records/{_seg(recid)}/draft/files/{_seg(key)}/commit")
     return {"recid": recid, "key": key, "size": (j or {}).get("size", len(data)), "status": (j or {}).get("status")}
 
 
 @mcp.tool(description=t("tools.list_files"))
 def list_files(recid: str, draft: bool = True) -> dict:
     seg = "draft/files" if draft else "files"
-    _, j = _req("GET", f"/records/{recid}/{seg}")
+    _, j = _req("GET", f"/records/{_seg(recid)}/{seg}")
     ents = (j or {}).get("entries", [])
     return {"recid": recid, "files": [{"key": e.get("key"), "size": e.get("size"), "status": e.get("status")} for e in ents]}
 
 
 @mcp.tool(description=t("tools.delete_file"))
 def delete_file(recid: str, key: str) -> dict:
-    _req("DELETE", f"/records/{recid}/draft/files/{key}")
+    _req("DELETE", f"/records/{_seg(recid)}/draft/files/{_seg(key)}")
     return {"recid": recid, "key": key, "deleted": True}
 
 

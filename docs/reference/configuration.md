@@ -75,6 +75,7 @@ store.
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `MCP_MAX_UPLOAD_BYTES` | `16777216` (16MiB) | Cap on base64 content in both directions |
+| `MCP_MAX_REQUEST_BYTES` | twice `MCP_MAX_UPLOAD_BYTES` | Cap on the raw request body. Authorization needs the whole body, so without a cap one POST could exhaust memory; over it the answer is `413` |
 | `MCP_MULTIPART_PART_BYTES` | `67108864` (64MiB) | Default part size for multipart uploads |
 
 Raising `MCP_MAX_UPLOAD_BYTES` does not make large files a good idea — the ceiling is
