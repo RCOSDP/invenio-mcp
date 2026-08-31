@@ -1,9 +1,10 @@
 # Running the HTTP server
 
 33 tools over Streamable HTTP, with the authentication method chosen by
-`MCP_AUTH_MODE`. What the repository side has to provide is in [Connecting to
-InvenioRDM](invenio.md) — including the one thing keycloak mode needs that stock
-InvenioRDM does not have.
+`MCP_AUTH_MODE`. This page is how to run each mode; what each one actually verifies is
+in [Authentication](../concepts/authentication.md). What the repository side has to
+provide is in [Connecting to InvenioRDM](invenio.md) — including the one thing keycloak
+mode needs that stock InvenioRDM does not have.
 
 |  | `invenio` (PAT, default) | `keycloak` |
 | --- | --- | --- |

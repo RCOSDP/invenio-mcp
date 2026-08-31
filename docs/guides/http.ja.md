@@ -1,8 +1,9 @@
 # HTTP 版を動かす
 
-Streamable HTTP で 33 ツール。認証方式は `MCP_AUTH_MODE` で選ぶ。リポジトリ側に要るものは
-[InvenioRDM と繋ぐ](invenio.md)にある——keycloak モードだけが必要とする、素の
-InvenioRDM には無いものも含めて。
+Streamable HTTP で 33 ツール。認証方式は `MCP_AUTH_MODE` で選ぶ。ここに書くのは各モードの
+動かし方で、それぞれが実際に何を検証しているかは[認証](../concepts/authentication.md)に
+ある。リポジトリ側に要るものは[InvenioRDM と繋ぐ](invenio.md)にある——keycloak モード
+だけが必要とする、素の InvenioRDM には無いものも含めて。
 
 |  | `invenio`（PAT・既定） | `keycloak` |
 | --- | --- | --- |

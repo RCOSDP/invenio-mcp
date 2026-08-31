@@ -70,6 +70,7 @@ plugins:
             Quickstart: クイックスタート
             Concepts: 考え方
             The two servers: 2つのサーバ
+            Authentication: 認証
             Authorization: 認可
             Files and transfers: ファイルの運び方
             Guides: 手引き
@@ -143,6 +144,7 @@ nav:
       - Quickstart: quickstart.md
   - Concepts:
       - The two servers: concepts/servers.md
+      - Authentication: concepts/authentication.md
       - Authorization: concepts/authorization.md
       - Files and transfers: concepts/files.md
   - Guides:

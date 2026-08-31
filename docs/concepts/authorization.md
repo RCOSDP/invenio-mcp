@@ -3,6 +3,9 @@
 Only the HTTP server has any of this. The stdio server holds one token and every tool
 can use it — see [The two servers](servers.md).
 
+This page starts where [Authentication](authentication.md) leaves off: the caller's
+identity is already settled, and the question is what they may do with it.
+
 ## The shape of it
 
 ```mermaid

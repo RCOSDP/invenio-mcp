@@ -10,6 +10,14 @@ as breaking when the consumer is a language model rather than a compiler.
 
 ## [Unreleased]
 
+### Documentation
+
+- **A chapter on authentication.** `Concepts → Authentication` covers how an identity
+  reaches the server in each of the three arrangements (stdio, PAT, keycloak), what is
+  verified in each, why an invalid credential is never downgraded to anonymous,
+  federated login through GakuNin, and the failure modes with what usually causes them.
+  Authorization now starts where it leaves off.
+
 ## [0.0.2] — 2026-08-29
 
 **A security release.** Nothing changes for a client that was using the servers as
