@@ -22,7 +22,7 @@ Streamable HTTP ＋ OAuth 2.1 リソースサーバとして動く。
   MCP_BIND_HOST / MCP_BIND_PORT   既定 127.0.0.1 / 9100
   MCP_RESOURCE                    既定 http://127.0.0.1:9100/mcp（canonical URI）
   KC_ISSUER                       既定 http://localhost:8080/realms/mcp
-  MCP_SERVER_SECRET               既定 mcp-server-secret
+  MCP_SERVER_SECRET               既定値なし。keycloak モードでは必須（未設定なら停止）
   INVENIO_API                     既定 https://127.0.0.1/api
   MCP_LANG                        ツールの説明・エラーの言語。同梱は en / ja。
                                   未設定ならシステムのロケール、決まらなければ en
