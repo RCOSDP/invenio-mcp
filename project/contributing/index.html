@@ -1075,10 +1075,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-ci-checks" class="md-nav__link">
+  <a href="#the-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What CI checks
+        The checks
       
     </span>
   </a>
@@ -1137,6 +1137,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Writing documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publishing-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publishing it
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1317,10 +1334,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-ci-checks" class="md-nav__link">
+  <a href="#the-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What CI checks
+        The checks
       
     </span>
   </a>
@@ -1380,6 +1397,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Writing documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publishing-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publishing it
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1432,16 +1466,50 @@ that is a defect like any other.</p>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mkdocs<span class="w"> </span>serve<span class="w">            </span><span class="c1"># English at /, Japanese at /ja/</span>
 </code></pre></div>
-<h2 id="what-ci-checks">What CI checks<a class="headerlink" href="#what-ci-checks" title="Permanent link">&para;</a></h2>
-<p>Run these before opening a pull request — they are exactly what
-<code>.github/workflows/ci.yml</code> does:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>py_compile<span class="w"> </span>http/mcp_server.py<span class="w"> </span>stdio/server.py
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python3<span class="w"> </span>tools/gen_tool_reference.py<span class="w"> </span>--check<span class="w">    </span><span class="c1"># the docs match the code</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict<span class="w">                          </span><span class="c1"># no broken links</span>
+<h2 id="the-checks">The checks<a class="headerlink" href="#the-checks" title="Permanent link">&para;</a></h2>
+<p><strong>There is no CI.</strong> The checks run on your machine, and <code>tools/check.sh</code> is all of
+them — one script, so there is no second place where a change can pass and a first
+place where it fails.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>tools/check.sh
 </code></pre></div>
-<p>CI additionally loads both servers and asserts the tool counts (12 and 33), that every
-tool has a description, that <code>en.json</code> and <code>ja.json</code> carry the same keys, and that both
-servers report the same <code>__version__</code>.</p>
+<table>
+<thead>
+<tr>
+<th>It checks</th>
+<th>Because</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>both servers compile</td>
+<td>the cheapest failure to find</td>
+</tr>
+<tr>
+<td>both servers load, and hold 12 and 33 tools, each with a description</td>
+<td>a tool with no description does not exist as far as a model is concerned</td>
+</tr>
+<tr>
+<td><code>en.json</code> and <code>ja.json</code> carry the same keys</td>
+<td>a key present in only one language silently falls back to English</td>
+</tr>
+<tr>
+<td>both servers report the same <code>__version__</code></td>
+<td>otherwise "invenio-mcp 0.2.0" names two different things</td>
+</tr>
+<tr>
+<td>the generated tool reference matches the code</td>
+<td>it is generated; a stale copy is a lie</td>
+</tr>
+<tr>
+<td>the site builds with <code>--strict</code></td>
+<td>broken links fail rather than warn</td>
+</tr>
+</tbody>
+</table>
+<p>A check whose dependency is missing reports <code>SKIP</code> rather than passing quietly:
+<code>mcp</code> for loading the servers, <code>mkdocs</code> for the site. Install them with the commands
+above, or run <code>SKIP_IMPORT=1 bash tools/check.sh</code> when you only touched documentation.</p>
+<p>Say in the pull request that it passed, and mention anything that skipped.</p>
 <h2 id="testing-against-a-real-instance">Testing against a real instance<a class="headerlink" href="#testing-against-a-real-instance" title="Permanent link">&para;</a></h2>
 <p>There is no test suite that runs without InvenioRDM, and pretending otherwise would be
 worse than saying so. What exists runs against a live one:</p>
@@ -1482,7 +1550,7 @@ the end, which leaves a tombstone behind.</p>
   from the reference.</li>
 <li>Re-run <code>python3 tools/gen_tool_reference.py</code>.</li>
 <li>Update the tool counts if they changed: the READMEs, <code>docs/index.md</code>, and the
-  assertion in <code>.github/workflows/ci.yml</code>.</li>
+  assertion in <code>tools/check.sh</code>.</li>
 </ul>
 <h2 id="adding-a-language">Adding a language<a class="headerlink" href="#adding-a-language" title="Permanent link">&para;</a></h2>
 <p>Copy <code>locales/en.json</code>, translate, and save it as <code>&lt;tag&gt;.json</code> next to it. Nothing has
@@ -1493,6 +1561,16 @@ to English, so a partial translation is fine to submit.</p>
 exists in one language only is worse than one that does not exist, because the language
 switcher then leads somewhere that is not there.</p>
 <p>The <a href="../../reference/tools/">tool reference</a> is generated. Edit the locale files instead.</p>
+<h3 id="publishing-it">Publishing it<a class="headerlink" href="#publishing-it" title="Permanent link">&para;</a></h3>
+<p>The site is served from the <code>gh-pages</code> branch, which is <strong>generated</strong> — nobody edits it
+by hand. <code>tools/deploy-docs.sh</code> is its only writer, and it needs push rights on the
+repository, so a contributor writes the Markdown and a maintainer publishes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>tools/deploy-docs.sh<span class="w"> </span>--dry-run<span class="w">   </span><span class="c1"># check and build, publish nothing</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>bash<span class="w"> </span>tools/deploy-docs.sh<span class="w">             </span><span class="c1"># check, build, push to gh-pages</span>
+</code></pre></div>
+<p>Before pushing anything it refuses a dirty working tree and warns when <code>HEAD</code> is not on
+<code>origin</code>. Both guard the same thing: a site carrying something that cannot be found in
+the repository.</p>
 <h2 id="commit-messages">Commit messages<a class="headerlink" href="#commit-messages" title="Permanent link">&para;</a></h2>
 <p><code>type: summary</code>, in the imperative, in either language — the history uses both.
 <code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>chore:</code>, <code>refactor:</code>.</p>

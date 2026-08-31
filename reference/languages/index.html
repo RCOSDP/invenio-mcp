@@ -1469,9 +1469,9 @@ is in the directory; nothing has to be registered.</p>
 <p><strong>Missing keys fall back to English</strong>, so a partial translation runs correctly from the
 first key you translate. A key missing from every file renders as the key name, which is
 ugly on purpose — it is meant to be noticed.</p>
-<p>CI checks that <code>en.json</code> and <code>ja.json</code> carry exactly the same keys, because a key
-present in only one language still <em>works</em> (it silently falls back), which is precisely
-why it would otherwise go unnoticed.</p>
+<p><code>tools/check.sh</code> checks that <code>en.json</code> and <code>ja.json</code> carry exactly the same keys, because
+a key present in only one language still <em>works</em> (it silently falls back), which is
+precisely why it would otherwise go unnoticed.</p>
 <h2 id="one-string-stays-english">One string stays English<a class="headerlink" href="#one-string-stays-english" title="Permanent link">&para;</a></h2>
 <p><code>error_description</code> inside the <code>WWW-Authenticate</code> header. RFC 6750 permits only a
 subset of ASCII there, so a translated string cannot go in it. The header carries the

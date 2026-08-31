@@ -1465,8 +1465,9 @@ stdio 側の説明は短く、scope の話も出てこない。</p>
 在るものを拾うので、登録の手続きは無い。</p>
 <p><strong>足りないキーは英語に落ちる</strong>ので、1つ訳した時点から正しく動く。どの言語にも無いキーは
 キー名がそのまま出る。見苦しいのは意図的で、気づかれるためにそうしてある。</p>
-<p>CI は <code>en.json</code> と <code>ja.json</code> のキーが完全に一致することを検査する。片方にしか無いキーも
-<em>動いてしまう</em>（黙って英語に落ちる）——それこそが、放っておけば気づかれない理由である。</p>
+<p><code>tools/check.sh</code> は <code>en.json</code> と <code>ja.json</code> のキーが完全に一致することを検査する。片方に
+しか無いキーも<em>動いてしまう</em>（黙って英語に落ちる）——それこそが、放っておけば気づかれ
+ない理由である。</p>
 <h2 id="1か所だけ英語のまま">1か所だけ英語のまま<a class="headerlink" href="#1か所だけ英語のまま" title="Permanent link">&para;</a></h2>
 <p><code>WWW-Authenticate</code> ヘッダの <code>error_description</code>。RFC 6750 がここに ASCII の一部しか
 許していないので、翻訳した文字列を入れられない。ヘッダには英語を載せ、同じ 401 / 403

@@ -1463,8 +1463,9 @@ Ingress）。次を置き換える。</p>
 しない</strong>ので、トークンを失効させれば TTL のうちに全レプリカへ効く。</p>
 <h2 id="ドキュメントを公開する">ドキュメントを公開する<a class="headerlink" href="#ドキュメントを公開する" title="Permanent link">&para;</a></h2>
 <p>このサイトは <strong><code>gh-pages</code> ブランチ</strong>に置かれ、GitHub Pages がそれをそのまま配信する。
-<code>.github/workflows/docs.yml</code> がビルドし、<code>mkdocs gh-deploy</code> で push する。走るのは、
-ドキュメント・サーバ・言語リソースに触れた <code>main</code> への push のとき。</p>
+ビルドして <code>mkdocs gh-deploy</code> で push するのは <code>tools/deploy-docs.sh</code> で、走るのは CI では
+なくメンテナの手元である。そもそも CI を置いていない理由は
+<a href="../../project/contributing/#検査">参加する</a>にある。</p>
 <p>リポジトリ側で一度だけ設定する。</p>
 <blockquote>
 <p><strong>Settings → Pages → Source: Deploy from a branch → <code>gh-pages</code> / <code>(root)</code></strong></p>
@@ -1475,18 +1476,17 @@ Ingress）。次を置き換える。</p>
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title"><code>gh-pages</code> は生成物。手で触らない</p>
-<p>書き手はワークフローだけで、<code>--force</code> で push する。手でコミットしたものは次の
-デプロイで消える。サイトに属するものはすべて <code>main</code> の <code>docs/</code> 以下にある。</p>
+<p>書き手は <code>tools/deploy-docs.sh</code> だけで、<code>--force</code> で push する。手でコミットした
+ものは次のデプロイで消える。サイトに属するものはすべて <code>main</code> の <code>docs/</code> 以下にある。</p>
 </div>
-<p>ワークフローは<a href="../../reference/tools/">ツール一覧</a>を作り直し、コミットされているものと
-違えば落ちる。公開されている一覧がコードから遅れることが無いようにするためである。
-pull request でもビルドはするが、push するのは <code>main</code> からだけである。</p>
+<p>push する前に、スクリプトは<a href="../../reference/tools/">ツール一覧</a>を作り直し、コミットされて
+いるものと違えば止まる。公開されている一覧がコードから遅れないようにするためである。
+未コミットの変更があっても止まり、<code>HEAD</code> が <code>origin</code> に無ければ警告する——<strong>リポジトリで
+追えないページが公開されている</strong>ほうが、古いページより悪い。</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mkdocs<span class="w"> </span>serve<span class="w">            </span><span class="c1"># 英語が /、日本語が /ja/</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict<span class="w">   </span><span class="c1"># CI が走らせるもの</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># ワークフローが使えないときに手で出す。push 権限が要る。</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>mkdocs<span class="w"> </span>gh-deploy<span class="w"> </span>--force<span class="w"> </span>--strict
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mkdocs<span class="w"> </span>serve<span class="w">                          </span><span class="c1"># 英語が /、日本語が /ja/</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>bash<span class="w"> </span>tools/deploy-docs.sh<span class="w"> </span>--dry-run<span class="w">   </span><span class="c1"># 検査とビルドだけ。公開しない</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>bash<span class="w"> </span>tools/deploy-docs.sh<span class="w">             </span><span class="c1"># 公開する。push 権限が要る</span>
 </code></pre></div>
 
 

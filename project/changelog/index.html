@@ -1132,6 +1132,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1336,6 +1347,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1460,6 +1482,17 @@ Versioning: <a href="https://semver.org/">SemVer</a> — see
 <a href="https://rcosdp.github.io/invenio-mcp/project/versioning/">the policy</a> for what counts
 as breaking when the consumer is a language model rather than a compiler.</p>
 <h2 id="unreleased"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.2...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>The GitHub Actions workflows are gone; the checks run locally.</strong> <code>ci</code>, <code>docs</code> and
+  <code>release</code> have been replaced by three scripts under <code>tools/</code>: <code>check.sh</code> (compile, tool
+  counts and descriptions, locale-key parity, matching <code>__version__</code>, the generated tool
+  reference, <code>mkdocs build --strict</code>), <code>deploy-docs.sh</code> (check, build, <code>gh-deploy</code> to
+  <code>gh-pages</code>) and <code>release.sh</code> (tag against <code>__version__</code>, changelog sections, checks,
+  image build, release notes from <code>CHANGELOG.md</code>; it publishes nothing without
+  <code>--publish</code>). Nothing that was checked has stopped being checked. Two places to run the
+  same checks is how they drift apart, so now there is one.</li>
+</ul>
 <h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>A chapter on authentication.</strong> <code>Concepts → Authentication</code> covers how an identity

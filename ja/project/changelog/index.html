@@ -1132,6 +1132,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1336,6 +1347,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1460,6 +1482,17 @@
 <strong>利用者が言語モデルであるときに何を破壊的変更と数えるか</strong>は
 <a href="https://rcosdp.github.io/invenio-mcp/ja/project/versioning/">方針</a>に書いた。</p>
 <h2 id="unreleased"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.2...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>GitHub Actions のワークフローを廃し、検査を手元に一本化した。</strong> <code>ci</code>・<code>docs</code>・
+  <code>release</code> の3本を <code>tools/</code> の3つのスクリプトに移した——<code>check.sh</code>（コンパイル、
+  ツール数と説明、言語資源のキー一致、<code>__version__</code> の一致、生成したツール一覧、
+  <code>mkdocs build --strict</code>）、<code>deploy-docs.sh</code>（検査 → ビルド → <code>gh-pages</code> へ
+  <code>gh-deploy</code>）、<code>release.sh</code>（タグと <code>__version__</code> の一致、変更履歴の節、検査、
+  イメージのビルド、<code>CHANGELOG.md</code> からのリリースノート。<code>--publish</code> を付けない限り
+  何も出さない）。見ていたものは1つも減らしていない。同じ検査を2か所に置くことが、
+  両者をずらす。だから1か所にした。</li>
+</ul>
 <h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>認証の章を足した。</strong> 「考え方 → 認証」に、3通りの構成（stdio・PAT・keycloak）で

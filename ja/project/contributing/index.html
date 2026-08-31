@@ -1075,10 +1075,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ci-が見るもの" class="md-nav__link">
+  <a href="#検査" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CI が見るもの
+        検査
       
     </span>
   </a>
@@ -1137,6 +1137,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="ドキュメントを書く">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#公開する" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        公開する
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1317,10 +1334,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ci-が見るもの" class="md-nav__link">
+  <a href="#検査" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CI が見るもの
+        検査
       
     </span>
   </a>
@@ -1380,6 +1397,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="ドキュメントを書く">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#公開する" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        公開する
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1432,16 +1466,49 @@
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mkdocs<span class="w"> </span>serve<span class="w">            </span><span class="c1"># 英語が /、日本語が /ja/</span>
 </code></pre></div>
-<h2 id="ci-が見るもの">CI が見るもの<a class="headerlink" href="#ci-が見るもの" title="Permanent link">&para;</a></h2>
-<p>pull request を出す前にこれを走らせること。<code>.github/workflows/ci.yml</code> がするのと
-まったく同じである。</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>py_compile<span class="w"> </span>http/mcp_server.py<span class="w"> </span>stdio/server.py
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python3<span class="w"> </span>tools/gen_tool_reference.py<span class="w"> </span>--check<span class="w">    </span><span class="c1"># ドキュメントが実装と合っているか</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict<span class="w">                          </span><span class="c1"># リンク切れが無いか</span>
+<h2 id="検査">検査<a class="headerlink" href="#検査" title="Permanent link">&para;</a></h2>
+<p><strong>CI は無い。</strong> 検査は手元で走り、<code>tools/check.sh</code> がその全部である。1本にしてあるのは、
+2系統あると「片方では通り、もう片方では落ちる」変更が必ず生まれるからである。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>tools/check.sh
 </code></pre></div>
-<p>CI はさらに、両方のサーバを読み込んでツール数（12 と 33）を確かめ、すべてのツールに
-説明が在ること、<code>en.json</code> と <code>ja.json</code> のキーが一致すること、両サーバの <code>__version__</code> が
-同じであることを検査する。</p>
+<table>
+<thead>
+<tr>
+<th>見るもの</th>
+<th>なぜ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>両サーバがコンパイルできる</td>
+<td>いちばん安く見つかる失敗</td>
+</tr>
+<tr>
+<td>両サーバが読み込め、ツールが 12 と 33 在り、すべてに説明が在る</td>
+<td>説明の無いツールは、モデルから見れば存在しないのと同じ</td>
+</tr>
+<tr>
+<td><code>en.json</code> と <code>ja.json</code> のキーが一致する</td>
+<td>片方にしか無いキーは黙って英語に落ちる</td>
+</tr>
+<tr>
+<td>両サーバの <code>__version__</code> が同じ</td>
+<td>でなければ「0.2.0 の invenio-mcp」が2つのものを指す</td>
+</tr>
+<tr>
+<td>生成したツール一覧が実装と一致する</td>
+<td>生成物なので、古いままなら嘘になる</td>
+</tr>
+<tr>
+<td>サイトが <code>--strict</code> で建つ</td>
+<td>リンク切れを警告で済ませず失敗にする</td>
+</tr>
+</tbody>
+</table>
+<p>依存が無い検査は、黙って通さず <code>SKIP</code> と出す——サーバの読み込みには <code>mcp</code>、サイトには
+<code>mkdocs</code> が要る。上のコマンドで入れるか、ドキュメントだけを触ったなら
+<code>SKIP_IMPORT=1 bash tools/check.sh</code> でよい。</p>
+<p>pull request には、通ったことと、飛ばした項目があればそれを書く。</p>
 <h2 id="実インスタンスに対して試す">実インスタンスに対して試す<a class="headerlink" href="#実インスタンスに対して試す" title="Permanent link">&para;</a></h2>
 <p>InvenioRDM 無しで走るテスト一式は無い。在るふりをするより、無いと言うほうがよい。
 在るのは、実インスタンスに対して走るものである。</p>
@@ -1478,8 +1545,7 @@
 <li><code>tools/gen_tool_reference.py</code> の分類に入れる。どこにも属さないツールがあると生成器は
   失敗する。意図的にそうしてある——分類し忘れたツールは、一覧から黙って消えるからである。</li>
 <li><code>python3 tools/gen_tool_reference.py</code> を走らせ直す。</li>
-<li>ツール数が変わったなら、README・<code>docs/index.ja.md</code>・<code>.github/workflows/ci.yml</code> の
-  検査値も直す。</li>
+<li>ツール数が変わったなら、README・<code>docs/index.ja.md</code>・<code>tools/check.sh</code> の検査値も直す。</li>
 </ul>
 <h2 id="言語を足す">言語を足す<a class="headerlink" href="#言語を足す" title="Permanent link">&para;</a></h2>
 <p><code>locales/en.json</code> を写して訳し、隣に <code>&lt;tag&gt;.json</code> として置く。登録の手続きは無く、
@@ -1489,6 +1555,15 @@
 <p>どのページにも <code>.md</code> と <code>.ja.md</code> がある。<strong>同じ pull request で両方</strong>を。片方の言語にしか
 無いページは、無いページより悪い。言語切替が、在りもしない場所へ連れて行くからである。</p>
 <p><a href="../../reference/tools/">ツール一覧</a>は生成物である。言語リソースのほうを直すこと。</p>
+<h3 id="公開する">公開する<a class="headerlink" href="#公開する" title="Permanent link">&para;</a></h3>
+<p>サイトは <code>gh-pages</code> ブランチから配信されている。あれは<strong>生成物</strong>であって、手で触る人は
+いない。書き手は <code>tools/deploy-docs.sh</code> だけで、リポジトリへの push 権限が要る——
+つまり Markdown を書くのは誰でもよく、出すのはメンテナである。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>tools/deploy-docs.sh<span class="w"> </span>--dry-run<span class="w">   </span><span class="c1"># 検査とビルドだけ。公開しない</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>bash<span class="w"> </span>tools/deploy-docs.sh<span class="w">             </span><span class="c1"># 検査 → ビルド → gh-pages へ push</span>
+</code></pre></div>
+<p>出す前に、未コミットの変更があれば止まり、<code>HEAD</code> が <code>origin</code> に無ければ警告する。
+どちらも同じことを守っている——<strong>サイトに在るのにリポジトリで追えない内容</strong>を作らない。</p>
 <h2 id="コミットメッセージ">コミットメッセージ<a class="headerlink" href="#コミットメッセージ" title="Permanent link">&para;</a></h2>
 <p><code>type: 要約</code>。命令形で、日本語でも英語でもよい（履歴には両方ある）。
 <code>feat:</code>・<code>fix:</code>・<code>docs:</code>・<code>chore:</code>・<code>refactor:</code>。</p>
