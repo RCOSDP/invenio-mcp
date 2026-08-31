@@ -489,6 +489,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/authorization/" class="md-nav__link">
         
   
@@ -1100,6 +1128,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1287,6 +1332,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1398,6 +1460,14 @@ Versioning: <a href="https://semver.org/">SemVer</a> — see
 <a href="https://rcosdp.github.io/invenio-mcp/project/versioning/">the policy</a> for what counts
 as breaking when the consumer is a language model rather than a compiler.</p>
 <h2 id="unreleased"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.2...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>A chapter on authentication.</strong> <code>Concepts → Authentication</code> covers how an identity
+  reaches the server in each of the three arrangements (stdio, PAT, keycloak), what is
+  verified in each, why an invalid credential is never downgraded to anonymous,
+  federated login through GakuNin, and the failure modes with what usually causes them.
+  Authorization now starts where it leaves off.</li>
+</ul>
 <h2 id="002--2026-08-29"><a href="https://github.com/RCOSDP/invenio-mcp/compare/v0.0.1...v0.0.2">0.0.2</a> — 2026-08-29<a class="headerlink" href="#002--2026-08-29" title="Permanent link">&para;</a></h2>
 <p><strong>A security release.</strong> Nothing changes for a client that was using the servers as
 documented; what changes is what a client could reach if it went looking. One of these
