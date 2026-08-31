@@ -2,7 +2,7 @@
 
 invenio-mcp は[セマンティックバージョニング 2.0.0](https://semver.org/lang/ja/) に従う
 （`MAJOR.MINOR.PATCH`）。2つのサーバは**同じ**版を持つ。`http/mcp_server.py` と
-`stdio/server.py` の `__version__` がそれで、一致することを CI が検査し、
+`stdio/server.py` の `__version__` がそれで、一致することを `tools/check.sh` が検査し、
 クライアントには `serverInfo.version` として見える。
 
 版はまだ `0.x` である（[1.0 の前](#10-の前)を参照）。**今の版はこのページに書かない。**
@@ -55,8 +55,8 @@ python3 stdio/server.py --version      # invenio-mcp stdio server <version>
 ## 2つのサーバに1つの版
 
 同時に出す。片方だけ上げると、「invenio-mcp 0.2.0」がどちらのファイルを見たかで
-別のものを指すことになる。2つの `__version__` が食い違えば CI が落ち、タグがそれと
-合わなければリリースのワークフローが落ちる。
+別のものを指すことになる。2つの `__version__` が食い違えば `tools/check.sh` が落ち、
+タグがそれと合わなければ `tools/release.sh` が進まない。
 
 ## ここで版が付かないもの
 
@@ -82,18 +82,28 @@ python3 stdio/server.py --version      # invenio-mcp stdio server <version>
 
 ## 出し方
 
+出すのは手元である。リリースのワークフローは無い。そもそも CI を置いていない理由は
+[参加する](contributing.md#検査)にある。
+
 ```bash
 # 1. 両方のサーバの版を上げ、[Unreleased] を新しい版へ移す（両言語とも）
 vim http/mcp_server.py stdio/server.py CHANGELOG.md CHANGELOG.ja.md
+git commit -am "chore: v0.0.3 を切る" && git push origin main
 
-# 2. CI が見るものを先に見る
-python3 tools/gen_tool_reference.py --check
-mkdocs build --strict
+# 2. 確かめる。ここでは何も出ない
+bash tools/release.sh v0.0.3
 
-# 3. タグを打つ
-git tag -a v0.0.3 -m "v0.0.3" && git push origin v0.0.3
+# 3. 出す。タグを打ち、push し、GitHub のリリースを作る
+bash tools/release.sh v0.0.3 --publish
+
+# 4. サイトを出す
+bash tools/deploy-docs.sh
 ```
 
-リリースのワークフローは、タグが**両方**のサーバの `__version__` と一致すること、
-両方の変更履歴にその版の節が在ることを確かめてから、イメージを作り、`CHANGELOG.md` から
-リリースノートを起こす。
+`tools/release.sh` は、タグが**両方**のサーバの `__version__` と一致すること、両方の
+変更履歴にその版の節が在ることを確かめ、`tools/check.sh` を走らせ、マニフェストと同じ
+作り方でイメージを作り、`CHANGELOG.md` のその版の節をそのままリリースノートに
+する——同じことを二度書かない。
+
+2 と 3 は同じコマンドで、違うのはフラグだけである。確かめるのは安く、何度でもできる。
+タグはそうではない。だから既定はタグを打たない。

@@ -10,6 +10,17 @@ as breaking when the consumer is a language model rather than a compiler.
 
 ## [Unreleased]
 
+### Changed
+
+- **The GitHub Actions workflows are gone; the checks run locally.** `ci`, `docs` and
+  `release` have been replaced by three scripts under `tools/`: `check.sh` (compile, tool
+  counts and descriptions, locale-key parity, matching `__version__`, the generated tool
+  reference, `mkdocs build --strict`), `deploy-docs.sh` (check, build, `gh-deploy` to
+  `gh-pages`) and `release.sh` (tag against `__version__`, changelog sections, checks,
+  image build, release notes from `CHANGELOG.md`; it publishes nothing without
+  `--publish`). Nothing that was checked has stopped being checked. Two places to run the
+  same checks is how they drift apart, so now there is one.
+
 ### Documentation
 
 - **A chapter on authentication.** `Concepts → Authentication` covers how an identity

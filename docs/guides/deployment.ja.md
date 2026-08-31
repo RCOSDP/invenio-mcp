@@ -88,8 +88,9 @@ kubectl apply -f k8s/mcp-server.yaml
 ## ドキュメントを公開する
 
 このサイトは **`gh-pages` ブランチ**に置かれ、GitHub Pages がそれをそのまま配信する。
-`.github/workflows/docs.yml` がビルドし、`mkdocs gh-deploy` で push する。走るのは、
-ドキュメント・サーバ・言語リソースに触れた `main` への push のとき。
+ビルドして `mkdocs gh-deploy` で push するのは `tools/deploy-docs.sh` で、走るのは CI では
+なくメンテナの手元である。そもそも CI を置いていない理由は
+[参加する](../project/contributing.md#検査)にある。
 
 リポジトリ側で一度だけ設定する。
 
@@ -104,18 +105,17 @@ gh api -X POST repos/RCOSDP/invenio-mcp/pages \
 
 !!! warning "`gh-pages` は生成物。手で触らない"
 
-    書き手はワークフローだけで、`--force` で push する。手でコミットしたものは次の
-    デプロイで消える。サイトに属するものはすべて `main` の `docs/` 以下にある。
+    書き手は `tools/deploy-docs.sh` だけで、`--force` で push する。手でコミットした
+    ものは次のデプロイで消える。サイトに属するものはすべて `main` の `docs/` 以下にある。
 
-ワークフローは[ツール一覧](../reference/tools.md)を作り直し、コミットされているものと
-違えば落ちる。公開されている一覧がコードから遅れることが無いようにするためである。
-pull request でもビルドはするが、push するのは `main` からだけである。
+push する前に、スクリプトは[ツール一覧](../reference/tools.md)を作り直し、コミットされて
+いるものと違えば止まる。公開されている一覧がコードから遅れないようにするためである。
+未コミットの変更があっても止まり、`HEAD` が `origin` に無ければ警告する——**リポジトリで
+追えないページが公開されている**ほうが、古いページより悪い。
 
 ```bash
 pip install -r docs/requirements.txt
-mkdocs serve            # 英語が /、日本語が /ja/
-mkdocs build --strict   # CI が走らせるもの
-
-# ワークフローが使えないときに手で出す。push 権限が要る。
-mkdocs gh-deploy --force --strict
+mkdocs serve                          # 英語が /、日本語が /ja/
+bash tools/deploy-docs.sh --dry-run   # 検査とビルドだけ。公開しない
+bash tools/deploy-docs.sh             # 公開する。push 権限が要る
 ```

@@ -10,6 +10,17 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **GitHub Actions のワークフローを廃し、検査を手元に一本化した。** `ci`・`docs`・
+  `release` の3本を `tools/` の3つのスクリプトに移した——`check.sh`（コンパイル、
+  ツール数と説明、言語資源のキー一致、`__version__` の一致、生成したツール一覧、
+  `mkdocs build --strict`）、`deploy-docs.sh`（検査 → ビルド → `gh-pages` へ
+  `gh-deploy`）、`release.sh`（タグと `__version__` の一致、変更履歴の節、検査、
+  イメージのビルド、`CHANGELOG.md` からのリリースノート。`--publish` を付けない限り
+  何も出さない）。見ていたものは1つも減らしていない。同じ検査を2か所に置くことが、
+  両者をずらす。だから1か所にした。
+
 ### Documentation
 
 - **認証の章を足した。** 「考え方 → 認証」に、3通りの構成（stdio・PAT・keycloak）で

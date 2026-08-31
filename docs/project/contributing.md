@@ -21,20 +21,30 @@ pip install -r docs/requirements.txt
 mkdocs serve            # English at /, Japanese at /ja/
 ```
 
-## What CI checks
+## The checks
 
-Run these before opening a pull request — they are exactly what
-`.github/workflows/ci.yml` does:
+**There is no CI.** The checks run on your machine, and `tools/check.sh` is all of
+them — one script, so there is no second place where a change can pass and a first
+place where it fails.
 
 ```bash
-python3 -m py_compile http/mcp_server.py stdio/server.py
-python3 tools/gen_tool_reference.py --check    # the docs match the code
-mkdocs build --strict                          # no broken links
+bash tools/check.sh
 ```
 
-CI additionally loads both servers and asserts the tool counts (12 and 33), that every
-tool has a description, that `en.json` and `ja.json` carry the same keys, and that both
-servers report the same `__version__`.
+| It checks | Because |
+| --- | --- |
+| both servers compile | the cheapest failure to find |
+| both servers load, and hold 12 and 33 tools, each with a description | a tool with no description does not exist as far as a model is concerned |
+| `en.json` and `ja.json` carry the same keys | a key present in only one language silently falls back to English |
+| both servers report the same `__version__` | otherwise "invenio-mcp 0.2.0" names two different things |
+| the generated tool reference matches the code | it is generated; a stale copy is a lie |
+| the site builds with `--strict` | broken links fail rather than warn |
+
+A check whose dependency is missing reports `SKIP` rather than passing quietly:
+`mcp` for loading the servers, `mkdocs` for the site. Install them with the commands
+above, or run `SKIP_IMPORT=1 bash tools/check.sh` when you only touched documentation.
+
+Say in the pull request that it passed, and mention anything that skipped.
 
 ## Testing against a real instance
 
@@ -82,7 +92,7 @@ Say in the pull request which of these you ran, and against what.
   from the reference.
 - Re-run `python3 tools/gen_tool_reference.py`.
 - Update the tool counts if they changed: the READMEs, `docs/index.md`, and the
-  assertion in `.github/workflows/ci.yml`.
+  assertion in `tools/check.sh`.
 
 ## Adding a language
 
@@ -97,6 +107,21 @@ exists in one language only is worse than one that does not exist, because the l
 switcher then leads somewhere that is not there.
 
 The [tool reference](../reference/tools.md) is generated. Edit the locale files instead.
+
+### Publishing it
+
+The site is served from the `gh-pages` branch, which is **generated** — nobody edits it
+by hand. `tools/deploy-docs.sh` is its only writer, and it needs push rights on the
+repository, so a contributor writes the Markdown and a maintainer publishes.
+
+```bash
+bash tools/deploy-docs.sh --dry-run   # check and build, publish nothing
+bash tools/deploy-docs.sh             # check, build, push to gh-pages
+```
+
+Before pushing anything it refuses a dirty working tree and warns when `HEAD` is not on
+`origin`. Both guard the same thing: a site carrying something that cannot be found in
+the repository.
 
 ## Commit messages
 

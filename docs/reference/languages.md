@@ -73,9 +73,9 @@ is in the directory; nothing has to be registered.
 first key you translate. A key missing from every file renders as the key name, which is
 ugly on purpose — it is meant to be noticed.
 
-CI checks that `en.json` and `ja.json` carry exactly the same keys, because a key
-present in only one language still *works* (it silently falls back), which is precisely
-why it would otherwise go unnoticed.
+`tools/check.sh` checks that `en.json` and `ja.json` carry exactly the same keys, because
+a key present in only one language still *works* (it silently falls back), which is
+precisely why it would otherwise go unnoticed.
 
 ## One string stays English
 

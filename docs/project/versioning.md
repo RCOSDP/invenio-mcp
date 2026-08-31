@@ -2,8 +2,8 @@
 
 invenio-mcp follows [Semantic Versioning 2.0.0](https://semver.org/):
 `MAJOR.MINOR.PATCH`. Both servers carry the **same** version — `__version__` in
-`http/mcp_server.py` and `stdio/server.py`, checked by CI to agree, and reported to
-clients as `serverInfo.version`.
+`http/mcp_server.py` and `stdio/server.py`, checked by `tools/check.sh` to agree, and
+reported to clients as `serverInfo.version`.
 
 The version is still `0.x` — see [Before 1.0](#before-10). **The current release is not
 written on this page**, because it would go stale at every release; it is in the
@@ -57,8 +57,8 @@ would be to a repository's records rather than to a build.
 ## Both servers, one version
 
 They are released together. Bumping only one would leave "invenio-mcp 0.2.0" meaning
-two different things depending on which file you looked at. CI fails when the two
-`__version__` values disagree, and the release workflow fails when the tag does not
+two different things depending on which file you looked at. `tools/check.sh` fails when
+the two `__version__` values disagree, and `tools/release.sh` refuses a tag that does not
 match them.
 
 ## What is not versioned here
@@ -87,18 +87,28 @@ Until then, pin an exact version.
 
 ## Releasing
 
+Releasing happens on your machine. There is no release workflow — see
+[Contributing](contributing.md#the-checks) for why there is no CI at all.
+
 ```bash
 # 1. Bump both servers and move [Unreleased] into the new version, in both languages
 vim http/mcp_server.py stdio/server.py CHANGELOG.md CHANGELOG.ja.md
+git commit -am "chore: cut v0.0.3" && git push origin main
 
-# 2. Check what CI will check
-python3 tools/gen_tool_reference.py --check
-mkdocs build --strict
+# 2. Check. This publishes nothing
+bash tools/release.sh v0.0.3
 
-# 3. Tag
-git tag -a v0.0.3 -m "v0.0.3" && git push origin v0.0.3
+# 3. Publish: tag, push the tag, create the GitHub release
+bash tools/release.sh v0.0.3 --publish
+
+# 4. Publish the site
+bash tools/deploy-docs.sh
 ```
 
-The release workflow verifies that the tag matches `__version__` in **both** servers and
-that both changelogs have a section for it, then builds the image and drafts the release
-notes from `CHANGELOG.md`.
+`tools/release.sh` verifies that the tag matches `__version__` in **both** servers and
+that both changelogs have a section for it, runs `tools/check.sh`, builds the image the
+same way the manifests do, and takes the release notes from that version's section of
+`CHANGELOG.md` — nothing is written twice.
+
+Step 2 and step 3 are the same command; the flag is the difference. Checking is cheap
+and repeatable, tagging is not, so the default does not tag.

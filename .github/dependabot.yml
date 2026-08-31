@@ -21,12 +21,3 @@ updates:
     directory: /http
     schedule: {interval: monthly}
     commit-message: {prefix: "chore(deps)"}
-
-  # ワークフローの action も同じ理由で古びる。
-  - package-ecosystem: github-actions
-    directory: /
-    schedule: {interval: monthly}
-    groups:
-      actions:
-        patterns: ["*"]
-    commit-message: {prefix: "chore(ci)"}

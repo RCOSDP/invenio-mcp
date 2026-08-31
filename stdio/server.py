@@ -31,7 +31,7 @@ from mcp.server.fastmcp import FastMCP
 
 # セマンティックバージョニング（https://semver.org/lang/ja/）。
 # 何を破壊的変更とみなすかは docs/about/versioning.md に書いてある。
-# http/mcp_server.py の __version__ と揃える（CI が一致を検査する）。
+# http/mcp_server.py の __version__ と揃える（tools/check.sh が一致を検査する）。
 __version__ = "0.0.2"
 
 # ---- 設定 ----

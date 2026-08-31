@@ -3,14 +3,17 @@
 Full guide: **<https://rcosdp.github.io/invenio-mcp/project/contributing/>**
 （日本語: <https://rcosdp.github.io/invenio-mcp/ja/project/contributing/>）
 
-```bash
-# Both servers, both languages, and the generated reference
-python3 -m py_compile http/mcp_server.py stdio/server.py
-python3 tools/gen_tool_reference.py --check
+**There is no CI.** One script holds every check, and it runs on your machine:
 
+```bash
+bash tools/check.sh     # compile, tool counts, locale keys, versions, docs, links
+```
+
+```bash
 # The documentation site
 pip install -r docs/requirements.txt
 mkdocs serve            # English at /, Japanese at /ja/
+bash tools/deploy-docs.sh --dry-run   # what publishing would check
 ```
 
 There is no test suite that runs without an InvenioRDM instance, and pretending

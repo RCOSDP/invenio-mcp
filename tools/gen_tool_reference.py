@@ -4,13 +4,14 @@
 手で書くと必ずずれるので、出どころを1つにする:
 
   * 名前・引数・既定値 … サーバの Python を **ast で読む**（import しないので
-    mcp パッケージが要らず、CI が軽い）
+    mcp パッケージが要らず、mcp を入れていない環境でも --check が通る）
   * 説明             … locales/<lang>.json（サーバが実行時に読むのと同じもの）
   * 必要な scope     … http/mcp_server.py の TOOL_SCOPES
 
 出力は docs/reference/tools.md（英語）と docs/reference/tools.ja.md（日本語）。
-生成物はリポジトリに入れる（mkdocs serve がそのまま動くように）。CI が
-`--check` で作り直して差分が無いことを確かめるので、ずれたままにはならない。
+生成物はリポジトリに入れる（mkdocs serve がそのまま動くように）。tools/check.sh と
+tools/deploy-docs.sh が `--check` で作り直して差分が無いことを確かめるので、
+ずれたままにはならない。
 
   python3 tools/gen_tool_reference.py            # 生成する
   python3 tools/gen_tool_reference.py --check    # 最新かどうかだけ見る
@@ -25,7 +26,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ツールの並び。**実装に在るものは必ずどれかに属する**ことを検査するので、
-# ツールを足したのに分類し忘れると CI が落ちる。
+# ツールを足したのに分類し忘れると、この生成器自体が落ちる。
 GROUPS = [
     ("read", "Reading records", "レコードを読む",
      ["search_records", "get_record", "my_records",

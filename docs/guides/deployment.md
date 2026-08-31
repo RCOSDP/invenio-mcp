@@ -89,8 +89,9 @@ cached**, so revoking a token takes effect within the TTL on every replica.
 ## Publishing the documentation
 
 This site lives on a **`gh-pages` branch**, which GitHub Pages serves directly.
-`.github/workflows/docs.yml` builds it and pushes with `mkdocs gh-deploy` on every push
-to `main` that touches the docs, the servers or their language resources.
+`tools/deploy-docs.sh` builds it and pushes with `mkdocs gh-deploy`. It runs on a
+maintainer's machine, not in CI — there is no CI here at all, and
+[Contributing](../project/contributing.md#the-checks) says why.
 
 Enable it once, on the repository:
 
@@ -105,19 +106,19 @@ gh api -X POST repos/RCOSDP/invenio-mcp/pages \
 
 !!! warning "`gh-pages` is generated — never edit it"
 
-    The workflow is its only writer, and it pushes with `--force`. Anything committed
-    there by hand is gone at the next deploy. Everything that belongs to the site lives
-    under `docs/` on `main`.
+    `tools/deploy-docs.sh` is its only writer, and it pushes with `--force`. Anything
+    committed there by hand is gone at the next deploy. Everything that belongs to the
+    site lives under `docs/` on `main`.
 
-The workflow regenerates the [tool reference](../reference/tools.md) and fails if it
-differs from what is committed, so the published list cannot fall behind the code. It
-builds on pull requests too, but only pushes from `main`.
+Before it pushes anything, the script regenerates the [tool
+reference](../reference/tools.md) and stops if it differs from what is committed, so the
+published list cannot fall behind the code. It also stops on a dirty working tree and
+warns when `HEAD` is not on `origin` — a published page that cannot be found in the
+repository is worse than an outdated one.
 
 ```bash
 pip install -r docs/requirements.txt
-mkdocs serve            # English at /, Japanese at /ja/
-mkdocs build --strict   # what CI runs
-
-# Deploying by hand, if the workflow is unavailable. Needs push rights.
-mkdocs gh-deploy --force --strict
+mkdocs serve                          # English at /, Japanese at /ja/
+bash tools/deploy-docs.sh --dry-run   # check and build, publish nothing
+bash tools/deploy-docs.sh             # publish. Needs push rights
 ```
