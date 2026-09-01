@@ -366,11 +366,22 @@ class TokenCache:
     """
 
     def __init__(self) -> None:
+        """値の表と、期限の索引を持つ。
+
+        `_items` が実体で、`_deadlines` はそこを掃くための索引にすぎない。
+        `_items` だけが答えを決める——索引の記録は古いことがあるので、
+        捨てる前に必ず `_items` 側の期限を見直す（`_sweep`）。
+        """
         self._items: dict[str, tuple[object, float]] = {}
         self._deadlines: list[tuple[float, str]] = []   # (期限, 鍵) の最小ヒープ
 
     @staticmethod
     def _key(token: str) -> str:
+        """トークンを鍵に変える。**戻せないこと**がここでの狙いである。
+
+        SHA-256 を選んだのは強度のためではなく、衝突が起きないことと、
+        値から元のトークンを取り出せないことの2つを同時に満たすためである。
+        """
         return hashlib.sha256(token.encode()).hexdigest()
 
     def _sweep(self, now: float) -> None:
@@ -397,11 +408,17 @@ class TokenCache:
         return hit[0] if hit and hit[1] > now + margin else None
 
     def put(self, token: str, value, ttl: float) -> None:
+        """`ttl` 秒だけ使える値として入れる。同じトークンなら上書きする。
+
+        上書きしても古い期限の記録はヒープに残る。消すのは `_sweep` の仕事で、
+        そこで `_items` の今の期限を見直すため、上書きで延びた項目は消えない。
+        """
         key, deadline = self._key(token), time.monotonic() + ttl
         self._items[key] = (value, deadline)
         heapq.heappush(self._deadlines, (deadline, key))
 
     def drop(self, token: str) -> None:
+        """期限を待たずに捨てる。無くてもよい（検証に失敗したときに使う）。"""
         # ヒープの記録はそのままでよい。期限が来たとき `_sweep` が空振りする。
         self._items.pop(self._key(token), None)
 
@@ -453,11 +470,23 @@ class InvenioPATVerifier(TokenVerifier):
     """
 
     def __init__(self, api: str, ttl: int):
+        """`api` は InvenioRDM の API の根、`ttl` は成功を持つ秒数。
+
+        キャッシュは**この検証器のもの**で、共有しない。トークンの意味は
+        問い合わせ先ごとに違うので、別の InvenioRDM を指す検証器が同じ表を
+        覗ける状態にはしない。
+        """
         self.api = api
         self.ttl = ttl
         self._cache = TokenCache()
 
     async def _me(self, token: str) -> dict | None:
+        """`GET /api/me` の応答を返す。通らなければ None。
+
+        200 以外はすべて「このトークンでは駄目」として扱う。**結果は捨てる**
+        ——失効させたトークンが直前の成功で通り続ける、を避けるためである
+        （`drop`）。成功したときだけ `ttl` 秒持つ。
+        """
         hit = self._cache.get(token)
         if hit is not None:
             return hit
