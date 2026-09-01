@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import heapq
 import json
 import os
 import time
@@ -355,16 +356,34 @@ class TokenCache:
       捨てなければ、期限の切れた交換後トークンがプロセスに残り続け、鍵の数も
       単調に増える。引くたびに掃くので、通信が止まっても溜まったままにならない。
 
-    掃除は項目数に比例するが、生きているのは TTL の窓に収まる分だけで、
-    どのみち後ろで InvenioRDM や Keycloak への往復が走る。釣り合っている。
+    掃除で項目数ぶんを走査しない。期限を最小ヒープに積み、**切れたものだけ**を
+    取り出す。引く操作そのものは項目数によらない——認証は毎リクエストの経路なので、
+    生きているトークンが増えるほど重くなる作りにはしたくない。
+
+    時刻は `time.monotonic()` で測る。壁時計は後ろにも前にも飛ぶ（NTP の補正、
+    手動の変更）ので、TTL の判断に使うと期限切れが使えたり、生きている項目が
+    早く消えたりする。ここで要るのは日付ではなく経過時間だけである。
     """
 
     def __init__(self) -> None:
         self._items: dict[str, tuple[object, float]] = {}
+        self._deadlines: list[tuple[float, str]] = []   # (期限, 鍵) の最小ヒープ
 
     @staticmethod
     def _key(token: str) -> str:
         return hashlib.sha256(token.encode()).hexdigest()
+
+    def _sweep(self, now: float) -> None:
+        """期限の早いものから、切れたぶんだけを捨てる。
+
+        `put` で上書きされた鍵は古い記録がヒープに残る。取り出したときに今の
+        期限を見直し、まだ生きていれば消さない（新しい記録が別に積んである）。
+        """
+        while self._deadlines and self._deadlines[0][0] <= now:
+            _, key = heapq.heappop(self._deadlines)
+            item = self._items.get(key)
+            if item is not None and item[1] <= now:
+                del self._items[key]
 
     def get(self, token: str, margin: float = 0.0):
         """期限切れを捨てたうえで引く。無ければ None。
@@ -372,16 +391,18 @@ class TokenCache:
         margin は「あと何秒は使えること」を求める余裕。交換後トークンのように
         受け取った側が使い切るまでの時間が要るものに使う。
         """
-        now = time.time()
-        for k in [k for k, (_, exp) in self._items.items() if exp <= now]:
-            del self._items[k]
+        now = time.monotonic()
+        self._sweep(now)
         hit = self._items.get(self._key(token))
         return hit[0] if hit and hit[1] > now + margin else None
 
     def put(self, token: str, value, ttl: float) -> None:
-        self._items[self._key(token)] = (value, time.time() + ttl)
+        key, deadline = self._key(token), time.monotonic() + ttl
+        self._items[key] = (value, deadline)
+        heapq.heappush(self._deadlines, (deadline, key))
 
     def drop(self, token: str) -> None:
+        # ヒープの記録はそのままでよい。期限が来たとき `_sweep` が空振りする。
         self._items.pop(self._key(token), None)
 
 
