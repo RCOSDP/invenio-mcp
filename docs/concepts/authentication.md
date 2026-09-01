@@ -114,7 +114,12 @@ change everything else.
 
 Verifying against a remote service on every request would put an InvenioRDM round trip
 in front of every tool call. Successful results are therefore held for
-`MCP_INVENIO_VERIFY_TTL` seconds, keyed by the token.
+`MCP_INVENIO_VERIFY_TTL` seconds.
+
+The key is **not the token but its SHA-256 digest**. Identity is all the lookup needs;
+nothing has to turn a key back into a token. A dict key stays in the process's memory as
+it is, so there is no reason to keep a raw token there. Expired entries are dropped on
+every lookup — a TTL only stops a value from being *used*; unless it is dropped, it stays.
 
 **Failures are never cached.** The asymmetry is on purpose: caching a success costs at
 most `TTL` seconds of staleness after a revocation, while caching a failure would keep
@@ -254,8 +259,9 @@ InvenioRDM. It is exchanged (RFC 8693) for one with `aud=invenio-api` that still
 your identity. That belongs to [Authorization](authorization.md#the-token-is-exchanged-never-forwarded);
 what matters here is where its failures show up:
 
-- Exchanged tokens are cached against the incoming token, and are only reused while at
-  least 30 seconds of life remain.
+- Exchanged tokens are cached against the SHA-256 digest of the incoming token, and are
+  only reused while at least 30 seconds of life remain. Expired entries are dropped on
+  every lookup, so the process does not go on holding exchanged tokens it can no longer use.
 - A failed exchange is **not** an authentication failure. You are authenticated; the
   server could not act for you. It surfaces as a tool error carrying Keycloak's status
   and response, not as a `401`.

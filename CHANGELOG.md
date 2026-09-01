@@ -10,6 +10,16 @@ as breaking when the consumer is a language model rather than a compiler.
 
 ## [Unreleased]
 
+### Security
+
+- **The caches no longer hold raw tokens, and expired entries are dropped.** Verification
+  results (the PAT mode `/me` response) and exchanged tokens were kept in dicts keyed by
+  the incoming token itself. A dict key stays in the process's memory, and nothing ever
+  removed an entry once its TTL had passed — so the server went on holding exchanged
+  tokens it could no longer use, while the number of entries only ever grew. Both caches
+  are now one `TokenCache` that keys on the SHA-256 digest of the token and drops expired
+  entries on every lookup. No behaviour changes.
+
 ### Changed
 
 - **The GitHub Actions workflows are gone; the checks run locally.** `ci`, `docs` and

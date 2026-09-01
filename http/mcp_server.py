@@ -31,6 +31,7 @@ Streamable HTTP ＋ OAuth 2.1 リソースサーバとして動く。
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import os
 import time
@@ -341,6 +342,49 @@ AUTH_RESOURCE_METADATA_PATH = urlsplit(AUTH_RESOURCE_METADATA_URL).path
 AUTH_SCOPES = ["mcp:read", "mcp:write", "mcp:curate"]
 
 
+# ------------------------------------------------ トークン付きキャッシュ
+class TokenCache:
+    """トークンに紐づく短命な値を持つ。検証結果と交換後トークンで使う。
+
+    素の dict にしないのは2つの理由による。
+
+    * **鍵に生のトークンを置かない。** 必要なのは同一性の判定だけで、鍵から
+      元のトークンへ戻せる必要はない。dict の鍵はプロセスのメモリにそのまま
+      残るので、コアダンプや覗き見に生のトークンを晒す理由が無い。
+    * **期限切れを捨てる。** TTL で「使わない」ようにするだけでは足りない。
+      捨てなければ、期限の切れた交換後トークンがプロセスに残り続け、鍵の数も
+      単調に増える。引くたびに掃くので、通信が止まっても溜まったままにならない。
+
+    掃除は項目数に比例するが、生きているのは TTL の窓に収まる分だけで、
+    どのみち後ろで InvenioRDM や Keycloak への往復が走る。釣り合っている。
+    """
+
+    def __init__(self) -> None:
+        self._items: dict[str, tuple[object, float]] = {}
+
+    @staticmethod
+    def _key(token: str) -> str:
+        return hashlib.sha256(token.encode()).hexdigest()
+
+    def get(self, token: str, margin: float = 0.0):
+        """期限切れを捨てたうえで引く。無ければ None。
+
+        margin は「あと何秒は使えること」を求める余裕。交換後トークンのように
+        受け取った側が使い切るまでの時間が要るものに使う。
+        """
+        now = time.time()
+        for k in [k for k, (_, exp) in self._items.items() if exp <= now]:
+            del self._items[k]
+        hit = self._items.get(self._key(token))
+        return hit[0] if hit and hit[1] > now + margin else None
+
+    def put(self, token: str, value, ttl: float) -> None:
+        self._items[self._key(token)] = (value, time.time() + ttl)
+
+    def drop(self, token: str) -> None:
+        self._items.pop(self._key(token), None)
+
+
 # ------------------------------------------------------ トークン検証
 class KeycloakJWTVerifier(TokenVerifier):
     """Keycloak の JWT を JWKS で検証する。aud は本サーバの canonical URI 必須。"""
@@ -390,21 +434,21 @@ class InvenioPATVerifier(TokenVerifier):
     def __init__(self, api: str, ttl: int):
         self.api = api
         self.ttl = ttl
-        self._cache: dict[str, tuple[dict, float]] = {}
+        self._cache = TokenCache()
 
     async def _me(self, token: str) -> dict | None:
         hit = self._cache.get(token)
-        if hit and hit[1] > time.time():
-            return hit[0]
+        if hit is not None:
+            return hit
         async with httpx.AsyncClient(verify=VERIFY_TLS, timeout=15) as c:
             r = await c.get(f"{self.api}/me",
                             headers={"Accept": "application/json",
                                      "Authorization": f"Bearer {token}"})
         if r.status_code != 200:
-            self._cache.pop(token, None)
+            self._cache.drop(token)
             return None
         me = r.json()
-        self._cache[token] = (me, time.time() + self.ttl)
+        self._cache.put(token, me, self.ttl)
         return me
 
     @staticmethod
@@ -421,10 +465,9 @@ class InvenioPATVerifier(TokenVerifier):
 
         JWT のクレームに寄せた形にして、呼び出し側の分岐を減らす。
         """
-        hit = self._cache.get(token)
-        if not hit:
+        me = self._cache.get(token)
+        if me is None:
             raise RuntimeError(t("auth.unverified_token"))
-        me = hit[0]
         return {
             "sub": str(me.get("id")),
             "email": me.get("email"),
@@ -769,7 +812,7 @@ class ScopeChallengeMiddleware:
 
 
 # ------------------------------------------- InvenioRDM 呼び出し（要交換）
-_exchange_cache: dict[str, tuple[str, float]] = {}
+_exchange_cache = TokenCache()
 
 
 def _client_secret() -> str:
@@ -800,9 +843,10 @@ async def _invenio_token() -> str | None:
         # 中継禁止は「別の資源宛トークンを転送するな」という規則で、宛先が
         # 同一のここでは当てはまらない（代わりに aud による分離は無い）。
         return at.token
-    hit = _exchange_cache.get(at.token)
-    if hit and hit[1] > time.time() + 30:
-        return hit[0]
+    # 交換後トークンは InvenioRDM への往復に使うので、残り寿命に余裕が要る。
+    hit = _exchange_cache.get(at.token, margin=30)
+    if hit is not None:
+        return hit
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(
@@ -821,7 +865,7 @@ async def _invenio_token() -> str | None:
         raise RuntimeError(t("auth.token_exchange_failed",
                             status=r.status_code, body=r.text[:200]))
     tok = r.json()
-    _exchange_cache[at.token] = (tok["access_token"], time.time() + tok.get("expires_in", 60))
+    _exchange_cache.put(at.token, tok["access_token"], tok.get("expires_in", 60))
     return tok["access_token"]
 
 
