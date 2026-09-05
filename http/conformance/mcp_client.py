@@ -118,6 +118,37 @@ def tools_call(name, args, token):
     )
 
 
+def tool_result(body):
+    """ツールの戻り値を取り出す。
+
+    ⚠️ **`content[0]["text"]` を読んではいけない。**〔PoC実測 2026-09-05・mcp 1.26〕
+    FastMCP は list を返すツールの戻り値を、**要素ごとに1つの content ブロック**へ
+    ばらす（`func_metadata._convert_to_content`）。したがって
+
+    - **0 件なら `content` は空**で、`content[0]` は IndexError になる
+      （公開レコードが 1 件も無い作りたての環境では、ここで適合テストが全滅する）
+    - **N 件なら `content[0]` は先頭の1件**であって全体ではない。
+      `len(json.loads(content[0]["text"]))` は件数ではなく
+      **先頭レコードの項目数**を数えていた
+
+    構造化出力（`structuredContent`）は戻り値そのものなので、そちらを見る。
+    list を返すツールは `{"result": [...]}` に包まれる（FastMCP の wrap_output）。
+    `structuredContent` を持たない相手のために content からの復元も残してある。
+    """
+    res = body.get("result") or {}
+    sc = res.get("structuredContent")
+    if sc is not None:
+        if isinstance(sc, dict) and list(sc) == ["result"]:
+            return sc["result"]
+        return sc
+    blocks = res.get("content") or []
+    if not blocks:
+        return None
+    if len(blocks) == 1:
+        return json.loads(blocks[0]["text"])
+    return [json.loads(b["text"]) for b in blocks]
+
+
 # --------------------------------------- ブラウザ相当（リダイレクト手動追従）
 class Browser:
     def __init__(self):
@@ -262,7 +293,10 @@ def main():
 
     st, hdrs, body = tools_call("search_records", {"size": 3}, None)
     ok = st == 200 and not body.get("result", {}).get("isError")
-    n = len(json.loads(body["result"]["content"][0]["text"])) if ok else -1
+    # **0 件でも合格である。**ここで見ているのは「未認証でも検索が通ること」であって、
+    # レコードがあることではない（作りたての環境には 1 件も無い）。
+    recs = tool_result(body) if ok else None
+    n = len(recs) if isinstance(recs, list) else -1
     check("未認証でも公開レコードを検索できる", ok, f"status={st} 件数={n}")
 
     # 認可の要るツールを呼んだときに 401 チャレンジが返る。
@@ -385,7 +419,7 @@ def main():
     check("whoami（MCP→トークン交換→Invenio）", ok, f"status={st}")
     who = {}
     if ok:
-        who = json.loads(body["result"]["content"][0]["text"])
+        who = tool_result(body)
         print("       " + json.dumps(who, ensure_ascii=False)[:400])
         inv = who.get("invenio", {})
         check("Invenio 側のユーザに解決されている", bool(inv.get("user_id")),
@@ -427,7 +461,7 @@ def main():
     check("step-up 後に create_record 成功", ok, f"status={st}")
     recid = None
     if ok:
-        rec = json.loads(body["result"]["content"][0]["text"])
+        rec = tool_result(body)
         recid = rec.get("id")
         print(f"       作成された draft: {recid}")
 
@@ -451,8 +485,8 @@ def main():
     print("\n=== 10b. 匿名と認証済みで見えるものが変わる ===")
     st, _, b_anon = tools_call("search_records", {"size": 50}, None)
     st2, _, b_auth = tools_call("search_records", {"size": 50}, token2)
-    n_anon = len(json.loads(b_anon["result"]["content"][0]["text"]))
-    n_auth = len(json.loads(b_auth["result"]["content"][0]["text"]))
+    n_anon = len(tool_result(b_anon) or [])
+    n_auth = len(tool_result(b_auth) or [])
     check("匿名でも認証済みでも公開レコードは読める", st == 200 and st2 == 200,
           f"匿名={n_anon}件 / 認証済み={n_auth}件")
     st, _, body = tools_call("whoami", {}, None)
