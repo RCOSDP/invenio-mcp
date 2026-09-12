@@ -7,7 +7,7 @@
   client scope `invenio:api`             … audience mapper で aud=invenio-api
   client `mcp-server`  (confidential)    … RFC 8693 標準トークン交換の実行主体
   client `invenio-api` (confidential)    … 交換先オーディエンスの実体
-  user   researcher@example.org          … Invenio 未登録（JIT 作成の確認用）
+  user   userA@example.org               … Invenio 未登録（JIT 作成の確認用）
   user   admin@test.com                  … Invenio 既存ユーザ（id=1）に一致
   匿名 DCR（RFC 7591）を PoC 用に開放     … trusted-hosts ポリシーを撤去
 
@@ -40,9 +40,24 @@ MCP_AUTH_RESOURCE = os.environ.get(
 MCP_SERVER_SECRET = os.environ.get("MCP_SERVER_SECRET")
 
 # 動作確認用のデモ利用者。既定では作らない。
+#
+# ⚠️ **名前の正典は `jc2-k8s-sample/setup-accounts.py` の表である。**
+#    役割ごとに5人（システム管理／リポジトリ管理者／コミュニティ管理者／一般×2）。
+#    ここが作るのは**その表と同じ人**——realm を立てた直後から役割で話せるように。
+# ⚠️⚠️ **合言葉は捨て値で、全員ぶんが `JC2_DEMO_PASSWORD` ただ1つで決まる。**
+#    実運用では**必ず渡して変える**。
 DEMO_USERS = os.environ.get("MCP_DEMO_USERS", "").lower() in ("1", "true", "yes")
-DEMO_PASSWORD = os.environ.get("MCP_DEMO_PASSWORD", "researcher")
-DEMO_ADMIN_PASSWORD = os.environ.get("MCP_DEMO_ADMIN_PASSWORD", "rdmadmin")
+DEMO_PASSWORD = os.environ.get("JC2_DEMO_PASSWORD", "uspass123")
+
+#: (username, email, 姓, 名)。⚠️ username は**小文字**——JupyterHub が
+#: Pod と PVC の名前に使うので、大文字は escapism で化けて読めなくなる。
+DEMO_ACCOUNTS = [
+    ("sysadmin", "sysadmin@example.org", "システム", "管理"),
+    ("admin", "admin@example.org", "リポジトリ", "管理"),
+    ("subadmin", "subadmin@example.org", "コミュニティ", "管理"),
+    ("usera", "userA@example.org", "利用者", "A"),
+    ("userb", "userB@example.org", "利用者", "B"),
+]
 INVENIO_CLIENT_ID = "invenio-api"
 
 # CIMD（Client ID Metadata Documents）で受け入れるドメイン。
@@ -503,9 +518,9 @@ def main():
     # デモ利用者。**弱いパスワードなので、動作確認用の realm でのみ作る。**
     # 既定では作らない。MCP_DEMO_USERS=yes で明示的に有効化する。
     if DEMO_USERS:
-        print("!! デモ利用者を作成します（弱いパスワード）。本番の realm では使わないこと !!")
-        ensure_user("researcher", "researcher@example.org", DEMO_PASSWORD, "花子", "研究")
-        ensure_user("rdmadmin", "admin@test.com", DEMO_ADMIN_PASSWORD, "太郎", "管理")
+        print("!! デモ利用者を作成します（捨て合言葉）。本番の realm では使わないこと !!")
+        for username, email, first, last in DEMO_ACCOUNTS:
+            ensure_user(username, email, DEMO_PASSWORD, first, last)
     else:
         print("デモ利用者は作成しません（作るなら MCP_DEMO_USERS=yes）")
 

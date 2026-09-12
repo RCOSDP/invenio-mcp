@@ -53,8 +53,11 @@ IDP_REALM = "gakunin"
 ALIAS = "gakunin"
 DISPLAY = "学認 (GakuNin)"
 
-IDP_USER = "gakunin-user"
-IDP_PASS = "Gakunin1!"
+# ⚠️ **外部 IdP（別機関）の主体なので、名前は役割表とは別系統でよい。**
+#    合言葉だけは捨て値に寄せる（`JC2_DEMO_PASSWORD`）——
+#    ⚠️ 平文で置かない。git に入ると、**消しても履歴に残る。**
+IDP_USER = os.environ.get("GAKUNIN_TEST_USER", "gakunin-user")
+IDP_PASS = os.environ.get("JC2_DEMO_PASSWORD", "uspass123")
 EPPN = "hanako@example.ac.jp"
 IS_MEMBER_OF = "https://example.ac.jp/groups/repository-editors"
 

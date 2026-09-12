@@ -95,8 +95,9 @@ kubectl apply -f k8s/mcp-server.yaml         # 雛形の値を置換してから
 推測できる値で動いてしまうより、その場で止まる方がよいため。
 `MCP_SERVER_SECRET` はサーバ側にも同じ値を渡す。
 
-動作確認用のデモ利用者（`researcher` / `rdmadmin`）は既定では作らない。
-必要なら `MCP_DEMO_USERS=yes` を付ける。**パスワードが弱いので、使い捨ての realm でのみ。**
+役割ごとのデモ利用者（`sysadmin` / `admin` / `subadmin` / `usera` / `userb`）は既定では作らない。
+必要なら `MCP_DEMO_USERS=yes` を付ける。
+**合言葉は `JC2_DEMO_PASSWORD` ただ1つ（既定 `uspass123`）の捨て値なので、使い捨ての realm でのみ。**
 
 > **`setup_mcp_realm.py` は realm が既存なら削除して作り直す。**
 > 作り直すと Keycloak の `sub` が変わり、InvenioRDM の `UserIdentity` が切れて

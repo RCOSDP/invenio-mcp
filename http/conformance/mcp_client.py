@@ -34,12 +34,20 @@ CIMD_URL = os.environ.get("MCP_CIMD_URL")  # 設定されていれば CIMD を�
 # MCP_TEST_IDP を設定すると、認可サーバのローカルログインではなく
 # その alias の外部 IdP（本 PoC では学認 SAML ブローカ）を経由する。
 IDP = os.environ.get("MCP_TEST_IDP")
+# ⚠️ 合言葉は**捨て値**である（`JC2_DEMO_PASSWORD`。既定は
+#    `jc2-k8s-sample/setup-accounts.py` と揃えた `uspass123`）。
+#    **実運用の realm にこの試験を流さないこと。**
+_DEMO_PASSWORD = os.environ.get("JC2_DEMO_PASSWORD", "uspass123")
 if IDP:
+    # 外部 IdP（学認ブローカ）から来る人。**別機関の主体なので名前は別のまま。**
     USERNAME = os.environ.get("MCP_TEST_USER", "gakunin-user")
-    PASSWORD = os.environ.get("MCP_TEST_PASSWORD", "Gakunin1!")
+    PASSWORD = os.environ.get("MCP_TEST_PASSWORD", _DEMO_PASSWORD)
+    EXPECT_EMAIL = os.environ.get("MCP_TEST_EMAIL", "hanako@example.ac.jp")
 else:
-    USERNAME = os.environ.get("MCP_TEST_USER", "researcher")
-    PASSWORD = os.environ.get("MCP_TEST_PASSWORD", "researcher")
+    # 一般利用者 A（`setup-accounts.py` の表）
+    USERNAME = os.environ.get("MCP_TEST_USER", "usera")
+    PASSWORD = os.environ.get("MCP_TEST_PASSWORD", _DEMO_PASSWORD)
+    EXPECT_EMAIL = os.environ.get("MCP_TEST_EMAIL", "userA@example.org")
 
 RESULTS = []
 
@@ -405,7 +413,11 @@ def main():
         check("そのセッションで使われた IdP が載る", c.get("idp") == "gakunin",
               str(c.get("idp")))
     else:
-        check("トークンの sub / email が本人", c.get("email") == "researcher@example.org",
+        # ⚠️ **大文字小文字で比べない。**〔実測 2026-09-12〕Keycloak は
+        #    `userA@example.org` をそのまま出すが、**InvenioRDM はメールを
+        #    小文字に正規化して持つ**（`usera@example.org`）。同じ人である。
+        check("トークンの sub / email が本人",
+              (c.get("email") or "").lower() == EXPECT_EMAIL.lower(),
               str(c.get("email")))
 
     print("\n=== 8. 認証済みで MCP を呼ぶ ===")

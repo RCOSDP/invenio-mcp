@@ -82,7 +82,8 @@ python3 keycloak/setup_mcp_realm.py
     既存の利用者の紐付けが切れる。稼働中の realm に何かを足すときは、`ensure_realm()` を
     通さず `ensure_scope()` などを個別に呼ぶこと。
 
-デモ利用者（`researcher`・`rdmadmin`）は既定では**作らない**。要るなら
+役割ごとのデモ利用者（`sysadmin`・`admin`・`subadmin`・`usera`・`userb`）は
+既定では**作らない**。合言葉は `JC2_DEMO_PASSWORD` ただ1つ（既定 `uspass123`）の捨て値。要るなら
 `MCP_DEMO_USERS=yes` を付ける。**パスワードが弱いので、捨ててよい realm に限ること。**
 
 `keycloak/setup_gakunin_idp.py` は学認 SAML ブローカを足す（任意）。

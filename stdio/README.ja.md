@@ -23,7 +23,7 @@ invenio tokens create -n mcp-stdio -u <管理者のメールアドレス> | tail
 chmod 600 "$PWD/.token"
 # UI からでも発行できる: <InvenioRDM>/account/settings/applications/tokens/new/
 ```
-※ 作成/公開/下書き削除/ファイルのみで良いなら一般ユーザ（`researcher@example.org` 等）でも可。ただし**公開レコードの削除・復元は admin 必須**。
+※ 作成/公開/下書き削除/ファイルのみで良いなら一般ユーザ（`userA@example.org` 等）でも可。ただし**公開レコードの削除・復元は admin 必須**。
 
 ### 2. ファイル保存の前提
 v14 の file location（S3/MinIO など）に `web-api` / `worker` から到達できていること。

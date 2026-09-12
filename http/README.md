@@ -99,7 +99,9 @@ kubectl apply -f k8s/mcp-server.yaml         # after substituting the template v
 better than silently running on a guessable value. Pass the same `MCP_SERVER_SECRET` to
 the server.
 
-The demo users (`researcher`, `rdmadmin`) are **not** created by default. Add
+The role-based demo users (`sysadmin`, `admin`, `subadmin`, `usera`, `userb`) are
+**not** created by default. Their single throwaway password comes from
+`JC2_DEMO_PASSWORD` (default `uspass123`). Add
 `MCP_DEMO_USERS=yes` if you want them. **Their passwords are weak, so only do this in a
 throwaway realm.**
 
