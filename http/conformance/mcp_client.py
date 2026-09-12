@@ -591,9 +591,20 @@ def _run():
 
     print("\n=== 10. 別オーディエンスのトークン持ち込み（拒否されること）===")
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from setup_mcp_realm import KC, REALM, MCP_SERVER_SECRET  # noqa: E402
+    from setup_mcp_realm import MCP_SERVER_SECRET  # noqa: E402
+
+    # ⚠️⚠️ **トークン端点は、見つけたメタデータから取る。**〔実測 2026-09-12〕
+    #    以前は `setup_mcp_realm.KC` から URL を組み立てていた。あれは
+    #    **`KC_BASE` が無いと `http://localhost:8080` に落ちる**既定を持つ——
+    #    つまり環境変数を1つ渡し忘れただけで、**本人のトークンと
+    #    `mcp-server` の秘密を、そこで待ち受けている何かに送ってしまう。**
+    #    実際に送られ、`{"detail":"Not Found"}`（別のサービス）が返ってきた。
+    #    ⚠️ しかも症状は `KeyError: 'access_token'` で、**原因から遠い。**
+    #    ★ ここまでの段で `md` を発見済みなのだから、**それを使う。**
+    #      認可サーバの在り処を2通りで持たない——片方が必ず古くなる。
+    token_endpoint = md["token_endpoint"]
     st, hdrs, b = req(
-        f"{KC}/realms/{REALM}/protocol/openid-connect/token",
+        token_endpoint,
         data={
             "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
             "client_id": "mcp-server", "client_secret": MCP_SERVER_SECRET,
@@ -601,7 +612,15 @@ def _run():
             "subject_token_type": "urn:ietf:params:oauth:token-type:access_token",
             "audience": "invenio-api", "scope": "invenio:api",
         })
-    inv_token = json.loads(b)["access_token"]
+    # ⚠️ **落ちるなら、読める形で落ちる。**
+    try:
+        inv_token = json.loads(b)["access_token"]
+    except (ValueError, KeyError):
+        raise SystemExit(
+            f"invenio-api 宛への交換ができない（status={st}）: {b[:200]}\n"
+            f"  端点: {token_endpoint}\n"
+            f"  MCP_SERVER_SECRET が合っているか、mcp-server に交換が許されているか"
+        ) from None
     st, hdrs, body = mcp_post({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, inv_token)
     check("Invenio 宛トークンを MCP に出すと 401", st == 401, f"status={st}")
 
@@ -676,9 +695,17 @@ def _run():
 
     # (g) 期限切れトークン。Keycloak に寿命の短いクライアントを作って実際に失効させる。
     #     （サーバ側の検証は leeway 10 秒なので、それを超えて待つ）
-    from setup_mcp_realm import REALM as _REALM  # noqa: E402
-    _adm = __import__("setup_mcp_realm").admin_token()
-    _rq = __import__("setup_mcp_realm")._req
+    # ⚠️⚠️ **管理 API の在り処も、見つけた issuer から導く。**〔実測 2026-09-12〕
+    #    `setup_mcp_realm` の `KC` は `KC_BASE` が無いと `http://localhost:8080` に
+    #    落ちる既定を持つ。ここは**Keycloak の管理者の合言葉を送る**ところなので、
+    #    環境変数を1つ渡し忘れただけで、**手元で待ち受けている何かに管理者資格情報を渡す。**
+    #    ★ 認可サーバの在り処は、この試験が既に `md["issuer"]` で知っている。
+    #      **2通りで持たない**——片方が必ず古くなり、古いほうへ秘密が飛ぶ。
+    _kc = __import__("setup_mcp_realm")
+    _kc.KC = md["issuer"].split("/realms/")[0]
+    _REALM = md["issuer"].rstrip("/").rsplit("/realms/", 1)[-1]
+    _adm = _kc.admin_token()
+    _rq = _kc._req
     _st, _cl, _ = _rq("GET", f"/admin/realms/{_REALM}/clients?clientId={client_id}", token=_adm)
     if _cl:
         _uuid = _cl[0]["id"]
