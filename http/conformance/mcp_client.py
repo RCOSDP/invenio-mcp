@@ -26,6 +26,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 MCP_URL = os.environ.get("MCP_RESOURCE", "http://127.0.0.1:9100/mcp")
 REDIRECT = "http://127.0.0.1:8765/callback"
@@ -199,6 +200,125 @@ def extract_form(body):
     return (html.unescape(m.group(1)) if m else None), fields
 
 
+# --------------------------------------------------------------------------
+# 動的登録（RFC 7591）を**散らかさない**
+# --------------------------------------------------------------------------
+#
+# ⚠️ **登録は realm に残り続ける。**CLI が起動のたびに登録すると、走らせた回数だけ
+#    クライアントが増える——**117 本たまっていた**〔実測 2026-09-12〕。
+#    害は「散らかる」だけではない。**realm のクライアント一覧が読めなくなり**、
+#    `jc2-workbench` や `jupyterhub` が UUID の海に沈む。
+#    **権限の話は、主体の一覧が言えて初めて始められる。**
+#
+# 手当ては2つ。**道具によって使い分ける。**
+#
+#   * 繰り返し使う道具（CLI）      … `register_or_reuse()` で**覚えて使い回す**
+#   * 登録そのものを試す道具（適合）… 毎回登録し、`unregister_client()` で**後始末する**
+#
+# ⚠️ 覚えるのは `client_id` **だけ**である。登録アクセストークンも秘密も置かない
+#    ——手元に置く必要のない資格情報は、**最初から手元に置かない。**
+#    （この口は `token_endpoint_auth_method=none` の公開クライアントなので秘密は出ない）
+
+DCR_CACHE = Path(
+    os.environ.get("JC2_DCR_CACHE", Path.home() / ".config" / "jc2" / "dcr-clients.json")
+)
+
+
+def _dcr_key(md, client_name, redirect):
+    return f"{md.get('issuer', '')}|{client_name}|{redirect}"
+
+
+def _dcr_read() -> dict:
+    try:
+        return json.loads(DCR_CACHE.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001  無ければ・壊れていれば、無かったことにする
+        return {}
+
+
+def _dcr_write(data: dict) -> None:
+    try:
+        DCR_CACHE.parent.mkdir(parents=True, exist_ok=True)
+        DCR_CACHE.write_text(json.dumps(data, indent=1), encoding="utf-8")
+    except Exception:  # noqa: BLE001  覚えられなくても**動作は止めない**
+        pass
+
+
+def register_client(md, client_name, *, redirect=REDIRECT):
+    """RFC 7591 で登録する。戻り値は `(client_id, client_secret, 後始末の情報)`。"""
+    reg = {
+        "client_name": client_name,
+        "redirect_uris": [redirect],
+        "grant_types": ["authorization_code", "refresh_token"],
+        "response_types": ["code"],
+        "token_endpoint_auth_method": "none",
+        # OIDC AS では既定が "web" になり localhost の redirect_uri と衝突しうる
+        "application_type": "native",
+    }
+    st, _, body = req(
+        md["registration_endpoint"],
+        data=json.dumps(reg).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    if st not in (200, 201):
+        raise SystemExit(f"動的クライアント登録に失敗（{st}）: {body[:200]}")
+    info = json.loads(body)
+    cleanup = {
+        "uri": info.get("registration_client_uri"),
+        "token": info.get("registration_access_token"),
+    }
+    return info["client_id"], info.get("client_secret"), cleanup
+
+
+def unregister_client(cleanup) -> bool:
+    """RFC 7592 で**自分の登録を消す**。消せたら True。
+
+    ⚠️ 消せなくても**呼び出し側を止めない**——後始末の失敗で試験の結果を変えない。
+    """
+    if not (cleanup and cleanup.get("uri") and cleanup.get("token")):
+        return False
+    try:
+        st, _, _ = req(
+            cleanup["uri"],
+            headers={"Authorization": f"Bearer {cleanup['token']}"},
+            method="DELETE",
+        )
+        return st in (200, 204)
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def register_or_reuse(md, client_name, *, redirect=REDIRECT, forget=False):
+    """登録するが、**同じ認可サーバ・同じ名乗りなら覚えたものを使い回す。**
+
+    `forget=True`（または環境変数 `JC2_DCR_FORGET=1`）で覚えたものを捨てて登録し直す
+    ——realm を作り直したときなど、**覚えている `client_id` がもう無い**ときに使う。
+    """
+    key = _dcr_key(md, client_name, redirect)
+    cache = _dcr_read()
+    if forget or os.environ.get("JC2_DCR_FORGET") == "1":
+        cache.pop(key, None)
+        _dcr_write(cache)
+    elif cache.get(key):
+        return cache[key], None
+    client_id, client_secret, _ = register_client(md, client_name, redirect=redirect)
+    if client_secret is None:      # 公開クライアントのときだけ覚える（秘密は置かない）
+        cache[key] = client_id
+        _dcr_write(cache)
+    return client_id, client_secret
+
+
+#: いま自分が作っている動的登録。**main が落ちても後始末できるよう、外に置く。**
+_ACTIVE_DCR: dict = {}
+
+
+def forget_client(md, client_name, *, redirect=REDIRECT) -> None:
+    """覚えた `client_id` を捨てる。**使ってみて駄目だったとき**に呼ぶ。"""
+    cache = _dcr_read()
+    if cache.pop(_dcr_key(md, client_name, redirect), None) is not None:
+        _dcr_write(cache)
+
+
 def authorize(md, client_id, scopes, browser, client_secret=None):
     """認可コード + PKCE(S256) + resource。戻り値は (access_token, 検証メモ)。"""
     verifier = b64u(os.urandom(32))
@@ -291,7 +411,7 @@ def authorize(md, client_id, scopes, browser, client_secret=None):
 
 
 # ------------------------------------------------------------------ 本体
-def main():
+def _run():
     br = Browser()
 
     print("\n=== 1. 未認証アクセス（公開情報は読める / 認可が要るものは 401）===")
@@ -363,21 +483,13 @@ def main():
             check("CIMD 利用", False, "AS が未対応")
         check("AS が CIMD 対応を宣言", md.get("client_id_metadata_document_supported") is True,
               "client_id_metadata_document_supported=true")
-        reg = {
-            "client_name": "MCP Conformance Test Client",
-            "redirect_uris": [REDIRECT],
-            "grant_types": ["authorization_code", "refresh_token"],
-            "response_types": ["code"],
-            "token_endpoint_auth_method": "none",
-            # OIDC AS では既定が "web" になり localhost の redirect_uri と衝突しうる
-            "application_type": "native",
-        }
-        st, hdrs, b = req(md["registration_endpoint"], data=json.dumps(reg).encode(),
-                           headers={"Content-Type": "application/json"}, method="POST")
-        check("RFC 7591 動的クライアント登録", st in (200, 201), f"status={st} {b[:160]}")
-        info = json.loads(b)
-        client_id = info["client_id"]
-        client_secret = info.get("client_secret")
+        # ⚠️ **ここは毎回登録する。**登録できることが、この試験の確かめたいことである。
+        #    代わりに**終わったら自分で消す**（RFC 7592。下の「後始末」）。
+        client_id, client_secret, cleanup = register_client(
+            md, "MCP Conformance Test Client"
+        )
+        _ACTIVE_DCR.update(cleanup or {})
+        check("RFC 7591 動的クライアント登録", True, f"client_id={client_id}")
         print(f"       client_id={client_id}")
 
     print("\n=== 5-7. 認可コード + PKCE(S256) + resource → トークン ===")
@@ -594,6 +706,14 @@ def main():
         tools_call("delete_draft", {"recid": recid}, token2)
         print(f"\n       後片付け: draft {recid} を破棄")
 
+    # ⚠️ **自分が作った登録を、自分で消す**（RFC 7592）。
+    #    消さないと realm に1本ずつ積もる——**試験のたびに散らかる道具は、
+    #    そのうち誰も一覧を読めなくする**〔実測 2026-09-12〕。
+    if _ACTIVE_DCR.get("uri"):
+        check("RFC 7592 自分の登録を消せる", unregister_client(_ACTIVE_DCR),
+              "動的登録の後始末")
+        _ACTIVE_DCR.clear()
+
     ng = [n for n, ok, gap in RESULTS if not ok and not gap]
     gaps = [n for n, ok, gap in RESULTS if not ok and gap]
     passed = [n for n, ok, _ in RESULTS if ok]
@@ -604,6 +724,22 @@ def main():
     for n in gaps:
         print(f"  GAP : {n}")
     return 1 if ng else 0
+
+
+def main():
+    """本体を包んで、**後始末を本体の成否に依存させない。**
+
+    ⚠️ 〔実測 2026-09-12〕最初は後始末を本体の末尾にだけ置いていた。
+    段10 で落ちたら**そこまでで帰ってしまい、自分が作った登録が残った**
+    ——「散らかさないための後始末」が、**散らかるときだけ働かない**形だった。
+    """
+    try:
+        return _run()
+    finally:
+        if _ACTIVE_DCR.get("uri"):
+            ok = unregister_client(_ACTIVE_DCR)
+            print(f"       後片付け: 自分の動的登録を{'消した' if ok else '消せなかった'}")
+            _ACTIVE_DCR.clear()
 
 
 if __name__ == "__main__":
